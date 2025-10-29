@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Отправка Refresh запроса</title>
+</head>
+<body>
+  <h2>Отправка запроса на /refresh</h2>
+  <button id="sendBtn">Отправить запрос</button>
+
+  <script>
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      const data = {
+        email: "user",
+        id: 91089,
+        status: "user",
+        refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRva2VuMSIsImlkIjo3MzcxOSwic3RhdHVzIjoidXNlciIsImlhdCI6MTc2MDUzMjg4NywiZXhwIjoxNzYwNTMzNDg3fQ.qBOJEkYNuiryI2HhFgWQ3rDyKWE2VWQqWSf0zwwhiT4"
+      };
+
+      // fetch("http://localhost:3000/resetpassword", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "authorization": data.refresh_token
+      //   },
+      //   body: JSON.stringify({email: "user"})
+      // })
+      fetch("http://localhost:3000/changepassword?token=2353b89265d9b875905615a601a29a98e277254d0724ec1826f0197baf282e69", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": data.refresh_token
+        },
+        body: JSON.stringify({newpassord: "4321"})
+      })
+        .then(res => res.json())
+        .then(response => {
+          console.log("Ответ от сервера:", response);
+          alert("Ответ от сервера: " + JSON.stringify(response));
+        })
+        .catch(error => {
+          console.error("Ошибка:", error);
+          alert("Ошибка при запросе: " + error);
+        });
+    });
+  </script>
+</body>
+</html>

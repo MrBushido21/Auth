@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вход / Регистрация</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border-radius: 15px;
+      padding: 40px 30px;
+      width: 350px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      animation: fadeIn 0.6s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h2 { margin: 0; color: #333; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+    }
+    input:focus {
+      border-color: #5563DE;
+      outline: none;
+    }
+    .btns {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+    button {
+      flex: 1;
+      padding: 10px;
+      background: #5563DE;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover { background: #4450c0; transform: translateY(-1px); }
+    button:active { transform: scale(0.98); }
+    .message {
+      font-size: 14px;
+      color: #444;
+      text-align: center;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Авторизация</h2>
+
+    <input id="email" type="text" placeholder="Имя пользователя" />
+    <input id="password" type="password" placeholder="Пароль" />
+
+    <div class="btns">
+      <button id="regBtn">Регистрация</button>
+      <button id="logBtn">Вход</button>
+    </div>
+
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const messageBox = document.getElementById("message");
+
+    const showMessage = (msg, color = "#333") => {
+      messageBox.textContent = msg;
+      messageBox.style.color = color;
+    };
+
+    async function handleAuth(url) {
+      const email = emailInput.value.trim();
+      const password_hash = passwordInput.value.trim();
+
+      if (!email || !password_hash) {
+        showMessage("Введите логин и пароль", "red");
+        return;
+      }
+
+      const newUser = { email, password_hash };
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newUser)
+        });
+
+        const data = await res.json();
+        console.log("Ответ сервера:", data);
+
+        if (data === 1) {
+          // ✅ успешный вход — переход на страницу выбора книг
+          window.location.href = "books";
+        } else if (data.error) {
+          showMessage(data.error, "red");
+        } else {
+          showMessage("Успешно!", "green");
+        }
+      } catch (err) {
+        console.error("Ошибка:", err);
+        showMessage("Ошибка соединения", "red");
+      }
+    }
+
+    document.getElementById("regBtn").addEventListener("click", () => {
+      handleAuth("http://localhost:3000/registration");
+    });
+
+    document.getElementById("logBtn").addEventListener("click", () => {
+      handleAuth("http://localhost:3000/login");
+    });
+  </script>
+</body>
+</html>

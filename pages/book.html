@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог книг</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f4f5fb;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: #5563DE;
+      color: white;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    .account {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .account:hover {
+      background: rgba(255,255,255,0.35);
+    }
+
+    main {
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"], select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background: #5563DE;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: #4450c0;
+      transform: translateY(-1px);
+    }
+
+    .books {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .book-card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .cover {
+      width: 100%;
+      height: 120px;
+      background: #74ABE2;
+      border-radius: 8px;
+    }
+
+    .book-title {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .book-author {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Каталог книг</h1>
+    <div class="account">👤 Кабинет клиента</div>
+  </header>
+
+  <main>
+    <div class="filters">
+      <input id="searchInput" type="text" placeholder="Поиск по названию..." />
+      <button id="searchBtn">Найти</button>
+
+      <select id="genreSelect">
+        <option value="">Жанр (все)</option>
+        <option value="fantasy">Фэнтези</option>
+        <option value="detective">Детектив</option>
+        <option value="romance">Роман</option>
+        <option value="science">Научная</option>
+      </select>
+
+      <select id="dateSort">
+        <option value="">Сортировка по дате</option>
+        <option value="new">Сначала новые</option>
+        <option value="old">Сначала старые</option>
+      </select>
+    </div>
+
+    <div class="books" id="booksContainer">
+      <!-- сюда будут вставляться карточки книг -->
+    </div>
+  </main>
+
+  <script>
+    // Временно — пример книг:
+    const books = [
+      { title: "Гарри Поттер", author: "Дж. К. Роулинг", genre: "fantasy" },
+      { title: "Шерлок Холмс", author: "Артур Конан Дойл", genre: "detective" },
+      { title: "451° по Фаренгейту", author: "Рэй Брэдбери", genre: "science" },
+    ];
+
+    function renderBooks(list) {
+      const container = document.getElementById('booksContainer');
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        container.innerHTML = '<p>Книг не найдено.</p>';
+        return;
+      }
+
+      list.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+          <div class="cover"></div>
+          <div class="book-title">${book.title}</div>
+          <div class="book-author">${book.author}</div>
+          <button>Получить</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    renderBooks(books);
+
+    // Пример: обработка поиска
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = books.filter(b => b.title.toLowerCase().includes(query));
+      renderBooks(filtered);
+    });
+  </script>
+</body>
+</html>
