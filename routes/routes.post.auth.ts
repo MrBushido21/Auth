@@ -1,7 +1,7 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
 import type { PayloadType, UsersType } from "../types/types.js";
 import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
-import { checkAuth, comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
+import { checkAuth, comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
 import crypto from "crypto";
 import { error } from "console";
 
@@ -93,7 +93,7 @@ router.post('/verify/new', checkAuth, async (req: Request, res: Response) => {
 })
 
 // логин
-router.post("/login", async (req: Request<{}, {}, UsersType, {}>, res: Response) => {
+router.post("/login", limiter,  async (req: Request<{}, {}, UsersType, {}>, res: Response) => {
   const { email, password_hash } = req.body;
 
   const data = await getUserForEmail(email)

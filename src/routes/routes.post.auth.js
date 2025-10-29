@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
-import { checkAuth, comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
+import { checkAuth, comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
 import crypto from "crypto";
 import { error } from "console";
 const router = Router();
@@ -71,7 +71,7 @@ router.post('/verify/new', checkAuth, async (req, res) => {
     return res.status(200);
 });
 // логин
-router.post("/login", async (req, res) => {
+router.post("/login", limiter, async (req, res) => {
     const { email, password_hash } = req.body;
     const data = await getUserForEmail(email);
     const token = createToken(data);
@@ -148,6 +148,7 @@ router.post('/changepassword', async (req, res) => {
         return res.status(403).json({ message: "Your token was expire" });
     }
 });
+//
 //Админ
 router.post('/admin', checkAuth, (req, res) => {
     const token = req.headers.authorization;

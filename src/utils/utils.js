@@ -3,6 +3,7 @@ import jwt, {} from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import { error } from "console";
 import { getUserForId } from "../db/db.repository.js";
+import rateLimit from "express-rate-limit";
 //Константы
 export const options = {
     httpOnly: true,
@@ -41,8 +42,8 @@ function createTokenUtils(data, secret) {
     });
     return token;
 }
-const accsesSecret = "super_secret_key_accses";
-const refreshSecret = "super_secret_key_refresh";
+const accsesSecret = process.env.JWT_SECRET_ACCESS || "super_secret_key_accses";
+const refreshSecret = process.env.JWT_SECRET_REFRESH || "super_secret_key_refresh";
 export const createToken = (data) => {
     const accsesToken = createTokenUtils(data, accsesSecret);
     const refreshToken = createTokenUtils(data, refreshSecret);
@@ -119,4 +120,14 @@ export const sendlerEmailCode = (email, code) => {
         console.log("Send message:", info.response);
     });
 };
+//Установка лимита запросов
+export const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    message: "To many trys, try latter again",
+    standardHeaders: true, // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
+    // store: ... , // Redis, Memcached, etc. See below.
+});
 //# sourceMappingURL=utils.js.map

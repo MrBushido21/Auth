@@ -1,3 +1,5 @@
+import dotenv from "dotenv"
+dotenv.config()
 import express, { type Request, type Response } from "express";
 import authRouter from "./routes/routes.post.auth.js"
 import htmlRouter from "./routes/routes.get.html.js"
@@ -8,7 +10,7 @@ import { sendlerEmailCode } from "./utils/utils.js";
 
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 5000;
 
 const run = async () => {
 await createTableUsers()

@@ -12,4 +12,5 @@ export declare const checkAuth: (req: Request, res: Response, next: NextFunction
 export declare const decodedAccsesToken: (token: string) => PayloadType | null;
 export declare const decodedRefreshToken: (token: string) => PayloadType | null;
 export declare const sendlerEmailCode: (email: string, code: string) => void;
+export declare const limiter: import("express-rate-limit").RateLimitRequestHandler;
 //# sourceMappingURL=utils.d.ts.map

@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express, {} from "express";
 import authRouter from "./routes/routes.post.auth.js";
 import htmlRouter from "./routes/routes.get.html.js";
@@ -6,7 +8,7 @@ import { deleteAll, deleteUser, getUsers } from "./db/db.repository.js";
 import cookieParser from "cookie-parser";
 import { sendlerEmailCode } from "./utils/utils.js";
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 5000;
 const run = async () => {
     await createTableUsers();
     const jsonBodyModdleweare = express.json();
