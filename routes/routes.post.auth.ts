@@ -1,15 +1,18 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
 import type { PayloadType, UsersType } from "../types/types.js";
 import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
-import { checkAuth, comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
+import { comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
 import crypto from "crypto";
 import { error } from "console";
+import { checkAuth } from "../middleware/middleware.auth.js";
+import { registerShemas } from "../shemas/validation.js";
+import { validation } from "../middleware/middleware.validation.js";
 
 
 const router = Router();
 
 // регистрация
-router.post("/registration", async (req: Request<{}, {}, UsersType>, res: Response) => {
+router.post("/registration", validation(registerShemas), async (req: Request<{}, {}, UsersType>, res: Response) => {
   const { email, password_hash } = req.body;
 
   const hashedPass = await hashedString(password_hash)
@@ -20,6 +23,7 @@ router.post("/registration", async (req: Request<{}, {}, UsersType>, res: Respon
   }
   let id = Math.floor(Math.random() * 100000)
   let verifeid_code = Math.floor(Math.random() * 100000)
+
   const user: UsersType = {
     id: id,
     email: email,
@@ -43,7 +47,12 @@ router.post("/registration", async (req: Request<{}, {}, UsersType>, res: Respon
     user.refresh_token = hashedRefreshToken
   }
   // sendlerEmailCode(email, code.toString())
-  createUsers(user)
+  try {
+    createUsers(user)
+  } catch (error) {
+    console.log(error);
+  }
+
   res.cookie("refresh_token", refresh_token, options);
   res.json({
     access_token: access_token,
@@ -62,8 +71,13 @@ router.post('/verify', checkAuth, async (req: Request, res: Response) => {
     return res.status(403).json({ message: 'Not found user' })
   }
 
+  let verifeidTime = 0
+  if (data.verifeid_expire_time) {
+    verifeidTime = data.verifeid_expire_time
+  }
+
   if (data.verifeid_code === verifeid_code) {
-    if (Date.now() < dateExpire) {
+    if (Date.now() < verifeidTime) {
       updateVerifyStatus(data.id, "Yes", null, null)
       return res.status(200).json({ message: "You are verifeid" })
     }
@@ -93,15 +107,16 @@ router.post('/verify/new', checkAuth, async (req: Request, res: Response) => {
 })
 
 // логин
-router.post("/login", limiter,  async (req: Request<{}, {}, UsersType, {}>, res: Response) => {
+router.post("/login", limiter, async (req: Request<{}, {}, UsersType, {}>, res: Response) => {
   const { email, password_hash } = req.body;
 
   const data = await getUserForEmail(email)
 
+  const isMatch: boolean = await comparePass(password_hash, data.password_hash)
+
   const token = createToken(data)
   const [access_token, refresh_token] = token
 
-  const isMatch: boolean = await comparePass(password_hash, data.password_hash)
   let hashedRefreshToken = ""
   if (refresh_token) {
     hashedRefreshToken = await hashedString(refresh_token)
@@ -146,10 +161,18 @@ router.post("/refresh", async (req: Request<{}, {}, UsersType, {}>, res: Respons
 
 //Логаут
 router.post("/logout", async (req: Request<{}, {}, UsersType, {}, CookieOptions>, res: Response) => {
-  const { id } = req.body
-  res.clearCookie("refresh_token"); // удаляем cookie
-  await updateRefreshToken(id, "")
-  return res.json({ message: "Logged out" });
+  const token = req.headers.authorization
+  let decoded = null
+  if (token) {
+    decoded = decodedAccsesToken(token)
+  }
+  const id = decoded?.id
+
+  if (id) {
+    res.clearCookie("refresh_token"); // удаляем cookie
+    await updateRefreshToken(id, "")
+    return res.json({ message: "Logged out" });
+  }
 });
 
 
@@ -165,6 +188,8 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
   if (data) {
     addRestToken(data.id, token, Date.now() + 100000)
   }
+
+  return res.status(200).json({message: "confirm link was send on your email"})
 })
 
 //Смена пароля
@@ -189,7 +214,7 @@ router.post('/changepassword', async (req: Request, res: Response) => {
       const [access_token, refresh_token] = token
       return res.status(200).json({ message: "Your password was chenged", access_token: access_token, })
     }
-    return res.status(403).json({ message: "Your token was expire"}) 
+    return res.status(403).json({ message: "Your token was expire" })
   }
 
 })

@@ -62,21 +62,6 @@ export const refreshToken = (refresh_token, data) => {
         return null;
     }
 };
-//проверка атентификации по токену
-export const checkAuth = (req, res, next) => {
-    const token = req.headers.authorization;
-    if (!token) {
-        return res.status(403).json({ message: 'haven`t token' });
-    }
-    try {
-        jwt.verify(token, accsesSecret);
-        next();
-    }
-    catch (error) {
-        console.error(error);
-        return res.status(403).json({ message: 'Uncorrect token' });
-    }
-};
 //Декодирование токена
 export const decodedAccsesToken = (token) => {
     try {
