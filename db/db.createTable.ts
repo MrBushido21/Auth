@@ -5,7 +5,7 @@ export const createTableUsers = async (): Promise<void> => {
     await sqlRun(`
         CREATE TABLE IF NOT EXISTS users (
         id NUMBER PRIMARY KEY,
-        email TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL,
         status TEXT NOT NULL,
         refresh_token TEXT,

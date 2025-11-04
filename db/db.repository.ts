@@ -124,12 +124,13 @@ export const addRestToken = async (id: number, token: string, dateExpire: number
         `,
     [token, dateExpire, id])
 }
-export const changePassword = async (id: number, password: string) => {
+export const changePassword = async (id: number, password: string, rest_token: null) => {
     await sqlRun (`
         UPDATE users 
         SET password_hash = ?
+        SET rest_token = ?
         WHERE id = ?
         `,
-    [password, id])
+    [password, rest_token, id])
 }
 

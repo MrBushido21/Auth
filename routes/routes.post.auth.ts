@@ -1,12 +1,14 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
-import type { PayloadType, UsersType } from "../types/types.js";
-import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
-import { comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
+import type { UsersType } from "../types/types.js";
+import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, 
+  updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
+import { comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, 
+  refreshToken, sendlerEmailCode } from "../utils/utils.js";
 import crypto from "crypto";
-import { error } from "console";
 import { checkAuth } from "../middleware/middleware.auth.js";
 import { registerShemas } from "../shemas/validation.js";
 import { validation } from "../middleware/middleware.validation.js";
+import bcrypt from "bcryptjs";
 
 
 const router = Router();
@@ -17,10 +19,6 @@ router.post("/registration", validation(registerShemas), async (req: Request<{},
 
   const hashedPass = await hashedString(password_hash)
 
-  const data = await getUserForEmail(email)
-  if (data) {
-    return res.send("email already taken")
-  }
   let id = Math.floor(Math.random() * 100000)
   let verifeid_code = Math.floor(Math.random() * 100000)
 
@@ -141,13 +139,17 @@ router.post("/refresh", async (req: Request<{}, {}, UsersType, {}>, res: Respons
   if (!refresh_token) {
     return res.status(403).json({ message: 'haven`t token' })
   }
+  
   const decoded = decodedRefreshToken(refresh_token)
 
   const data = await getUserForId(decoded?.id)
 
+
   if (!data) {
     return res.status(403).json({ message: 'Not found user' })
   }
+  const isMatch = await bcrypt.compare(refresh_token, data.refresh_token)
+  if (!isMatch) return res.status(403).json({ message: "Token mismatch" })
 
   const token = refreshToken(refresh_token, data)
 
@@ -209,7 +211,7 @@ router.post('/changepassword', async (req: Request, res: Response) => {
   if (data !== null && data?.rest_expire !== null) {
     if (data.rest_token === token && Date.now() < data.rest_expire) {
       const hashedPass = await hashedString(newpassord)
-      changePassword(data.id, hashedPass)
+      changePassword(data.id, hashedPass, null)
       const token = createToken(data)
       const [access_token, refresh_token] = token
       return res.status(200).json({ message: "Your password was chenged", access_token: access_token, })
