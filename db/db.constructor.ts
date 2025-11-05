@@ -2,7 +2,7 @@ import sqlite3 from "sqlite3"
 import type { UsersType } from "../types/types.js"
 const { Database } = sqlite3
 
-export const db = new Database('users.db', (err) => {
+export const db = new Database('db.db', (err) => {
   if (err) {
     console.error(err)
     process.exit(1)

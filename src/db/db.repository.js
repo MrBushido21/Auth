@@ -103,11 +103,12 @@ export const addRestToken = async (id, token, dateExpire) => {
         WHERE id = ?
         `, [token, dateExpire, id]);
 };
-export const changePassword = async (id, password) => {
+export const changePassword = async (id, password, rest_token) => {
     await sqlRun(`
         UPDATE users 
         SET password_hash = ?
+        SET rest_token = ?
         WHERE id = ?
-        `, [password, id]);
+        `, [password, rest_token, id]);
 };
 //# sourceMappingURL=db.repository.js.map

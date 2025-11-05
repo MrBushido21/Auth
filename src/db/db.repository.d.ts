@@ -12,5 +12,5 @@ export declare const updateRefreshToken: (id: number, refreshToken: string) => P
 export declare const updateVerifyStatus: (id: number, verifeid: string, verifeid_code: number | null, dateExpire: number | null) => Promise<void>;
 export declare const updateVerifyCode: (id: number, verifeid_code: number | null, dateExpire: number | null) => Promise<void>;
 export declare const addRestToken: (id: number, token: string, dateExpire: number | null) => Promise<void>;
-export declare const changePassword: (id: number, password: string) => Promise<void>;
+export declare const changePassword: (id: number, password: string, rest_token: null) => Promise<void>;
 //# sourceMappingURL=db.repository.d.ts.map

@@ -2,19 +2,15 @@ import { Router } from "express";
 import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
 import { comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
 import crypto from "crypto";
-import { error } from "console";
 import { checkAuth } from "../middleware/middleware.auth.js";
 import { registerShemas } from "../shemas/validation.js";
 import { validation } from "../middleware/middleware.validation.js";
+import bcrypt, { compare } from "bcryptjs";
 const router = Router();
 // регистрация
 router.post("/registration", validation(registerShemas), async (req, res) => {
     const { email, password_hash } = req.body;
     const hashedPass = await hashedString(password_hash);
-    const data = await getUserForEmail(email);
-    if (data) {
-        return res.send("email already taken");
-    }
     let id = Math.floor(Math.random() * 100000);
     let verifeid_code = Math.floor(Math.random() * 100000);
     const user = {
@@ -113,6 +109,9 @@ router.post("/refresh", async (req, res) => {
     if (!data) {
         return res.status(403).json({ message: 'Not found user' });
     }
+    const isMatch = await bcrypt.compare(refresh_token, data.refresh_token);
+    if (!isMatch)
+        return res.status(403).json({ message: "Token mismatch" });
     const token = refreshToken(refresh_token, data);
     if (!token) {
         return res.status(403).json({ message: 'Uncorrect token' });
@@ -138,6 +137,7 @@ router.post("/logout", async (req, res) => {
 router.post('/resetpassword', async (req, res) => {
     const { email } = req.body;
     const token = crypto.randomBytes(32).toString("hex");
+    hashedString(token);
     const link = `https://localhost:3000/reset-password?token=${token}`;
     // sendlerEmailCode(email, link)
     const data = await getUserForEmail(email);
@@ -160,7 +160,7 @@ router.post('/changepassword', async (req, res) => {
     if (data !== null && data?.rest_expire !== null) {
         if (data.rest_token === token && Date.now() < data.rest_expire) {
             const hashedPass = await hashedString(newpassord);
-            changePassword(data.id, hashedPass);
+            changePassword(data.id, hashedPass, null);
             const token = createToken(data);
             const [access_token, refresh_token] = token;
             return res.status(200).json({ message: "Your password was chenged", access_token: access_token, });

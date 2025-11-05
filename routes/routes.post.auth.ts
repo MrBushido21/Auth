@@ -8,7 +8,7 @@ import crypto from "crypto";
 import { checkAuth } from "../middleware/middleware.auth.js";
 import { registerShemas } from "../shemas/validation.js";
 import { validation } from "../middleware/middleware.validation.js";
-import bcrypt from "bcryptjs";
+import bcrypt, { compare } from "bcryptjs";
 
 
 const router = Router();
@@ -31,10 +31,6 @@ router.post("/registration", validation(registerShemas), async (req: Request<{},
     created_at: dateNow,
     updated_at: dateNow,
     verifeid: "No",
-    verifeid_code,
-    verifeid_expire_time: dateExpire,
-    rest_token: "",
-    rest_expire: null
   }
 
   const token = createToken(user)
@@ -182,6 +178,7 @@ router.post("/logout", async (req: Request<{}, {}, UsersType, {}, CookieOptions>
 router.post('/resetpassword', async (req: Request, res: Response) => {
   const { email } = req.body
   const token = crypto.randomBytes(32).toString("hex")
+  hashedString(token)
   const link = `https://localhost:3000/reset-password?token=${token}`
 
   // sendlerEmailCode(email, link)
