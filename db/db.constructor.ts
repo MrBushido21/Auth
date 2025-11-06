@@ -22,7 +22,7 @@ export const sqlRun = (sqlText: string, sqlParams?: unknown[]): Promise<unknown>
     })
   })
 } 
-export const sqlGet = (sqlText: string, sqlParams?: unknown[]): Promise<UsersType> => {
+export const sqlGet = (sqlText: string, sqlParams?: unknown[]): Promise<any> => {
   return new Promise((resolve, reject) => {
     db.get(sqlText, sqlParams, (err: unknown, data: UsersType) => {
       if (err) {

@@ -1,6 +1,6 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
 import type { UsersType } from "../types/types.js";
-import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, 
+import { addRefreshToken, addRestToken, addVerificationCode, changePassword, createUsers, deleteVerificationCode, getCodeForId, getTokenForId, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, 
   updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
 import { comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, 
   refreshToken, sendlerEmailCode } from "../utils/utils.js";
@@ -20,82 +20,74 @@ router.post("/registration", validation(registerShemas), async (req: Request<{},
   const hashedPass = await hashedString(password_hash)
 
   let id = Math.floor(Math.random() * 100000)
-  let verifeid_code = Math.floor(Math.random() * 100000)
-
+  let code = Math.floor(Math.random() * 100000).toString()
   const user: UsersType = {
     id: id,
     email: email,
     password_hash: hashedPass,
     status: "user",
-    refresh_token: "",
     created_at: dateNow,
     updated_at: dateNow,
-    verifeid: "No",
+    verifeid_at: "",
   }
 
-  const token = createToken(user)
-  const [access_token, refresh_token] = token
-
-  if (refresh_token) {
-    const hashedRefreshToken = await hashedString(refresh_token)
-    user.refresh_token = hashedRefreshToken
-  }
-  // sendlerEmailCode(email, code.toString())
   try {
     createUsers(user)
   } catch (error) {
     console.log(error);
   }
 
-  res.cookie("refresh_token", refresh_token, options);
-  res.json({
-    access_token: access_token,
-  })
+  // sendlerEmailCode(email, code)
+  addVerificationCode(user.id, code)
+  res.status(200).json({ message: {id, email} })
 });
 
 //Верификация емейла
 
-router.post('/verify', checkAuth, async (req: Request, res: Response) => {
-  const { verifeid_code } = req.body
-  const refresh_token = req.cookies.refresh_token
+router.post('/verify', limiter, async (req: Request, res: Response) => {
+  const { id, verifeid_code } = req.body
 
-  const data = await getUserForToken(refresh_token)
+  const record = await getCodeForId(id)
+  const data = await getUserForId(id)
 
+  if (record.code !== verifeid_code) {
+    res.status(400).send("Invalid verification code")
+  }
+
+  try {
+    deleteVerificationCode(record.id)
+  } catch (error) {
+    console.error(error);
+  }
   if (!data) {
-    return res.status(403).json({ message: 'Not found user' })
+    res.status(403).json({message: "User unfound"})
   }
-
-  let verifeidTime = 0
-  if (data.verifeid_expire_time) {
-    verifeidTime = data.verifeid_expire_time
+  const token = createToken(data)
+  const [accsesToken, refreshToken] = token
+  let hashedRefreshToken = ""
+  if (refreshToken) {
+    hashedRefreshToken = await hashedString(refreshToken)
   }
-
-  if (data.verifeid_code === verifeid_code) {
-    if (Date.now() < verifeidTime) {
-      updateVerifyStatus(data.id, "Yes", null, null)
-      return res.status(200).json({ message: "You are verifeid" })
-    }
-    return res.status(403).json({ message: "expired code" })
-  }
-  return res.status(403).json({ message: "uncorrect code" })
+  hashedRefreshToken ? addRefreshToken(id, hashedRefreshToken) : console.error("refresh_token is undefined")
+  res.cookie("refresh_token", refreshToken, options);
+  return res.status(200).json({success: true, access_token: accsesToken,})
 })
 
 //Отправить код повторно
 
 router.post('/verify/new', checkAuth, async (req: Request, res: Response) => {
-  let verifeid_code = Math.floor(Math.random() * 100000)
-  const refresh_token = req.cookies.refresh_token
+  let verifeid_code = Math.floor(Math.random() * 100000).toString()
+  const { id } = req.body
+  const record = await getCodeForId(id)
 
-  const data = await getUserForToken(refresh_token)
-
-  if (!data) {
+  if (!record) {
     return res.status(403).json({ message: 'Not found user' })
   }
 
-  updateVerifyCode(data.id, verifeid_code, Date.now() + 30000)
+  updateVerifyCode(record.id, verifeid_code)
 
 
-  // sendlerEmailCode(email, code.toString())
+  // sendlerEmailCode(email, code)
 
   return res.status(200)
 })
@@ -129,22 +121,22 @@ router.post("/login", limiter, async (req: Request<{}, {}, UsersType, {}>, res: 
 
 //Обновление акцес токена
 router.post("/refresh", async (req: Request<{}, {}, UsersType, {}>, res: Response) => {
-
+  const {id} = req.body
   const refresh_token = req.cookies.refresh_token
+
 
   if (!refresh_token) {
     return res.status(403).json({ message: 'haven`t token' })
   }
-  
-  const decoded = decodedRefreshToken(refresh_token)
 
-  const data = await getUserForId(decoded?.id)
+  const data = await getUserForId(id)
+  const tokens = await getTokenForId(id)
 
 
   if (!data) {
     return res.status(403).json({ message: 'Not found user' })
   }
-  const isMatch = await bcrypt.compare(refresh_token, data.refresh_token)
+  const isMatch = await bcrypt.compare(refresh_token, tokens.refresh_token)
   if (!isMatch) return res.status(403).json({ message: "Token mismatch" })
 
   const token = refreshToken(refresh_token, data)
@@ -191,7 +183,8 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
   return res.status(200).json({message: "confirm link was send on your email"})
 })
 
-//Смена пароля
+
+//Смена пароля ==================================================================
 router.post('/changepassword', async (req: Request, res: Response) => {
   const token = req.query.token
   const newpassord = req.body.newpassord
@@ -219,13 +212,13 @@ router.post('/changepassword', async (req: Request, res: Response) => {
 })
 //
 //Админ
-router.post('/admin', checkAuth, (req: Request, res: Response) => {
-  const token = req.headers.authorization
-  let decoded = null
-  if (token) {
-    decoded = decodedAccsesToken(token)
+router.post('/admin', checkAuth, async (req: Request, res: Response) => {
+  const {id} = req.body
+  const data = await getUserForId(id)
+  if (!data) {
+    res.status(403).json({message: "User unfound"})
   }
-  const status = decoded?.status
+  const status = data.status
 
   if (status) {
     status === "admin" ? res.status(200).json({ message: "You are admin" }) : res.status(403).json({ message: "You are not admin" })

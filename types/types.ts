@@ -5,26 +5,34 @@ export type UsersType = {
     status: string
     created_at: string
     updated_at: string
-    verifeid: string,
+    verifeid_at: string,
 
 }
 
 export type TokensType = {
     id: number
     refresh_token: string
-    rest_token: string | undefined
+    user_id: number
     created_at: string
-    updated_at: string
+    expires_at: string
 }
-export type VerifiedType = {
+export type CodesType = {
     id: number
-    verifeid_code: number | null
-    verifeid_expire_time: number | null
+    user_id: number
+    type: string
+    code: string
+    token: string
     created_at: string
-    updated_at: string
+    expires_at: string
 }
 
 export type PayloadType = {
     id: number
     email: string
+}
+
+export type UserRecordType = {
+    id: number
+    code: string
+    expires_at: string
 }
