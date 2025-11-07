@@ -1,6 +1,6 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
 import type { UsersType } from "../types/types.js";
-import { addRefreshToken, addRestToken, addVerificationCode, changePassword, createUsers, deleteVerificationCode, getCodeForId, getTokenForId, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, 
+import { addRefreshToken, addRestToken, addVerificationCode, changePassword, createUsers, deleteUserCode, getCodeForId, getResetTokenForId, getTokenForId, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, 
   updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
 import { comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, 
   refreshToken, sendlerEmailCode } from "../utils/utils.js";
@@ -55,7 +55,7 @@ router.post('/verify', limiter, async (req: Request, res: Response) => {
   }
 
   try {
-    deleteVerificationCode(record.id)
+    deleteUserCode(record.id)
   } catch (error) {
     console.error(error);
   }
@@ -177,7 +177,7 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
 
   const data = await getUserForEmail(email)
   if (data) {
-    addRestToken(data.id, token, Date.now() + 100000)
+    addRestToken(data.id, token)
   }
 
   return res.status(200).json({message: "confirm link was send on your email"})
@@ -186,7 +186,7 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
 
 //Смена пароля ==================================================================
 router.post('/changepassword', async (req: Request, res: Response) => {
-  const token = req.query.token
+  const token = req.body.token
   const newpassord = req.body.newpassord
 
   let data: UsersType | null = null
@@ -198,13 +198,20 @@ router.post('/changepassword', async (req: Request, res: Response) => {
   if (!data) {
     res.status(403).json({ message: "User not found" })
   }
-  if (data !== null && data?.rest_expire !== null) {
-    if (data.rest_token === token && Date.now() < data.rest_expire) {
+  const codes = await getResetTokenForId(data?.id)
+  const isMatch = await compare(token, codes.token)
+  if (data !== null && codes?.token !== null) {
+    if (isMatch && Date.now() < Number(codes.expires_at)) {
       const hashedPass = await hashedString(newpassord)
-      changePassword(data.id, hashedPass, null)
-      const token = createToken(data)
-      const [access_token, refresh_token] = token
-      return res.status(200).json({ message: "Your password was chenged", access_token: access_token, })
+      changePassword(data.id, hashedPass)
+      deleteUserCode(codes.id)
+      if (data.verifeid_at) {
+        const token = createToken(data)
+        const [access_token, refresh_token] = token
+        res.cookie("refresh_token", refresh_token, options)
+        return res.status(200).json({ message: "Your password was chenged", access_token: access_token })
+      }
+      return res.status(200).json({ message: "Your password was chenged"})
     }
     return res.status(403).json({ message: "Your token was expire" })
   }

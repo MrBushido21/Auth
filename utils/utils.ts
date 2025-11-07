@@ -45,8 +45,7 @@ export const comparePass = async (password_hash: string, passwordInput: string):
 function createTokenUtils(data: UsersType, secret: string): string {
   const payload: PayloadType = {
     email: data.email,
-    id: data.id,
-    status: data.status
+    id: data.id
   }
   const token = jwt.sign(payload, secret, {
     algorithm: "HS256",
