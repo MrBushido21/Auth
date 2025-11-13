@@ -7,6 +7,24 @@ import { error } from "console";
 import { getUserForId } from "../db/db.repository.js";
 import rateLimit from "express-rate-limit";
 
+export const generateCode = () => {
+  return Math.floor(Math.random() * 100000)
+}
+//Создание текущей даты
+export const dateNow = () => {  
+ return new Date().toISOString()
+}
+export const dateExpire = (time:number) => {  
+ return (Date.now() + time).toString()
+}
+
+export const newError = (value:any, status:number, err:string) => {
+  if (!value) {
+    const error:any = new Error(`${err}`)
+    error.status = status
+    throw error
+  }
+}
 //Константы
 export const options: CookieOptions = {
   httpOnly: true,
@@ -22,11 +40,6 @@ export const isUser = (data: unknown): data is UsersType => {
   return Boolean(user && typeof user === 'object' && user.id && user.email && user.password_hash && user.status && user.created_at && user.updated_at)
 }
 
-//Создание текущей даты
-export const dateNow = new Date().toISOString()
-
-//Создание истекающей даті
-export const dateExpire = Date.now() + 30000
 
 //Хеширование пароля
 export const hashedString = async (string: string): Promise<string> => {

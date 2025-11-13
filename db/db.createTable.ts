@@ -6,7 +6,7 @@ export const createTableUsers = async (): Promise<void> => {
         CREATE TABLE IF NOT EXISTS users (
         id NUMBER PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
         status TEXT NOT NULL,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
@@ -32,6 +32,7 @@ export const createTableUsers = async (): Promise<void> => {
         type TEXT NOT NULL,
         code TEXT,
         token TEXT,
+        key TEXT,
         created_at TEXT NOT NULL,
         expires_at TEXT NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

@@ -3,18 +3,33 @@ export type UsersType = {
     email: string;
     password_hash: string;
     status: string;
-    refresh_token: string;
     created_at: string;
     updated_at: string;
-    verifeid: string;
-    verifeid_code: number | null;
-    verifeid_expire_time: number | null;
-    rest_token: string | undefined;
-    rest_expire: number | null;
+    verifeid_at: string;
+};
+export type TokensType = {
+    id: number;
+    refresh_token: string;
+    user_id: number;
+    created_at: string;
+    expires_at: string;
+};
+export type CodesType = {
+    id: number;
+    user_id: number;
+    type: string;
+    code: string;
+    token: string;
+    created_at: string;
+    expires_at: string;
 };
 export type PayloadType = {
     id: number;
     email: string;
-    status: string;
+};
+export type UserRecordType = {
+    id: number;
+    code: string;
+    expires_at: string;
 };
 //# sourceMappingURL=types.d.ts.map

@@ -12,27 +12,27 @@
   <script>
     document.getElementById("sendBtn").addEventListener("click", () => {
       const data = {
-        email: "user",
-        id: 91089,
+        email: "olegliskok@gmail.com",
+        id: 93319,
         status: "user",
-        refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRva2VuMSIsImlkIjo3MzcxOSwic3RhdHVzIjoidXNlciIsImlhdCI6MTc2MDUzMjg4NywiZXhwIjoxNzYwNTMzNDg3fQ.qBOJEkYNuiryI2HhFgWQ3rDyKWE2VWQqWSf0zwwhiT4"
+        verifeid_code: 6991
       };
 
       // fetch("http://localhost:3000/resetpassword", {
       //   method: "POST",
       //   headers: {
       //     "Content-Type": "application/json",
-      //     "authorization": data.refresh_token
+      //     "authorization": ""
       //   },
-      //   body: JSON.stringify({email: "user"})
+      //   body: JSON.stringify({email: data.email})
       // })
-      fetch("http://localhost:3000/changepassword?token=2353b89265d9b875905615a601a29a98e277254d0724ec1826f0197baf282e69", {
-        method: "POST",
+      fetch("http://localhost:3000/changepassword", {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "authorization": data.refresh_token
+          "authorization": ""
         },
-        body: JSON.stringify({newpassord: "4321"})
+        body: JSON.stringify({token: "53645c153ac7c84d6657adc618542b97a563523dcad8cf0a5bf5a9fd643e9b7e", key: "158645383eaff22fd2dc", newpassord: "0987"})
       })
         .then(res => res.json())
         .then(response => {

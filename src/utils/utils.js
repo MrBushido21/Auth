@@ -4,6 +4,23 @@ import nodemailer from "nodemailer";
 import { error } from "console";
 import { getUserForId } from "../db/db.repository.js";
 import rateLimit from "express-rate-limit";
+export const generateCode = () => {
+    return Math.floor(Math.random() * 100000);
+};
+//Создание текущей даты
+export const dateNow = () => {
+    return new Date().toISOString();
+};
+export const dateExpire = (time) => {
+    return (Date.now() + time).toString();
+};
+export const newError = (value, status, err) => {
+    if (!value) {
+        const error = new Error(`${err}`);
+        error.status = status;
+        throw error;
+    }
+};
 //Константы
 export const options = {
     httpOnly: true,
@@ -16,10 +33,6 @@ export const isUser = (data) => {
     const user = data;
     return Boolean(user && typeof user === 'object' && user.id && user.email && user.password_hash && user.status && user.created_at && user.updated_at);
 };
-//Создание текущей даты
-export const dateNow = new Date().toISOString();
-//Создание истекающей даті
-export const dateExpire = Date.now() + 30000;
 //Хеширование пароля
 export const hashedString = async (string) => {
     const hashedResult = await bcrypt.hash(string, 10);
@@ -33,8 +46,7 @@ export const comparePass = async (password_hash, passwordInput) => {
 function createTokenUtils(data, secret) {
     const payload = {
         email: data.email,
-        id: data.id,
-        status: data.status
+        id: data.id
     };
     const token = jwt.sign(payload, secret, {
         algorithm: "HS256",

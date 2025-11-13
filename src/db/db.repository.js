@@ -1,12 +1,30 @@
 import { isUser } from "../utils/utils.js";
 import { sqlAll, sqlGet, sqlRun } from "./db.constructor.js";
 // Create
-export const createUsers = async (user) => {
-    const { id, password_hash, email, status, created_at, updated_at, refresh_token, verifeid, verifeid_code, verifeid_expire_time } = user;
+export const createUser = async (user) => {
+    const { id, password_hash, email, status, created_at, updated_at, verifeid_at } = user;
     await sqlRun(`
-            INSERT INTO users (id, email, password_hash, status, created_at, updated_at, refresh_token, verifeid, verifeid_code, verifeid_expire_time)
-            VALUES (?,?,?,?,?,?,?,?,?,?);        
-        `, [id, email, password_hash, status, created_at, updated_at, refresh_token, verifeid, verifeid_code, verifeid_expire_time]);
+            INSERT INTO users (id, email, password_hash, status, created_at, updated_at, verifeid_at)
+            VALUES (?,?,?,?,?,?,?);        
+        `, [id, email, password_hash, status, created_at, updated_at, verifeid_at]);
+};
+export const addVerificationCode = async (user_id, code, created_at, expires_at) => {
+    await sqlRun(`
+            INSERT INTO user_codes (user_id, type, code, created_at, expires_at)
+            VALUES (?, 'verification', ?, ?, ?)
+        `, [user_id, code, created_at, expires_at]);
+};
+export const addRefreshToken = async (user_id, refresh_token, created_at, expires_at) => {
+    await sqlRun(`
+        INSERT INTO refresh_tokens (user_id, refresh_token, created_at, expires_at)
+        VALUES (?, ?, ?, ?)
+        `, [user_id, refresh_token, created_at, expires_at]);
+};
+export const addRestToken = async (user_id, token, key, created_at, expires_at) => {
+    await sqlRun(`
+        INSERT INTO user_codes (token, key, user_id, type, created_at, expires_at)
+            VALUES (?, ?, ?, 'reset', ?, ?)
+        `, [token, key, user_id, created_at, expires_at]);
 };
 //Update
 export const updateUsers = async (user) => {
@@ -22,19 +40,39 @@ export const getUserForId = async (id) => {
             SELECT * FROM users
             WHERE id = ?;
         `, [id]);
-    if (!isUser(user)) {
-        console.log(`Unknow format of data, Data: ${user}`);
-    }
     return user;
+};
+export const getCodeForId = async (user_id) => {
+    const record = await sqlGet(`
+        SELECT id, code, expires_at
+        FROM user_codes
+        WHERE user_id = ?
+        AND type = 'verification'
+        ORDER BY created_at DESC LIMIT 1
+        `, [user_id]);
+    return record;
+};
+export const getTokenForId = async (user_id) => {
+    const token = await sqlGet(`
+            SELECT * FROM refresh_tokens WHERE user_id = ?
+        `, [user_id]);
+    return token;
+};
+export const getResetTokenForKey = async (key) => {
+    const tokenObj = await sqlGet(`
+        SELECT user_id, id, token, expires_at
+        FROM user_codes
+        WHERE key = ?
+        AND type = 'reset'
+        ORDER BY created_at DESC LIMIT 1
+        `, [key]);
+    return tokenObj;
 };
 export const getUserForEmail = async (email) => {
     const user = await sqlGet(`
            SELECT * FROM users
            WHERE email = ?
        `, [email]);
-    if (!isUser(user)) {
-        console.log(`Unknow format of data in 'getUserForEmail', Data: ${user}`);
-    }
     return user;
 };
 export const getUserForToken = async (token) => {
@@ -42,17 +80,6 @@ export const getUserForToken = async (token) => {
            SELECT * FROM users
            WHERE refresh_token = ?
        `, [token]);
-    if (!isUser(user)) {
-        console.log(`Unknow format of data in 'getUserForEmail', Data: ${user}`);
-    }
-    return user;
-};
-export const getUserForRestToken = async (token) => {
-    const user = await sqlGet(`
-           SELECT * FROM users
-           WHERE rest_token = ?
-       `, [token]);
-    console.log(token);
     if (!isUser(user)) {
         console.log(`Unknow format of data in 'getUserForEmail', Data: ${user}`);
     }
@@ -76,39 +103,34 @@ export const deleteUser = async (id) => {
 export const deleteAll = async () => {
     await sqlRun(`DELETE FROM users`);
 };
+export const deleteUserCode = async (id) => {
+    await sqlRun(`DELETE FROM user_codes WHERE id = ?`, [id]);
+};
 //Update
 export const updateRefreshToken = async (id, refreshToken) => {
     await sqlRun(`
-        UPDATE users SET refresh_token = ? WHERE id = ?
+        UPDATE refresh_tokens SET refresh_token = ? WHERE user_id = ?
         `, [refreshToken, id]);
 };
-export const updateVerifyStatus = async (id, verifeid, verifeid_code, dateExpire) => {
+export const updateVerifyStatus = async (id, verifeid_at) => {
     await sqlRun(`
         UPDATE users 
-        SET verifeid = ?, verifeid_code = ?,  verifeid_expire_time = ?  
+        SET verifeid_at = ?  
         WHERE id = ?
-        `, [verifeid, verifeid_code, dateExpire, id]);
+        `, [verifeid_at, id]);
 };
-export const updateVerifyCode = async (id, verifeid_code, dateExpire) => {
+export const updateVerifyCode = async (id, code, expires_at) => {
     await sqlRun(`
-        UPDATE users 
-        SET verifeid_code = ?,  verifeid_expire_time = ?  
+        UPDATE user_codes
+        SET code = ?,  expires_at = ?
         WHERE id = ?
-        `, [verifeid_code, dateExpire, id]);
+        `, [code, expires_at, id]);
 };
-export const addRestToken = async (id, token, dateExpire) => {
-    await sqlRun(`
-        UPDATE users 
-        SET rest_token = ?, rest_expire = ?  
-        WHERE id = ?
-        `, [token, dateExpire, id]);
-};
-export const changePassword = async (id, password, rest_token) => {
+export const changePassword = async (id, password) => {
     await sqlRun(`
         UPDATE users 
         SET password_hash = ?
-        SET rest_token = ?
         WHERE id = ?
-        `, [password, rest_token, id]);
+        `, [password, id]);
 };
 //# sourceMappingURL=db.repository.js.map

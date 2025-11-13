@@ -5,32 +5,34 @@ export const createTableUsers = async () => {
         CREATE TABLE IF NOT EXISTS users (
         id NUMBER PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
         status TEXT NOT NULL,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
-        verifeid TEXT NOT NULL
+        verifeid_at TEXT
     );
     `);
     await sqlRun(`
-        CREATE TABLE IF NOT EXISTS tokens (
-        id NUMBER PRIMARY KEY,
-        refresh_token TEXT,
+        CREATE TABLE IF NOT EXISTS refresh_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        refresh_token TEXT NOT NULL,
+        user_id NUMBER NOT NULL,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        user_id NUMBER NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        expires_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
     `);
     await sqlRun(`
-        CREATE TABLE IF NOT EXISTS verification(
-        id NUMBER PRIMARY KEY,
-        verifeid_code INTEGER,
-        verifeid_expire_time INTEGER,
-        rest_token TEXT,
-        rest_expire INTEGER,
+        CREATE TABLE IF NOT EXISTS user_codes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id NUMBER NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        type TEXT NOT NULL,
+        code TEXT,
+        token TEXT,
+        key TEXT,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
     `);
 };

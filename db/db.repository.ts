@@ -2,36 +2,36 @@ import type { CodesType, TokensType, UserRecordType, UsersType } from "../types/
 import { isUser } from "../utils/utils.js";
 import { sqlAll, sqlGet, sqlRun } from "./db.constructor.js";
 // Create
-export const createUsers = async (user: UsersType): Promise<void> => {
+export const createUser = async (user: UsersType): Promise<void> => {
     const { id, password_hash, email, status, created_at, updated_at, verifeid_at } = user
 
     await sqlRun(`
-            INSERT INTO users (id, email, password, status, created_at, updated_at, verifeid)
-            VALUES (?,?,?,?,?,?,?,?,?,?);        
+            INSERT INTO users (id, email, password_hash, status, created_at, updated_at, verifeid_at)
+            VALUES (?,?,?,?,?,?,?);        
         `, [id, email, password_hash, status, created_at, updated_at, verifeid_at])
 }
 
 
-export const addVerificationCode = async (user_id: number, code: string): Promise<void> => {
+export const addVerificationCode = async (user_id: number, code: string, created_at:string, expires_at:string): Promise<void> => {
     await sqlRun(`
             INSERT INTO user_codes (user_id, type, code, created_at, expires_at)
-            VALUES (?, 'verification', ?, datetime('now'), datetime('now', '+2 minutes'))
-        `, [user_id, code])
+            VALUES (?, 'verification', ?, ?, ?)
+        `, [user_id, code, created_at, expires_at])
 }
 
-export const addRefreshToken = async (user_id: number, refresh_token: string | undefined): Promise<void> => {
+export const addRefreshToken = async (user_id: number, refresh_token: string | undefined, created_at:string, expires_at:string): Promise<void> => {
     await sqlRun(`
         INSERT INTO refresh_tokens (user_id, refresh_token, created_at, expires_at)
-        VALUES (?, ?, datetime('now'), datetime('now', '+10 minutes'))
-        `, [user_id, refresh_token])
+        VALUES (?, ?, ?, ?)
+        `, [user_id, refresh_token, created_at, expires_at])
 }
 
-export const addRestToken = async (user_id: number, token: string) => {
+export const addRestToken = async (user_id: number, token: string, key:string, created_at:string, expires_at:string) => {
     await sqlRun(`
-        INSERT INTO user_codes (user_id, type, created_at, expires_at)
-            VALUES (?, 'reset', datetime('now'), datetime('now', '+2 minutes'))
+        INSERT INTO user_codes (token, key, user_id, type, created_at, expires_at)
+            VALUES (?, ?, ?, 'reset', ?, ?)
         `,
-        [token, user_id])
+        [token, key, user_id, created_at, expires_at])
 }
 //Update
 export const updateUsers = async (user: UsersType): Promise<void> => {
@@ -49,9 +49,6 @@ export const getUserForId = async (id: number | undefined): Promise<UsersType> =
             SELECT * FROM users
             WHERE id = ?;
         `, [id])
-    if (!isUser(user)) {
-        console.log(`Unknow format of data, Data: ${user}`);
-    }
     return user
 }
 
@@ -61,7 +58,6 @@ export const getCodeForId = async (user_id: number): Promise<UserRecordType> => 
         FROM user_codes
         WHERE user_id = ?
         AND type = 'verification'
-        AND expires_at > datetime('now')
         ORDER BY created_at DESC LIMIT 1
         `, [user_id])
     return record
@@ -72,16 +68,15 @@ export const getTokenForId = async (user_id: number): Promise<TokensType> => {
         `, [user_id])
     return token
 }
-export const getResetTokenForId = async (user_id: number | undefined): Promise<CodesType> => {
-    const token: CodesType = await sqlGet(`
-        SELECT id, token, expires_at
+export const getResetTokenForKey = async (key: string): Promise<CodesType> => {
+    const tokenObj: CodesType = await sqlGet(`
+        SELECT user_id, id, token, expires_at
         FROM user_codes
-        WHERE user_id = ?
+        WHERE key = ?
         AND type = 'reset'
-        AND expires_at > datetime('now')
         ORDER BY created_at DESC LIMIT 1
-        `, [user_id])
-    return token
+        `, [key])
+    return tokenObj
 }
 export const getUserForEmail = async (email: string): Promise<UsersType> => {
     const user: UsersType = await sqlGet(`
@@ -90,9 +85,6 @@ export const getUserForEmail = async (email: string): Promise<UsersType> => {
        `,
         [email]
     );
-    if (!isUser(user)) {
-        console.log(`Unknow format of data in 'getUserForEmail', Data: ${user}`);
-    }
     return user
 }
 export const getUserForToken = async (token: string): Promise<UsersType> => {
@@ -107,17 +99,7 @@ export const getUserForToken = async (token: string): Promise<UsersType> => {
     }
     return user
 }
-export const getUserForRestToken = async (token: string): Promise<UsersType> => {
-    const user: UsersType = await sqlGet(`
-           SELECT * FROM user_codes
-           WHERE token = ?
-       `,
-        [token]
-    );
-    console.log(token);
 
-    return user
-}
 //GetAll
 export const getUsers = async (): Promise<UsersType[]> => {
     const users: UsersType[] = await sqlAll(`SELECT * FROM users`);
@@ -150,28 +132,29 @@ export const updateRefreshToken = async (id: number, refreshToken: string): Prom
         `,
         [refreshToken, id])
 }
-export const updateVerifyStatus = async (id: number, verifeid: string, verifeid_code: number | null, dateExpire: number | null): Promise<void> => {
+export const updateVerifyStatus = async (id: number, verifeid_at: string): Promise<void> => {
     await sqlRun(`
         UPDATE users 
-        SET verifeid = ?, verifeid_code = ?,  verifeid_expire_time = ?  
+        SET verifeid_at = ?  
         WHERE id = ?
         `,
-        [verifeid, verifeid_code, dateExpire, id])
+        [verifeid_at, id])
 }
-export const updateVerifyCode = async (id: number, verifeid_code: string): Promise<void> => {
+export const updateVerifyCode = async (id: number, code: string, expires_at: string): Promise<void> => {
     await sqlRun(`
         UPDATE user_codes
-        SET verifeid_code = ?,  expires_at = datetime('now', '+2 minutes')  
+        SET code = ?,  expires_at = ?
         WHERE id = ?
         `,
-        [verifeid_code, id])
+        [code, expires_at, id])
 }
 export const changePassword = async (id: number, password: string) => {
     await sqlRun(`
         UPDATE users 
-        SET password = ?
+        SET password_hash = ?
         WHERE id = ?
         `,
         [password, id])
 }
+
 

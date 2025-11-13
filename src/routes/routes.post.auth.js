@@ -1,123 +1,83 @@
 import { Router } from "express";
-import { addRestToken, changePassword, createUsers, getUserForEmail, getUserForId, getUserForRestToken, getUserForToken, updateRefreshToken, updateVerifyCode, updateVerifyStatus } from "../db/db.repository.js";
-import { comparePass, createToken, dateExpire, dateNow, decodedAccsesToken, decodedRefreshToken, hashedString, limiter, options, refreshToken, sendlerEmailCode } from "../utils/utils.js";
-import crypto from "crypto";
+import { getCodeForId, getUserForId, updateRefreshToken } from "../db/db.repository.js";
+import { dateExpire, decodedAccsesToken, limiter, options, } from "../utils/utils.js";
 import { checkAuth } from "../middleware/middleware.auth.js";
 import { registerShemas } from "../shemas/validation.js";
 import { validation } from "../middleware/middleware.validation.js";
-import bcrypt, { compare } from "bcryptjs";
+import { userService } from "../services/services.registration.js";
+import { verifyService } from "../services/services.verify.js";
+import { authRepository } from "../db/authRepository.js";
+import { loginService } from "../services/services.login.js";
+import { refreshService } from "../services/services.refresh.js";
+import { resetpasswordService } from "../services/services.resetpassword.js";
+import { changepasswordService } from "../services/services.changepassword.js";
 const router = Router();
 // регистрация
 router.post("/registration", validation(registerShemas), async (req, res) => {
     const { email, password_hash } = req.body;
-    const hashedPass = await hashedString(password_hash);
-    let id = Math.floor(Math.random() * 100000);
-    let verifeid_code = Math.floor(Math.random() * 100000);
-    const user = {
-        id: id,
-        email: email,
-        password_hash: hashedPass,
-        status: "user",
-        refresh_token: "",
-        created_at: dateNow,
-        updated_at: dateNow,
-        verifeid: "No",
-        verifeid_code,
-        verifeid_expire_time: dateExpire,
-        rest_token: "",
-        rest_expire: null
-    };
-    const token = createToken(user);
-    const [access_token, refresh_token] = token;
-    if (refresh_token) {
-        const hashedRefreshToken = await hashedString(refresh_token);
-        user.refresh_token = hashedRefreshToken;
-    }
-    // sendlerEmailCode(email, code.toString())
     try {
-        createUsers(user);
+        const user = await userService.register({ email, password_hash });
+        res.status(200).json({ message: { id: user.id, email: user.email } });
     }
     catch (error) {
-        console.log(error);
+        if (error.message === "Email taken") {
+            return res.status(409).json({ error: "Email alredy exists" });
+        }
+        console.error(error);
+        return res.status(500).json({ error: "Internal Server error" });
     }
-    res.cookie("refresh_token", refresh_token, options);
-    res.json({
-        access_token: access_token,
-    });
 });
 //Верификация емейла
-router.post('/verify', checkAuth, async (req, res) => {
-    const { verifeid_code } = req.body;
-    const refresh_token = req.cookies.refresh_token;
-    const data = await getUserForToken(refresh_token);
-    if (!data) {
-        return res.status(403).json({ message: 'Not found user' });
+router.post('/verify', limiter, async (req, res) => {
+    const { id, verifeid_code } = req.body.data;
+    //Проблема в sql запросе
+    try {
+        const [accsesToken, refreshToken] = await verifyService.veify({ id, verifeid_code });
+        res.cookie("refresh_token", refreshToken, options);
+        return res.status(200).json({ success: true, access_token: accsesToken, });
     }
-    let verifeidTime = 0;
-    if (data.verifeid_expire_time) {
-        verifeidTime = data.verifeid_expire_time;
+    catch (error) {
+        return res.status(error.status || 500).json({ error: error.message });
     }
-    if (data.verifeid_code === verifeid_code) {
-        if (Date.now() < verifeidTime) {
-            updateVerifyStatus(data.id, "Yes", null, null);
-            return res.status(200).json({ message: "You are verifeid" });
-        }
-        return res.status(403).json({ message: "expired code" });
-    }
-    return res.status(403).json({ message: "uncorrect code" });
 });
 //Отправить код повторно
-router.post('/verify/new', checkAuth, async (req, res) => {
-    let verifeid_code = Math.floor(Math.random() * 100000);
-    const refresh_token = req.cookies.refresh_token;
-    const data = await getUserForToken(refresh_token);
-    if (!data) {
+router.post('/verify/new', async (req, res) => {
+    let verifeid_code = Math.floor(Math.random() * 100000).toString();
+    const { id } = req.body;
+    const record = await getCodeForId(id);
+    // Дописать отправку ссілки
+    if (!record) {
         return res.status(403).json({ message: 'Not found user' });
     }
-    updateVerifyCode(data.id, verifeid_code, Date.now() + 30000);
-    // sendlerEmailCode(email, code.toString())
-    return res.status(200);
+    await authRepository.updateVerifyCode(record.id, verifeid_code, dateExpire(120000));
+    // sendlerEmailCode(email, code)
+    return res.status(200).json({ message: "ok" });
 });
 // логин
 router.post("/login", limiter, async (req, res) => {
     const { email, password_hash } = req.body;
-    const data = await getUserForEmail(email);
-    const isMatch = await comparePass(password_hash, data.password_hash);
-    const token = createToken(data);
-    const [access_token, refresh_token] = token;
-    let hashedRefreshToken = "";
-    if (refresh_token) {
-        hashedRefreshToken = await hashedString(refresh_token);
-    }
-    if (data && isMatch) {
-        hashedRefreshToken ? await updateRefreshToken(data.id, hashedRefreshToken) : console.error("refresh_token is undefined");
-        res.cookie("refresh_token", refresh_token, options);
-        return res.json({
-            access_token: access_token,
+    try {
+        const [accsesToken, refreshToken] = await loginService.login({ email, password_hash });
+        res.cookie("refresh_token", refreshToken, options);
+        return res.status(200).json({
+            access_token: accsesToken,
         });
     }
-    return res.send("Unkorrect login or password");
+    catch (error) {
+        return res.status(error.status || 500).json({ error: error.message });
+    }
 });
 //Обновление акцес токена
 router.post("/refresh", async (req, res) => {
+    const { id } = req.body;
     const refresh_token = req.cookies.refresh_token;
-    if (!refresh_token) {
-        return res.status(403).json({ message: 'haven`t token' });
+    try {
+        const token = await refreshService.refresh({ id, refresh_token });
+        res.status(200).json({ access_token: token });
     }
-    const decoded = decodedRefreshToken(refresh_token);
-    const data = await getUserForId(decoded?.id);
-    if (!data) {
-        return res.status(403).json({ message: 'Not found user' });
+    catch (error) {
+        return res.status(error.status || 500).json({ error: error.message });
     }
-    const isMatch = await bcrypt.compare(refresh_token, data.refresh_token);
-    if (!isMatch)
-        return res.status(403).json({ message: "Token mismatch" });
-    const token = refreshToken(refresh_token, data);
-    if (!token) {
-        return res.status(403).json({ message: 'Uncorrect token' });
-    }
-    console.log(data);
-    res.json({ access_token: token });
 });
 //Логаут
 router.post("/logout", async (req, res) => {
@@ -136,47 +96,33 @@ router.post("/logout", async (req, res) => {
 // Сброс пароля
 router.post('/resetpassword', async (req, res) => {
     const { email } = req.body;
-    const token = crypto.randomBytes(32).toString("hex");
-    hashedString(token);
-    const link = `https://localhost:3000/reset-password?token=${token}`;
-    // sendlerEmailCode(email, link)
-    const data = await getUserForEmail(email);
-    if (data) {
-        addRestToken(data.id, token, Date.now() + 100000);
-    }
+    await resetpasswordService.reset({ email });
     return res.status(200).json({ message: "confirm link was send on your email" });
 });
-//Смена пароля
-router.post('/changepassword', async (req, res) => {
-    const token = req.query.token;
+//Смена пароля 
+router.patch('/changepassword', async (req, res) => {
+    const token = req.body.token;
     const newpassord = req.body.newpassord;
-    let data = null;
-    if (typeof token === "string") {
-        data = await getUserForRestToken(token);
-    }
-    if (!data) {
-        res.status(403).json({ message: "User not found" });
-    }
-    if (data !== null && data?.rest_expire !== null) {
-        if (data.rest_token === token && Date.now() < data.rest_expire) {
-            const hashedPass = await hashedString(newpassord);
-            changePassword(data.id, hashedPass, null);
-            const token = createToken(data);
-            const [access_token, refresh_token] = token;
-            return res.status(200).json({ message: "Your password was chenged", access_token: access_token, });
+    const key = req.body.key;
+    try {
+        const access_token = await changepasswordService.changepassword({ token, key, newpassord });
+        if (!access_token) {
+            return res.status(403).json({ message: "Your token was expire or unccorect" });
         }
-        return res.status(403).json({ message: "Your token was expire" });
+        return res.status(200).json({ message: "Your password was chenged", access_token: access_token });
+    }
+    catch (error) {
+        return res.status(error.status || 500).json({ error: error.message });
     }
 });
-//
 //Админ
-router.post('/admin', checkAuth, (req, res) => {
-    const token = req.headers.authorization;
-    let decoded = null;
-    if (token) {
-        decoded = decodedAccsesToken(token);
+router.post('/admin', checkAuth, async (req, res) => {
+    const { id } = req.body;
+    const data = await getUserForId(id);
+    if (!data) {
+        res.status(403).json({ message: "User unfound" });
     }
-    const status = decoded?.status;
+    const status = data.status;
     if (status) {
         status === "admin" ? res.status(200).json({ message: "You are admin" }) : res.status(403).json({ message: "You are not admin" });
     }
