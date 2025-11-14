@@ -36,3 +36,11 @@ export type UserRecordType = {
     code: string
     expires_at: string
 }
+
+export type BoardType = {
+    id: number
+    user_id: number
+    title: string
+    order_index: number
+    created_at: string
+}

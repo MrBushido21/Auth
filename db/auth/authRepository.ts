@@ -1,4 +1,4 @@
-import * as auth from "./db.repository.js"
+import * as auth from "./db.dao.js"
 
 export const authRepository = {
     createUser: auth.createUser,

@@ -1,4 +1,4 @@
-import { sqlRun } from "./db.constructor.js"
+import { sqlRun } from "../db.constructor.js"
 
 export const createTableUsers = async (): Promise<void> => {
     // await sqlRun(`DROP TABLE users`)

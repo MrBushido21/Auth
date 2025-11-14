@@ -4,7 +4,7 @@ import jwt, { type JwtPayload } from "jsonwebtoken"
 import type { CookieOptions, NextFunction, Request, Response } from "express";
 import nodemailer from "nodemailer"
 import { error } from "console";
-import { getUserForId } from "../db/db.repository.js";
+import { getUserForId } from "../db/auth/db.dao.js";
 import rateLimit from "express-rate-limit";
 
 export const generateCode = () => {

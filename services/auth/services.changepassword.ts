@@ -1,7 +1,7 @@
 import { compare } from "bcryptjs";
-import { authRepository } from "../db/authRepository.js";
-import type { CodesType, UsersType } from "../types/types.js";
-import { createToken, hashedString, newError } from "../utils/utils.js";
+import { authRepository } from "../../db/auth/authRepository.js";
+import type { CodesType, UsersType } from "../../types/types.js";
+import { createToken, hashedString, newError } from "../../utils/utils.js";
 
 export const changepasswordService = {
     async changepassword({ token, key, newpassord }: { token: string; key:string; newpassord: string }) {

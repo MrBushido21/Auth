@@ -1,5 +1,5 @@
-import { authRepository } from "../db/authRepository.js"
-import { dateExpire, dateNow, hashedString } from "../utils/utils.js"
+import { authRepository } from "../../db/auth/authRepository.js"
+import { dateExpire, dateNow, hashedString } from "../../utils/utils.js"
 import crypto from "crypto";
 
 export const resetpasswordService = {

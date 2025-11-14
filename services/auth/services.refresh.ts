@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import { authRepository } from "../db/authRepository.js";
-import { newError, refreshToken } from "../utils/utils.js";
+import { authRepository } from "../../db/auth/authRepository.js";
+import { newError, refreshToken } from "../../utils/utils.js";
 
 export const refreshService = {
     async refresh({ id, refresh_token }: { id: number; refresh_token: string }): Promise<string | null> {

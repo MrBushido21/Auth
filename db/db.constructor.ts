@@ -33,7 +33,7 @@ export const sqlGet = (sqlText: string, sqlParams?: unknown[]): Promise<any> => 
     })
   })
 } 
-export const sqlAll = (sqlText: string, sqlParams?: unknown[]): Promise<UsersType[]> => {
+export const sqlAll = (sqlText: string, sqlParams?: unknown[]): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     db.all(sqlText, sqlParams, (err: unknown, data: UsersType[]) => {
       if (err) {

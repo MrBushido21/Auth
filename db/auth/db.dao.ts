@@ -1,6 +1,6 @@
-import type { CodesType, TokensType, UserRecordType, UsersType } from "../types/types.js";
-import { isUser } from "../utils/utils.js";
-import { sqlAll, sqlGet, sqlRun } from "./db.constructor.js";
+import type { CodesType, TokensType, UserRecordType, UsersType } from "../../types/types.js";
+import { isUser } from "../../utils/utils.js";
+import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js";
 // Create
 export const createUser = async (user: UsersType): Promise<void> => {
     const { id, password_hash, email, status, created_at, updated_at, verifeid_at } = user

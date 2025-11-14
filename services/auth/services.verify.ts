@@ -1,5 +1,5 @@
-import { authRepository } from "../db/authRepository.js";
-import { createToken, dateExpire, dateNow, hashedString, newError } from "../utils/utils.js";
+import { authRepository } from "../../db/auth/authRepository.js";
+import { createToken, dateExpire, dateNow, hashedString, newError } from "../../utils/utils.js";
 
 export const verifyService = {
     async veify ({id, verifeid_code}: {id: number; verifeid_code: string}) {

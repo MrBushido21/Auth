@@ -1,5 +1,5 @@
-import { authRepository } from "../db/authRepository.js";
-import { comparePass, createToken, hashedString, newError } from "../utils/utils.js";
+import { authRepository } from "../../db/auth/authRepository.js";
+import { comparePass, createToken, hashedString, newError } from "../../utils/utils.js";
 
 export const loginService = {
     async login({email, password_hash}: {email: string; password_hash: string}): Promise<string[]> {

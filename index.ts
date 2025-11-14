@@ -3,8 +3,8 @@ dotenv.config()
 import express, { type Request, type Response } from "express";
 import authRouter from "./routes/routes.post.auth.js"
 import htmlRouter from "./routes/routes.get.html.js"
-import { createTableUsers } from "./db/db.createTable.js";
-import { deleteAll, deleteUser, getUsers } from "./db/db.repository.js";
+import { createTableUsers } from "./db/auth/db.createTable.js";
+import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
 import { dateExpire, sendlerEmailCode } from "./utils/utils.js";
 

@@ -1,6 +1,6 @@
-import { authRepository } from "../db/authRepository.js";
-import type { UsersType } from "../types/types.js";
-import { dateExpire, dateNow, generateCode, hashedString, sendlerEmailCode } from "../utils/utils.js";
+import { authRepository } from "../../db/auth/authRepository.js";
+import type { UsersType } from "../../types/types.js";
+import { dateExpire, dateNow, generateCode, hashedString, sendlerEmailCode } from "../../utils/utils.js";
 
 export const userService = {
   async register({ email, password_hash }: { email: string; password_hash: string }): Promise<UsersType> {
