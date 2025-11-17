@@ -2,11 +2,13 @@ import dotenv from "dotenv"
 dotenv.config()
 import express, { type Request, type Response } from "express";
 import authRouter from "./routes/routes.post.auth.js"
+import productsRouter from "./routes/routers.post.products.js"
 import htmlRouter from "./routes/routes.get.html.js"
 import { createTableUsers } from "./db/auth/db.createTable.js";
 import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
 import { dateExpire, sendlerEmailCode } from "./utils/utils.js";
+import { createTables } from "./db/service/db.createTable.js";
 
 
 const app = express();
@@ -14,6 +16,7 @@ const port = process.env.PORT || 3000;
 
 const run = async () => {
 await createTableUsers()
+await createTables()
 
 const jsonBodyModdleweare = express.json()
 app.use(jsonBodyModdleweare)
@@ -21,6 +24,7 @@ app.use(cookieParser());
 app.use("/", htmlRouter);
 
 app.use('/', authRouter)
+app.use('/', productsRouter)
 
 app.get('/', async (req, res) => {
   // deleteAll()  

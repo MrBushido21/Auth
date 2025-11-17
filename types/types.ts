@@ -44,3 +44,14 @@ export type BoardType = {
     order_index: number
     created_at: string
 }
+
+export type ProductType = {
+    id: number
+    title: string
+    description: string
+    price: number
+    image_url: string | null
+    category_id: number
+    created_at: string
+    updated_at: string
+}

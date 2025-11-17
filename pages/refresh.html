@@ -12,10 +12,12 @@
   <script>
     document.getElementById("sendBtn").addEventListener("click", () => {
       const data = {
-        email: "olegliskok@gmail.com",
-        id: 93319,
-        status: "user",
-        verifeid_code: 6991
+        title: "Title", 
+        description: "Description",
+        price: 15, 
+        category_id: 1, 
+        created_at: Date.now().toString(), 
+        updated_at: Date.now().toString()
       };
 
       // fetch("http://localhost:3000/resetpassword", {
@@ -26,13 +28,13 @@
       //   },
       //   body: JSON.stringify({email: data.email})
       // })
-      fetch("http://localhost:3000/changepassword", {
-        method: "PATCH",
+      fetch("http://localhost:3000/createproduct", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           "authorization": ""
         },
-        body: JSON.stringify({token: "53645c153ac7c84d6657adc618542b97a563523dcad8cf0a5bf5a9fd643e9b7e", key: "158645383eaff22fd2dc", newpassord: "0987"})
+        body: JSON.stringify({data})
       })
         .then(res => res.json())
         .then(response => {
