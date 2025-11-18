@@ -9,3 +9,13 @@ export const createProduct = async (title: string, description: string, price: n
         VALUES (?, ?, ?, ?, ?, ?);
         `, [title, description, price, category_id, created_at, updated_at])
 }
+
+export const getAllProducts = async (): Promise<any[]> => {
+    const products: any[] = await sqlAll(`SELECT * FROM products`);
+    if (!Array.isArray(products)) {
+        console.log(`Unknow format of data, Data: ${products}`);
+    }
+
+    return products
+}
+

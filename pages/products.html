@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Список товаров</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 40px auto; padding: 20px; background: #f0f0f0; }
+    h1 { text-align: center; }
+    .product-card {
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+    .product-card h3 { margin: 0 0 5px; }
+  </style>
+</head>
+<body>
+  <h1>Список товаров</h1>
+  <div id="products">Загрузка...</div>
+
+   <script>
+    function renderProducts(data) {
+      const container = document.getElementById('products');
+      container.innerHTML = '';
+
+      data.map(item => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <h3>${item.title}</h3>
+          <p><strong>Описание:</strong> ${item.description}</p>
+          <p><strong>Цена:</strong> ${item.price} грн</p>
+          <p><strong>ID категории:</strong> ${item.category_id}</p>
+          <p><strong>Создан:</strong> ${new Date(Number(item.created_at)).toLocaleString()}</p>
+          <p><strong>Обновлён:</strong> ${new Date(Number(item.updated_at)).toLocaleString()}</p>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    fetch('http://localhost:3000/getproducts_data')
+      .then(res => res.json())
+      .then(response => {
+        console.log(response);  
+        renderProducts(response);
+      })
+      .catch(err => {
+        document.getElementById('products').innerText = 'Ошибка загрузки данных: ' + err;
+        console.error('Ошибка:', err);
+      });
+  </script>
+</body>
+</html>

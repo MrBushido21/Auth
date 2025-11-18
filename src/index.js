@@ -9,6 +9,7 @@ import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
 import { dateExpire, sendlerEmailCode } from "./utils/utils.js";
 import { createTables } from "./db/service/db.createTable.js";
+import { getAllProducts } from "./db/service/db.dao.js";
 const app = express();
 const port = process.env.PORT || 3000;
 const run = async () => {
