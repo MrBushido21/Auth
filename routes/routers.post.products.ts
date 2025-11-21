@@ -1,7 +1,9 @@
 import { Router, type Request, type Response } from "express";
-import type { BoardType, ProductType } from "../types/types.js";
+import type { CartType, ProductType } from "../types/types.js";
 import Admin from "../services/admin/services.admin.js";
-import { getAllProducts } from "../db/service/db.dao.js";
+import { decodedAccsesToken } from "../utils/utils.js";
+import Cart from "../services/produtcs/services.cartAdd.js";
+import { checkAuth } from "../middleware/middleware.auth.js";
 
 const router = Router();
 
@@ -23,16 +25,22 @@ router.post('/createproduct', async (req: Request, res: Response) => {
     
 })
 
-router.get('/getproducts_data', async (req, res) => {
-    const data = await getAllProducts()
-    console.log(Array.isArray(data));
-    console.log(data);
+router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
+    const {user, product_id, quantity, price} = req.body
     
-    if (!data) {
-        return res.status(500).json({message: "somthig wrong"})
-    }
-
-    return res.status(200).json(data)
+    const cart = new Cart(user.id, product_id, quantity, price)
+    await cart.getOrCreateCart()
+    await cart.controllerCartItems()
+    const cartItems = await cart.getCartItemsWithCartId()
+    
+    return res.status(200).json(cartItems)
+    
 })
+
+// router.post('/deletecart', checkAuth, async (req: Request, res: Response) => {
+//     const {user} = req.body
+//     const cart = new Cart(user.id, 0, 0, 0)
+
+// })
 
 export default router

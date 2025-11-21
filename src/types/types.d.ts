@@ -32,12 +32,11 @@ export type UserRecordType = {
     code: string;
     expires_at: string;
 };
-export type BoardType = {
+export type CartType = {
     id: number;
     user_id: number;
-    title: string;
-    order_index: number;
     created_at: string;
+    updated_at: string;
 };
 export type ProductType = {
     id: number;
@@ -48,5 +47,13 @@ export type ProductType = {
     category_id: number;
     created_at: string;
     updated_at: string;
+};
+export type CartItem = {
+    id: number;
+    cart_id: number;
+    product_id: number;
+    quantity: number;
+    price: number;
+    added_at: string;
 };
 //# sourceMappingURL=types.d.ts.map

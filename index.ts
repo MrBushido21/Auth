@@ -2,14 +2,14 @@ import dotenv from "dotenv"
 dotenv.config()
 import express, { type Request, type Response } from "express";
 import authRouter from "./routes/routes.post.auth.js"
-import productsRouter from "./routes/routers.post.products.js"
+import productsPostRouter from "./routes/routers.post.products.js"
+import productsGetRouter from "./routes/routers.get.products.js"
 import htmlRouter from "./routes/routes.get.html.js"
 import { createTableUsers } from "./db/auth/db.createTable.js";
 import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
 import { dateExpire, sendlerEmailCode } from "./utils/utils.js";
-import { createTables } from "./db/service/db.createTable.js";
-import { getAllProducts } from "./db/service/db.dao.js";
+import { createTables } from "./db/products/db.createTable.js";
 
 
 const app = express();
@@ -25,7 +25,8 @@ app.use(cookieParser());
 app.use("/", htmlRouter);
 
 app.use('/', authRouter)
-app.use('/', productsRouter)
+app.use('/', productsPostRouter)
+app.use('/', productsGetRouter)
 
 app.get('/', async (req, res) => {
   // deleteAll()  

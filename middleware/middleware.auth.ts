@@ -9,7 +9,8 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction): void
     return res.status(403).json({ message: 'haven`t token' })
   }
   try {
-    jwt.verify(token, process.env.JWT_SECRET_ACCESS || "super_secret_key_accses")
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_ACCESS || "super_secret_key_accses")
+    req.body.user = decoded
     next()
   } catch (error) {
     console.error(error);

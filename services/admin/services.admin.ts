@@ -1,4 +1,4 @@
-import { boardRepository } from "../../db/service/boardRepository.js";
+import { productsRepository } from "../../db/products/productsRepository.js";
 import type { ProductType } from "../../types/types.js";
 
 class Admin {
@@ -8,7 +8,7 @@ class Admin {
     }
 
     async createdProduct() {
-        await boardRepository.createBoard(
+        await productsRepository.createProduct(
             this.data.title,
             this.data.description,
             this.data.price,

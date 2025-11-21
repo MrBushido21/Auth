@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getCodeForId, getUserForId, updateRefreshToken } from "../db/auth/db.dao.js";
-import { dateExpire, decodedAccsesToken, limiter, options, } from "../utils/utils.js";
+import { createToken, dateExpire, decodedAccsesToken, limiter, options, } from "../utils/utils.js";
 import { checkAuth } from "../middleware/middleware.auth.js";
 import { registerShemas } from "../shemas/validation.js";
 import { validation } from "../middleware/middleware.validation.js";
@@ -13,7 +13,7 @@ import { resetpasswordService } from "../services/auth/services.resetpassword.js
 import { changepasswordService } from "../services/auth/services.changepassword.js";
 const router = Router();
 // регистрация
-router.post("/registration", validation(registerShemas), async (req, res) => {
+router.post("/registration", async (req, res) => {
     const { email, password_hash } = req.body;
     try {
         const user = await userService.register({ email, password_hash });

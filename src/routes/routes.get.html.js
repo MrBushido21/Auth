@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllProducts } from "../db/service/db.dao.js";
+import { getAllProducts } from "../db/products/db.dao.js";
 const router = Router();
 router.get("/login", (req, res) => {
     res.sendFile("index.html", { root: "./pages" });

@@ -50,7 +50,7 @@ function createTokenUtils(data, secret) {
     };
     const token = jwt.sign(payload, secret, {
         algorithm: "HS256",
-        expiresIn: "10m"
+        expiresIn: "60m"
     });
     return token;
 }

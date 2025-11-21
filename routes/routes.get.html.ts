@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { getAllProducts } from "../db/service/db.dao.js";
+import { getAllProducts } from "../db/products/db.dao.js";
 
 const router = Router()
 router.get("/login", (req: Request, res: Response) => {

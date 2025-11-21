@@ -1,7 +1,7 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
 import type { UsersType } from "../types/types.js";
 import { getCodeForId, getUserForId, updateRefreshToken} from "../db/auth/db.dao.js";
-import { dateExpire, decodedAccsesToken, limiter, options, } from "../utils/utils.js";
+import { createToken, dateExpire, decodedAccsesToken, limiter, options, } from "../utils/utils.js";
 import { checkAuth } from "../middleware/middleware.auth.js";
 import { registerShemas } from "../shemas/validation.js";
 import { validation } from "../middleware/middleware.validation.js";
@@ -17,7 +17,7 @@ import { changepasswordService } from "../services/auth/services.changepassword.
 const router = Router();
 
 // регистрация
-router.post("/registration", validation(registerShemas), async (req: Request<{}, {}, UsersType>, res: Response) => { 
+router.post("/registration", async (req: Request<{}, {}, UsersType>, res: Response) => { //validation(registerShemas),
   const { email, password_hash } = req.body;
 
  try {

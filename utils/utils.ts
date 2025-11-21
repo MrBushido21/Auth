@@ -62,7 +62,7 @@ function createTokenUtils(data: UsersType, secret: string): string {
   }
   const token = jwt.sign(payload, secret, {
     algorithm: "HS256",
-    expiresIn: "10m"
+    expiresIn: "60m"
   })
 
   return token
