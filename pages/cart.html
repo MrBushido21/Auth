@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Корзина</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f7f7f7; }
+    h1 { text-align: center; }
+
+    .cart-item {
+      background: white;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .cart-item p { margin: 4px 0; }
+    .btn {
+      padding: 8px 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-delete { background: #ff4d4d; color: white; }
+    .btn-clear { background: #333; color: white; width: 100%; }
+  </style>
+</head>
+
+<body>
+
+<h1>Корзина</h1>
+
+<button class="btn btn-clear" onclick="clearCart()">Очистить корзину полностью</button>
+
+<div id="cart-container"></div>
+
+<script>
+ token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2Mzk5MDc5MCwiZXhwIjoxNzYzOTk0MzkwfQ.rUqr6Rf_YZ4oP_XT-jE_vOyM1Ephc7BAYpcuBkJpVyE"
+async function loadCart() {
+    const res = await fetch('/getcartitems', {
+      method: "GET",
+      headers: {
+        "authorization": token,
+        "Content-Type": "application/json"
+      },
+    });
+
+    const items = await res.json(); // массив товаров
+    renderCart(items);
+  }
+
+  function renderCart(items) {
+    const container = document.getElementById("cart-container");
+    container.innerHTML = "";
+
+    if (items.length === 0) {
+      container.innerHTML = "<p>Корзина пуста</p>";
+      return;
+    }
+
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "cart-item";
+
+      div.innerHTML = `
+        <p><strong>ID товара:</strong> ${item.product_id}</p>
+        <p><strong>Количество:</strong> ${item.quantity}</p>
+        <p><strong>Цена:</strong> ${item.price} грн</p>
+        <p><strong>Добавлен:</strong> ${item.added_at}</p>
+
+        <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">
+          Удалить товар
+        </button>
+      `;
+
+      container.appendChild(div);
+    });
+  }
+
+  async function deleteItem(id) {
+    if (!confirm("Удалить товар?")) return;
+
+    await fetch(`/deletecartitem?id=${id}`, {
+      method: "DELETE",
+      headers: { "Authorization": token },
+    });
+
+    loadCart();
+  }
+
+  async function clearCart() {
+    if (!confirm("Очистить корзину полностью?")) return;
+
+    await fetch('/clearcart', {
+      method: "DELETE",
+      headers: { "Authorization": token }
+    });
+
+    loadCart();
+  }
+
+  loadCart();
+</script>
+
+</body>
+</html>

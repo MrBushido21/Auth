@@ -5,6 +5,7 @@ import authRouter from "./routes/routes.post.auth.js"
 import productsPostRouter from "./routes/routers.post.products.js"
 import productsGetRouter from "./routes/routers.get.products.js"
 import htmlRouter from "./routes/routes.get.html.js"
+import cartDeleteRouter from "./routes/routers.delete.cart.js"
 import { createTableUsers } from "./db/auth/db.createTable.js";
 import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
@@ -27,6 +28,7 @@ app.use("/", htmlRouter);
 app.use('/', authRouter)
 app.use('/', productsPostRouter)
 app.use('/', productsGetRouter)
+app.use('/', cartDeleteRouter)
 
 app.get('/', async (req, res) => {
   // deleteAll()  

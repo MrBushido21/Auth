@@ -1,3 +1,5 @@
+import type { Request } from "express"
+
 export type UsersType = {
     id: number
     email: string

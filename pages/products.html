@@ -44,7 +44,9 @@ button:hover { background: #1a5fc4; }
     function addToCart(productId) {
       fetch("/cart/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWciLCJpZCI6OTYzMjgsImlhdCI6MTc2MzcxNTYzOSwiZXhwIjoxNzYzNzE5MjM5fQ.lC-3jPoNllMV3IGZO9HE8nCAOQufu-1hsp77ocGu0dc" },
+        headers: { "Content-Type": "application/json", 
+        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2Mzk5MDc5MCwiZXhwIjoxNzYzOTk0MzkwfQ.rUqr6Rf_YZ4oP_XT-jE_vOyM1Ephc7BAYpcuBkJpVyE"
+       },
         body: JSON.stringify({ product_id: productId, quantity: 1})
       })
       .then(r => r.json())

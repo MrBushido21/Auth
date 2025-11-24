@@ -21,7 +21,8 @@ export const getCart = async (user_id:number):Promise<CartType> => {
     const cart:CartType = await sqlGet(`
         SELECT * FROM carts WHERE user_id = ?
         `, [user_id])
-
+        console.log(cart);
+        
         return cart
 }
 
@@ -29,7 +30,7 @@ export const getCartItem = async (cart_id:number, product_id:number):Promise<Car
     const cartItem:CartItem = await sqlGet(`
         SELECT * FROM cart_items WHERE cart_id = ? AND product_id = ?
         `, [cart_id, product_id])
-
+    
     return cartItem
 }
 
@@ -38,7 +39,7 @@ export const getCartItemsWithCartId = async (cart_id:number):Promise<CartItem[]>
     const cartItems:CartItem[] = await sqlAll(`
         SELECT * FROM cart_items WHERE cart_id = ?
         `, [cart_id])
-
+        
     return cartItems
 }
 
@@ -64,11 +65,11 @@ export const deleteCart = async (id:number):Promise<void> => {
 }
 export const deleteCartItem = async (id:number):Promise<void> => {
     await sqlRun(`
-        DELETE FROM carts WHERE id = ?
+        DELETE FROM cart_items WHERE id = ?
         `, [id])
 }
 export const deleteCartItemWithCartId = async (cart_id:number):Promise<void> => {
     await sqlRun(`
-        DELETE FROM carts WHERE cart_id = ?
+        DELETE FROM cart_items WHERE cart_id = ?
         `, [cart_id])
 }
