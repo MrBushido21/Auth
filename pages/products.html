@@ -45,9 +45,10 @@ button:hover { background: #1a5fc4; }
       fetch("/cart/add", {
         method: "POST",
         headers: { "Content-Type": "application/json", 
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2Mzk5MDc5MCwiZXhwIjoxNzYzOTk0MzkwfQ.rUqr6Rf_YZ4oP_XT-jE_vOyM1Ephc7BAYpcuBkJpVyE"
+        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDE2NTUzMiwiZXhwIjoxNzY0MTY5MTMyfQ.rInV0uC0icynAYdZK6MRrixYj2r3WzwYIXurZaoDudQ"
        },
         body: JSON.stringify({ product_id: productId, quantity: 1})
+        
       })
       .then(r => r.json())
       .then(response => {

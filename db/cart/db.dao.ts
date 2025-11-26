@@ -21,7 +21,6 @@ export const getCart = async (user_id:number):Promise<CartType> => {
     const cart:CartType = await sqlGet(`
         SELECT * FROM carts WHERE user_id = ?
         `, [user_id])
-        console.log(cart);
         
         return cart
 }
@@ -54,6 +53,26 @@ export const updateCartItem = async (product_id:number, quantity:number, price:n
         `,
         [quantity, price, product_id])
 }
+
+export const increaseQuntity = async (id:number):Promise<void> => {
+    await sqlRun(`
+        UPDATE cart_items  
+        SET quantity = quantity + 1,
+        price = (price / quantity) + price
+        WHERE id = ?
+        `,
+        [id])
+}
+export const decreaseQuntity = async (id:number):Promise<void> => {
+    await sqlRun(`
+        UPDATE cart_items  
+        SET quantity = quantity - 1,
+        price = price - (price / quantity)
+        WHERE id = ?
+        `,
+        [id])
+}
+
 
 
 //Delete

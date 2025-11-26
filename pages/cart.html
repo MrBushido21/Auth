@@ -17,6 +17,23 @@
     }
 
     .cart-item p { margin: 4px 0; }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .qty-btn {
+      padding: 6px 12px;
+      font-size: 18px;
+      background: #ddd;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     .btn {
       padding: 8px 12px;
       margin-top: 10px;
@@ -24,8 +41,10 @@
       border-radius: 6px;
       cursor: pointer;
     }
+
     .btn-delete { background: #ff4d4d; color: white; }
     .btn-clear { background: #333; color: white; width: 100%; }
+
   </style>
 </head>
 
@@ -38,10 +57,11 @@
 <div id="cart-container"></div>
 
 <script>
- token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2Mzk5MDc5MCwiZXhwIjoxNzYzOTk0MzkwfQ.rUqr6Rf_YZ4oP_XT-jE_vOyM1Ephc7BAYpcuBkJpVyE"
+ token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDE2NTUzMiwiZXhwIjoxNzY0MTY5MTMyfQ.rInV0uC0icynAYdZK6MRrixYj2r3WzwYIXurZaoDudQ"
 async function loadCart() {
     const res = await fetch('/getcartitems', {
       method: "GET",
+      credentials: "include",
       headers: {
         "authorization": token,
         "Content-Type": "application/json"
@@ -67,24 +87,48 @@ async function loadCart() {
 
       div.innerHTML = `
         <p><strong>ID товара:</strong> ${item.product_id}</p>
-        <p><strong>Количество:</strong> ${item.quantity}</p>
         <p><strong>Цена:</strong> ${item.price} грн</p>
-        <p><strong>Добавлен:</strong> ${item.added_at}</p>
-
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>
+          <span><strong>${item.quantity}</strong></span>
+          <button class="qty-btn" onclick="increaseQty(${item.product_id})">+</button>
+        </div>
         <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">
           Удалить товар
         </button>
+
+        
       `;
 
       container.appendChild(div);
     });
   }
 
+  async function increaseQty(id) {
+    await fetch(`/cart/quantity?id=${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": token },
+      body: JSON.stringify({operator: "+"})
+    });
+    loadCart();
+  }
+
+  async function decreaseQty(id) {
+    await fetch(`/cart/quantity?id=${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": token },
+      body: JSON.stringify({operator: "-"})
+    });
+    loadCart();
+  }
+
+
   async function deleteItem(id) {
     if (!confirm("Удалить товар?")) return;
 
     await fetch(`/deletecartitem?id=${id}`, {
       method: "DELETE",
+      credentials: "include",
       headers: { "Authorization": token },
     });
 
@@ -96,6 +140,7 @@ async function loadCart() {
 
     await fetch('/clearcart', {
       method: "DELETE",
+      credentials: "include",
       headers: { "Authorization": token }
     });
 

@@ -74,6 +74,7 @@ router.post("/login", limiter, async (req: Request<{}, {}, UsersType, {}>, res: 
   try {
     const [accsesToken, refreshToken] = await loginService.login({ email, password_hash })
     res.cookie("refresh_token", refreshToken, options);
+    res.cookie("cart_id", 40567, options);
     return res.status(200).json({
       access_token: accsesToken,
     })

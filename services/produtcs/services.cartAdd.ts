@@ -41,11 +41,16 @@ import { dateNow, newError } from "../../utils/utils.js"
     }
 
     async getCartItemsWithCartId() {
-        const cart_id = (await cartRepository.getCart(this.user_id))?.id      
-        newError(cart_id, 404, "Not found cart user_id is bad") 
+        let cart_id = (await cartRepository.getCart(this.user_id))?.id 
+
+        if (!cart_id) {
+            cart_id = (await this.getOrCreateCart()).id
+        }
         const cartItems = await cartRepository.getCartItemsWithCartId(cart_id)
+        
         return cartItems
     }
+
 
     async deleteCartItem() {
         try {
@@ -56,6 +61,22 @@ import { dateNow, newError } from "../../utils/utils.js"
             console.error(error);
             
         }
+    }
+
+    async increaseQuntity() {
+        const cart_id = (await cartRepository.getCart(this.user_id)).id
+        const cartItem_id = (await cartRepository.getCartItem(cart_id, this.product_id)).id
+        
+        await cartRepository.increaseQuntity(cartItem_id)
+    }
+    async decreaseQuntity() {
+        const cart_id = (await cartRepository.getCart(this.user_id)).id
+        const cartItem = (await cartRepository.getCartItem(cart_id, this.product_id))
+        const cartItem_id = cartItem.id
+        if ((cartItem.quantity - 1) === 0) {
+            this.deleteCartItem()
+        }
+        await cartRepository.decreaseQuntity(cartItem_id)
     }
 
     async deleteCartItemWithCartId() {

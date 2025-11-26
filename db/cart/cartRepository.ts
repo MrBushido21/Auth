@@ -10,6 +10,8 @@ export const cartRepository = {
     deleteCart: cart.deleteCart,
     deleteCartItem: cart.deleteCartItem,
     deleteCartItemWithCartId: cart.deleteCartItemWithCartId,
+    increaseQuntity: cart.increaseQuntity,
+    decreaseQuntity: cart.decreaseQuntity,
 }
 
 //Создал корзину, нужно еще создадь товарі и отправлять результат

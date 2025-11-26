@@ -28,7 +28,7 @@ export const newError = (value:any, status:number, err:string) => {
 //Константы
 export const options: CookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: false,
   sameSite: "strict",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 }

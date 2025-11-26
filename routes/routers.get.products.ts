@@ -16,11 +16,17 @@ router.get('/getproducts_data', async (req, res) => {
     }
 })
 router.get('/getcartitems', checkAuth, async (req:Request, res: Response) => {
-    const user = req.user
-    //Чтото придумать с корзиной когда нету корзині у пользователя когда ее создавать
+    let user = req.user
+    let user_id: number | undefined = 0
+    if (user && typeof user !== "string") {
+        user_id = user.id      
+    }  else {
+        user_id = req.user_id
+    } 
+    
     try {
-        if (user && typeof user !== "string") {      
-        const cart = new Cart(user.id, 0, 0, 0)
+        if (user_id) {                 
+        const cart = new Cart(user_id, 0, 0, 0)
         const cartItems = await cart.getCartItemsWithCartId()  
         return res.status(200).json(cartItems)
         }
