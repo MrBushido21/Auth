@@ -65,3 +65,17 @@ export type CartItem = {
     price:number
     added_at:string
 }
+
+export type OrderType = {
+    id:number
+    user_id: number
+    full_name: string
+    phone_number: number
+    city:string 
+    email: string | null
+    comment: string | null
+    call:string 
+    total_price: number
+    status: "yes" | "no"
+    created_at:string 
+}

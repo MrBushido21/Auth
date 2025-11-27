@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Оформлення замовлення</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f3f3;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        button {
+            width: 100%;
+            background: #000;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .cart-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item p {
+            margin: 4px 0;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .qty-btn {
+            padding: 6px 12px;
+            font-size: 18px;
+            background: #ddd;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .btn-clear {
+            background: #333;
+            color: white;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Деталі замовлення</h1>
+
+        <div class="form-group">
+            <label for="fullname">ПІБ</label>
+            <input type="text" value="Oleg" id="fullname" name="fullname" />
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Телефон</label>
+            <input type="text" value="068" id="phone" name="phone" />
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" checked id="no_call" name="no_call" />
+            <label for="no_call">Телефонувати для підтвердження замовлення</label>
+        </div>
+
+        <div class="form-group">
+            <label for="city">Місто</label>
+            <input type="text" id="city" name="city" value="Дніпро" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">E-пошта</label>
+            <input type="email" id="email" name="email" />
+        </div>
+
+        <div class="form-group">
+            <label for="comment">Коментар</label>
+            <textarea id="comment" name="comment" rows="4"></textarea>
+        </div>
+        <div id="cart-container"></div>
+        <button id="submitOrder">Оформити замовлення</button>
+    </div>
+
+    <script>
+        const token = ""
+        async function loadCart() {
+            const res = await fetch('/getcartitems', {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "authorization": token,
+                    "Content-Type": "application/json"
+                },
+            });
+
+            const items = await res.json(); // массив товаров
+            renderCart(items);
+        }
+
+        function renderCart(items) {
+            const container = document.getElementById("cart-container");
+            container.innerHTML = "";
+
+            if (items.length === 0) {
+                container.innerHTML = "<p>Корзина пуста</p>";
+                return;
+            }
+
+            items.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "cart-item";
+
+                div.innerHTML = `
+        <p><strong>ID товара:</strong> ${item.product_id}</p>
+        <p><strong>Цена:</strong> ${item.price} грн</p>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>
+          <span><strong>${item.quantity}</strong></span>
+          <button class="qty-btn" onclick="increaseQty(${item.product_id})">+</button>
+        </div>
+        <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">
+          Удалить товар
+        </button>
+
+        
+      `;
+
+                container.appendChild(div);
+            });
+        }
+
+        async function increaseQty(id) {
+            await fetch(`/cart/quantity?id=${id}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": token },
+                body: JSON.stringify({ operator: "+" })
+            });
+            loadCart();
+        }
+
+        async function decreaseQty(id) {
+            await fetch(`/cart/quantity?id=${id}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": token },
+                body: JSON.stringify({ operator: "-" })
+            });
+            loadCart();
+        }
+
+
+        async function deleteItem(id) {
+            if (!confirm("Удалить товар?")) return;
+
+            await fetch(`/deletecartitem?id=${id}`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: { "Authorization": token },
+            });
+
+            loadCart();
+        }
+        loadCart()
+        console.log('work');
+
+        document.getElementById('submitOrder').addEventListener('click', async () => {
+            const data = {
+                full_name: document.getElementById('fullname').value,
+                phone_number: document.getElementById('phone').value,
+                call: document.getElementById('no_call').checked ? "yes" : "no",
+                city: document.getElementById('city').value,
+                email: document.getElementById('email').value,
+                comment: document.getElementById('comment').value
+            };
+
+            try {
+                const res = await fetch('/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                console.log('Order response:', result);
+                alert('Замовлення відправлено!');
+            } catch (err) {
+                console.error('Помилка запиту:', err);
+                alert('Сталася помилка, спробуйте ще раз');
+            }
+        });
+    </script>
+</body>
+
+</html>

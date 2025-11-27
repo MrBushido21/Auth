@@ -1,16 +1,21 @@
 import { Router, type Request, type Response } from "express"
-import { checkAuth } from "../middleware/middleware.auth.js"
-import Cart from "../services/produtcs/services.cartAdd.js"
+import { checkAuth } from "../../middleware/middleware.auth.js"
+import Cart from "../../services/produtcs/services.cartAdd.js"
 
 const router = Router()
 
 router.delete('/deletecartitem', checkAuth, async (req:Request, res:Response) => {
-    const user = req.user 
     const product_id = req.query.id
-    
+    let user = req.user
+    let user_id: number | undefined = 0
+    if (user && typeof user !== "string") {
+        user_id = user.id      
+    }  else {
+        user_id = req.user_id
+    } 
     try {
-        if (user && typeof user !== "string" && product_id) {
-            const cart = new Cart(user.id, +product_id, 0, 0)
+        if (user_id && product_id) {
+            const cart = new Cart(user_id, +product_id, 0, 0)
             await cart.deleteCartItem()
             return res.status(200).json({message: "success"})
         } 

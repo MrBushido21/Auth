@@ -51,6 +51,12 @@ import { dateNow, newError } from "../../utils/utils.js"
         return cartItems
     }
 
+    async getTotalCartPrice() {
+        let price = 0
+        const cartItems = await this.getCartItemsWithCartId()
+        cartItems.map(item => (price += +item.price))
+        return price
+    }
 
     async deleteCartItem() {
         try {
