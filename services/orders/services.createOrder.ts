@@ -23,5 +23,13 @@ export const servicesCreateOrder = {
         const response:any = []
         orders.map(order => {response.push({id: order.id, created_at: order.created_at})})
         return response
-    }
+    },
+
+    async getFullOrders({order_id}: {order_id:number}) {
+        const order = await orderRepository.getOreder(order_id)
+        const order_item = await orderRepository.getOrederItem(order_id)
+        const response:any = {order, order_item}
+        return response
+    },
+
 }

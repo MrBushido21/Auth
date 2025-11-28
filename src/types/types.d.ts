@@ -64,22 +64,16 @@ export type OrderType = {
     city: string;
     email: string | null;
     comment: string | null;
-    call: string;
-    total_price: number;
-    status: "yes" | "no";
-    created_at: string;
-};
-export type OrdersType = {
-    id: number;
-    user_id: number;
-    full_name: string;
-    phone_number: number;
-    city: string;
-    email: string | null;
-    comment: string | null;
-    call: string;
+    call: "yes" | "no";
     total_price: number;
     status: string;
     created_at: string;
+};
+export type OrderItemsType = {
+    id: number;
+    order_id: number;
+    product_id: number;
+    quantity: number;
+    price: number;
 };
 //# sourceMappingURL=types.d.ts.map

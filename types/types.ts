@@ -58,38 +58,32 @@ export type ProductType = {
 }
 
 export type CartItem = {
-    id:number
-    cart_id:number
-    product_id:number
-    quantity:number
-    price:number
-    added_at:string
+    id: number
+    cart_id: number
+    product_id: number
+    quantity: number
+    price: number
+    added_at: string
 }
 
 export type OrderType = {
-    id:number
+    id: number
     user_id: number
     full_name: string
     phone_number: number
-    city:string 
+    city: string
     email: string | null
     comment: string | null
-    call:string 
+    call: "yes" | "no"
     total_price: number
-    status: "yes" | "no"
-    created_at:string 
+    status: string
+    created_at: string
 }
 
-export type OrdersType = {
+export type OrderItemsType = {
     id:number
-    user_id: number
-    full_name:string
-    phone_number: number
-    city:string
-    email:string | null    
-    comment:string | null
-    call:string
-    total_price: number
-    status:string
-    created_at:string
+    order_id:number
+    product_id:number
+    quantity:number
+    price:number
 }
