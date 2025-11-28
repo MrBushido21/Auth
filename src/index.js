@@ -9,6 +9,7 @@ import cartDeleteRouter from "./routes/cart/routers.delete.cart.js";
 import cartPostRouter from "./routes/cart/routers.post.cart.js";
 import cartGetRouter from "./routes/cart/routers.get.cart.js";
 import orderPostRouter from "./routes/orders/routers.post.orders.js";
+import orderGetRouter from "./routes/orders/routers.get.orders.js";
 import { createTableUsers } from "./db/auth/db.createTable.js";
 import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
@@ -31,6 +32,7 @@ const run = async () => {
     app.use('/', cartPostRouter);
     app.use('/', cartGetRouter);
     app.use('/', orderPostRouter);
+    app.use('/', orderGetRouter);
     app.get('/', async (req, res) => {
         // deleteAll()  
         // deleteOrder()

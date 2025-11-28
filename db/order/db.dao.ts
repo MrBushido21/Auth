@@ -1,5 +1,5 @@
-import type { CartItem, OrderType } from "../../types/types.js"
-import { sqlGet, sqlRun } from "../db.constructor.js"
+import type { CartItem, OrdersType, OrderType } from "../../types/types.js"
+import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
 export const createOrder = async (user_id: number, full_name:string, phone_number: number, city:string, email:string | null, 
@@ -31,4 +31,11 @@ export const deleteOrder = async () => {
     await sqlRun(`
         DELETE FROM order_items WHERE id = 2
         `)
+}
+
+//Get All
+
+export const getOrders = async ():Promise<OrdersType[]> => {
+    const orders:OrdersType[] = await sqlAll(`SELECT * FROM orders`)
+    return orders
 }
