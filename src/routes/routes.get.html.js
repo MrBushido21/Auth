@@ -10,6 +10,9 @@ router.get("/admin/createitems", (req, res) => {
 router.get("/admin/orders", (req, res) => {
     res.sendFile("admin-orders.html", { root: "./pages" });
 });
+router.get("/admin/redactor", (req, res) => {
+    res.sendFile("admin-redactor.html", { root: "./pages" });
+});
 router.get("/books", (req, res) => {
     res.sendFile("book.html", { root: "./pages" });
 });

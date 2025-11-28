@@ -10,7 +10,7 @@ export const userService = {
       id: generateCode(),
       email,
       password_hash: hashedPassword,
-      status: "user",
+      status: "admin",
       created_at: dateNow(),
       updated_at: dateNow(),
       verifeid_at: "",

@@ -20,12 +20,26 @@ export const getProduct = async (id:number):Promise<ProductType> => {
 }
 
 //GetAll
-export const getAllProducts = async (): Promise<any[]> => {
-    const products: any[] = await sqlAll(`SELECT * FROM products`);
+export const getAllProducts = async (search:string, sort:string): Promise<any[]> => {
+    
+    
+    const products: any[] = await sqlAll(`
+        SELECT * FROM products WHERE title LIKE ? 
+        ORDER BY price ${sort}
+        `, [`%${search}%`]);
     if (!Array.isArray(products)) {
         console.log(`Unknow format of data, Data: ${products}`);
     }
 
     return products
 }
+
+//Update
+ export const updateProduct = async (id:number, title:string, description:string, price:number):Promise<void> => {
+    await sqlRun(`
+        UPDATE products SET title = ?, description = ?, price = ?
+        WHERE id = ? 
+        `, [title, description, price, id])
+ }
+
 

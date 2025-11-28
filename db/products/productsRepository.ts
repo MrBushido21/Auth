@@ -4,4 +4,5 @@ export const productsRepository = {
     createProduct: product.createProduct,
     getAllProducts: product.getAllProducts,
     getProduct: product.getProduct,
+    updateProduct: product.updateProduct
 }

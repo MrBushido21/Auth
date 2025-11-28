@@ -5,12 +5,14 @@ import { dateNow, newError } from "../../utils/utils.js"
  class Cart {
     user_id:number
     product_id: number
+    product_name:string
     quantity: number
     price: number
-
-    constructor(user_id:number, product_id: number, quantity: number, price: number) {
+    
+    constructor(user_id:number, product_id: number, product_name:string, quantity: number, price: number) {
         this.user_id = user_id 
         this.product_id = product_id 
+        this.product_name = product_name 
         this.quantity = quantity 
         this.price = product_id 
     }
@@ -34,7 +36,7 @@ import { dateNow, newError } from "../../utils/utils.js"
         if (cartItem) {
             await cartRepository.updateCartItem(this.product_id, this.quantity, price)
         } else {
-            await cartRepository.createCartItem(cart_id, this.product_id, this.quantity, price, dateNow())
+            await cartRepository.createCartItem(cart_id, this.product_id, this.product_name, this.quantity, price, dateNow())
             cartItem = await cartRepository.getCartItem(cart_id, this.product_id)
         }
         return cartItem

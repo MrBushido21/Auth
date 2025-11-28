@@ -86,7 +86,7 @@ async function loadCart() {
       div.className = "cart-item";
 
       div.innerHTML = `
-        <p><strong>ID товара:</strong> ${item.product_id}</p>
+        <p><strong>Название товара:</strong> ${item.product_name}</p>
         <p><strong>Цена:</strong> ${item.price} грн</p>
         <div class="qty-controls">
           <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>

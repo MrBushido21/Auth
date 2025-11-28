@@ -6,7 +6,7 @@ const router = Router();
 
 
 router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
-    const { product_id, quantity, price } = req.body
+    const { product_id, product_name, quantity, price } = req.body
     let user = req.user
     let user_id: number | undefined = 0
     if (user && typeof user !== "string") {
@@ -17,7 +17,7 @@ router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
 
     try {
         if (user_id) {
-            const cart = new Cart(user_id, product_id, quantity, price)
+            const cart = new Cart(user_id, product_id, product_name, quantity, price)
             await cart.getOrCreateCart()
             await cart.controllerCartItems()
             const cartItems = await cart.getCartItemsWithCartId()
@@ -40,7 +40,7 @@ router.post('/cart/quantity', checkAuth, async (req: Request, res: Response) => 
     
     try {
         if (user_id && product_id) {
-            const cart = new Cart(user_id, +product_id, 0, 0)
+            const cart = new Cart(user_id, +product_id, "", 0, 0)
             if (req.body.operator === "+") {
                 await cart.increaseQuntity() 
             } else {

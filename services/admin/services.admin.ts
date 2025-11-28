@@ -16,7 +16,11 @@ class Admin {
             this.data.created_at,
             this.data.updated_at
         )
-        return 1
+        return 1     
+    }
+
+    async editProduct() {
+        await productsRepository.updateProduct(this.data.id, this.data.title, this.data.description, this.data.price)
     }
 
 }
