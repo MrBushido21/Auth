@@ -12,7 +12,7 @@ router.get('/orders', async (req, res) => {
         return res.status(500).json({error: error.message})
     }
 })
-router.get('/fullorders', async (req, res) => {
+router.get('/admin/full-order', async (req, res) => {
     let order_id:number
 
     if (req.query.id && !Array.isArray(req.query.id)) {

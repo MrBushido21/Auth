@@ -11,6 +11,9 @@ router.get("/admin/createitems", (req: Request, res: Response) => {
 router.get("/admin/orders", (req: Request, res: Response) => {
     res.sendFile("admin-orders.html", { root: "./pages" });
 });
+router.get("/admin/fullorder", (req: Request, res: Response) => {
+    res.sendFile("admin-fullorder.html", { root: "./pages" });
+});
 router.get("/admin/redactor", (req: Request, res: Response) => {
     res.sendFile("admin-redactor.html", { root: "./pages" });
 });

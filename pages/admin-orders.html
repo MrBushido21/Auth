@@ -33,7 +33,7 @@
         orders.forEach(order => {
           const li = document.createElement('li');
           const link = document.createElement('a');
-          link.href = `/admin/fullorder.html?id=${order.id}`;
+          link.href = `/admin/fullorder?id=${order.id}`;
 
           // Форматируем дату по-русски
           const date = new Date(order.created_at);
