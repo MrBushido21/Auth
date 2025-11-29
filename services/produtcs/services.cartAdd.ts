@@ -14,7 +14,7 @@ import { dateNow, newError } from "../../utils/utils.js"
         this.product_id = product_id 
         this.product_name = product_name 
         this.quantity = quantity 
-        this.price = product_id 
+        this.price = price 
     }
     
     async getOrCreateCart() {
