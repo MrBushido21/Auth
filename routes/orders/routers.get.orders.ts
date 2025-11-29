@@ -23,7 +23,7 @@ router.get('/admin/full-order', async (req, res) => {
 
     try {
         const result = await servicesCreateOrder.getFullOrders({order_id})
-        console.log(result);
+        // console.log(result);
         
         return res.status(200).json(result)
     } catch (error:any) {

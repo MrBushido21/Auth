@@ -18,7 +18,7 @@ router.get('/getcartitems', checkAuth, async (req:Request, res: Response) => {
     
     try {
         if (user_id) {                 
-        const cart = new Cart(user_id, 0, 0, 0)
+        const cart = new Cart(user_id, 0, "", 0, 0)
         const cartItems = await cart.getCartItemsWithCartId()          
         return res.status(200).json(cartItems)
         }

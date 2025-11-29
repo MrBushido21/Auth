@@ -23,6 +23,7 @@ export const createOrderItem = async (order_id:number, cartItems: CartItem[]) =>
 export const getOrederId = async (user_id:number):Promise<OrderType> => {
     const order_id = await sqlGet(`
         SELECT id FROM orders WHERE user_id = ?
+        ORDER BY created_at DESC
         `, [user_id])
     return order_id
 }
@@ -36,6 +37,7 @@ export const getOrederItem = async (order_id:number):Promise<OrderItemsType> => 
     const order_item:OrderItemsType = await sqlGet(`
         SELECT * FROM order_items WHERE order_id = ?
         `, [order_id])
+        
     return order_item
 }
 
@@ -44,6 +46,7 @@ export const deleteOrder = async () => {
         DELETE FROM order_items WHERE id = 2
         `)
 }
+
 
 //Get All
 

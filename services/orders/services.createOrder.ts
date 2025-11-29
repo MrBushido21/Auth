@@ -28,6 +28,8 @@ export const servicesCreateOrder = {
     async getFullOrders({order_id}: {order_id:number}) {
         const order = await orderRepository.getOreder(order_id)
         const order_item = await orderRepository.getOrederItem(order_id)
+        // console.log(order_item);
+        
         const response:any = {order, order_item}
         return response
     },

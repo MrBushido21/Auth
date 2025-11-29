@@ -15,7 +15,7 @@ router.delete('/deletecartitem', checkAuth, async (req:Request, res:Response) =>
     } 
     try {
         if (user_id && product_id) {
-            const cart = new Cart(user_id, +product_id, 0, 0)
+            const cart = new Cart(user_id, +product_id, "", 0, 0)
             await cart.deleteCartItem()
             return res.status(200).json({message: "success"})
         } 
@@ -31,7 +31,7 @@ router.delete('/clearcart', checkAuth, async (req:Request, res:Response) => {
     const user = req.user
     try {
         if (user && typeof user !== "string") {
-            const cart = new Cart(user.id, 0, 0, 0)
+            const cart = new Cart(user.id, 0, "", 0, 0)
             await cart.deleteCartItemWithCartId()
             return res.status(200).json({message: "cart is clear"})
         }  
