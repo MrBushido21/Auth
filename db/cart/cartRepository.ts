@@ -7,11 +7,14 @@ export const cartRepository = {
     getCartItemsWithCartId: cart.getCartItemsWithCartId,
     getCartItem: cart.getCartItem,
     updateCartItem: cart.updateCartItem,
-    deleteCart: cart.deleteCart,
     deleteCartItem: cart.deleteCartItem,
     deleteCartItemWithCartId: cart.deleteCartItemWithCartId,
     increaseQuntity: cart.increaseQuntity,
     decreaseQuntity: cart.decreaseQuntity,
+    incrTotalPrice: cart.incrTotalPrice,
+    decrTotalPrice: cart.decrTotalPrice,
+    getTotalCartPrice: cart.getTotalCartPrice,
+    clearTotalPrice: cart.clearTotalPrice,
 }
 
 //Создал корзину, нужно еще создадь товарі и отправлять результат

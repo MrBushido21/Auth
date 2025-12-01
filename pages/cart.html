@@ -55,6 +55,7 @@
 <button class="btn btn-clear" onclick="clearCart()">Очистить корзину полностью</button>
 
 <div id="cart-container"></div>
+<span id="total"></span>
 
 <script>
  token = ""
@@ -68,10 +69,17 @@ async function loadCart() {
       },
     });
 
-    const items = await res.json(); // массив товаров
+    const data = await res.json(); // массив товаров
+    
+    const items = data.cartItems; // массив товаров
+    const totalPrice = data.totalPrice.total_price; // массив товаров
+
+    const span = document.getElementById("total");
+    
+    span.innerText = `Общая сумма: ${totalPrice}`
     renderCart(items);
   }
-
+  
   function renderCart(items) {
     const container = document.getElementById("cart-container");
     container.innerHTML = "";
@@ -83,6 +91,7 @@ async function loadCart() {
 
     items.forEach(item => {
       const div = document.createElement("div");
+      
       div.className = "cart-item";
 
       div.innerHTML = `
@@ -98,8 +107,7 @@ async function loadCart() {
         </button>
 
         
-      `;
-
+      `;  
       container.appendChild(div);
     });
   }

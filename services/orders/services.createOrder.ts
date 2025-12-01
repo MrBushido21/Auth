@@ -1,6 +1,6 @@
 import { orderRepository } from "../../db/order/orderRepository.js"
 import { dateNow } from "../../utils/utils.js"
-import Cart from "../produtcs/services.cartAdd.js"
+import Cart from "../cart/services.cartAdd.js"
 
 export const servicesCreateOrder = {
     async createOrder({user_id, full_name, phone_number, city, email, comment, call}: 

@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { getAllProducts } from "../../db/products/db.dao.js";
 import { servicesGetProducts } from "../../services/produtcs/services.getProducts.js";
-import Cart from "../../services/produtcs/services.cartAdd.js";
+import Cart from "../../services/cart/services.cartAdd.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import type { PayloadType } from "../../types/types.js";
 
@@ -20,7 +20,8 @@ router.get('/getcartitems', checkAuth, async (req:Request, res: Response) => {
         if (user_id) {                 
         const cart = new Cart(user_id, 0, "", 0, 0)
         const cartItems = await cart.getCartItemsWithCartId()          
-        return res.status(200).json(cartItems)
+        const totalPrice = await cart.getTotalCartPrice()          
+        return res.status(200).json({cartItems, totalPrice})
         }
     } catch (error:any) {
         return res.status(error.status || 500).json({message: error.message})

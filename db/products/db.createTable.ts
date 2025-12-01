@@ -1,7 +1,7 @@
 import { sqlRun } from "../db.constructor.js"
 export const createTables = async ():Promise<void> => {
-   // await sqlRun(`DROP TABLE orders`)
-   // await sqlRun(`DROP TABLE order_items`)
+   // await sqlRun(`DROP TABLE carts`)
+   // await sqlRun(`DROP TABLE cart_items`)
     await sqlRun(`
         CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,6 +19,7 @@ export const createTables = async ():Promise<void> => {
         CREATE TABLE IF NOT EXISTS carts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id NUMBER NOT NULL,
+        total_price NUMBER,        
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

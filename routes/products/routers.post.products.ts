@@ -53,6 +53,38 @@ router.put('/admin/edit-product', async (req: Request, res: Response) => {
     }
 
 })
+router.delete('/admin/delete-product', async (req: Request, res: Response) => {
+    let id:number
+    if (req.query.id && !Array.isArray(req.query.id)) {
+       id = +req.query.id
+    } else {
+        return res.status(404).json({message: "uncorrect product_id"})
+    }
+
+    const data = {
+        id: id,
+        title: "",
+        description: "",
+        price: 0,
+        image_url: "",
+        category_id: 0,
+        created_at: "",
+        updated_at: ""
+    }
+    
+    const adminController = new Admin(data)
+    try {
+        await adminController.deleteProduct()
+        return res.status(200).json({ message: "Product deleting" })
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({ message: "Somthing error" })
+    }
+
+})
+
+
 
 
 

@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express"
 import { checkAuth } from "../../middleware/middleware.auth.js"
-import Cart from "../../services/produtcs/services.cartAdd.js"
+import Cart from "../../services/cart/services.cartAdd.js"
 
 const router = Router()
 
@@ -28,10 +28,17 @@ router.delete('/deletecartitem', checkAuth, async (req:Request, res:Response) =>
 
 router.delete('/clearcart', checkAuth, async (req:Request, res:Response) => {
     //Корзину нельзя удалять ее нужно очищать
-    const user = req.user
+    let user = req.user
+    let user_id: number | undefined = 0
+    if (user && typeof user !== "string") {
+        user_id = user.id      
+    }  else {
+        user_id = req.user_id
+    } 
+
     try {
-        if (user && typeof user !== "string") {
-            const cart = new Cart(user.id, 0, "", 0, 0)
+        if (user_id) {
+            const cart = new Cart(user_id, 0, "", 0, 0)
             await cart.deleteCartItemWithCartId()
             return res.status(200).json({message: "cart is clear"})
         }  

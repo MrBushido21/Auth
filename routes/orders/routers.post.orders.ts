@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import Cart from "../../services/produtcs/services.cartAdd.js";
+import Cart from "../../services/cart/services.cartAdd.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import { servicesCreateOrder } from "../../services/orders/services.createOrder.js";
 
@@ -20,6 +20,8 @@ router.post('/create-order', checkAuth, async (req: Request, res: Response) => {
         if (user_id) {
             await servicesCreateOrder.createOrder({user_id, full_name, phone_number, city, email, comment, call})
             await servicesCreateOrder.createOrderItem({user_id})
+            const cart = new Cart(user_id, 0, "", 0, 0)
+            await cart.deleteCartItemWithCartId()
             return res.status(200).json({message: "order has created"})
         }
     } catch (error:any) {

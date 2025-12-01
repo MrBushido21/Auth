@@ -22,6 +22,9 @@ class Admin {
     async editProduct() {
         await productsRepository.updateProduct(this.data.id, this.data.title, this.data.description, this.data.price)
     }
+    async deleteProduct() {
+        await productsRepository.deleteProduct(this.data.id)
+    }
 
 }
 

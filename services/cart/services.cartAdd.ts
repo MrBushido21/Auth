@@ -21,7 +21,7 @@ import { dateNow, newError } from "../../utils/utils.js"
         let cart = await cartRepository.getCart(this.user_id)
         
         if (!cart) {
-          await cartRepository.createCart(this.user_id, dateNow(), dateNow())
+          await cartRepository.createCart(this.user_id, this.price, dateNow(), dateNow())
           cart = await cartRepository.getCart(this.user_id)
         }
         return cart
@@ -54,17 +54,16 @@ import { dateNow, newError } from "../../utils/utils.js"
     }
 
     async getTotalCartPrice() {
-        let price = 0
-        const cartItems = await this.getCartItemsWithCartId()
-        cartItems.map(item => (price += +item.price))
+        let price = await cartRepository.getTotalCartPrice(this.user_id)
         return price
     }
 
     async deleteCartItem() {
         try {
         const cart_id = (await cartRepository.getCart(this.user_id)).id
-        const cartItem_id = (await cartRepository.getCartItem(cart_id, this.product_id)).id
-        await cartRepository.deleteCartItem(cartItem_id)
+        const cartItem = (await cartRepository.getCartItem(cart_id, this.product_id))
+        await cartRepository.deleteCartItem(cartItem.id)
+        await cartRepository.decrTotalPrice(this.user_id, cartItem.price)
         } catch (error) {
             console.error(error);
             
@@ -86,10 +85,33 @@ import { dateNow, newError } from "../../utils/utils.js"
         }
         await cartRepository.decreaseQuntity(cartItem_id)
     }
+    
+    async incrTotalPrice() {
+        try {
+        const price = (await productsRepository.getProduct(this.product_id)).price        
+        await cartRepository.incrTotalPrice(this.user_id, price)
+        } catch (error) {
+            console.error(error);
+            
+        }
+    }
+    async decrTotalPrice() {
+        try {            
+            const price = (await productsRepository.getProduct(this.product_id)).price
+            await cartRepository.decrTotalPrice(this.user_id, price)   
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     async deleteCartItemWithCartId() {
+        try {
         const cart_id = (await cartRepository.getCart(this.user_id)).id
         await cartRepository.deleteCartItemWithCartId(cart_id)
+        await cartRepository.clearTotalPrice(this.user_id) 
+        } catch (error) {
+            console.error(error);       
+        }
     }
 
 }

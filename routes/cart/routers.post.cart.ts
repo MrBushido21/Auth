@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import Cart from "../../services/produtcs/services.cartAdd.js";
+import Cart from "../../services/cart/services.cartAdd.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 
 const router = Router();
@@ -20,6 +20,7 @@ router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
             const cart = new Cart(user_id, product_id, product_name, quantity, price)
             await cart.getOrCreateCart()
             await cart.controllerCartItems()
+            await cart.incrTotalPrice()
             const cartItems = await cart.getCartItemsWithCartId()
             return res.status(200).json(cartItems)
         }
@@ -43,8 +44,10 @@ router.post('/cart/quantity', checkAuth, async (req: Request, res: Response) => 
             const cart = new Cart(user_id, +product_id, "", 0, 0)
             if (req.body.operator === "+") {
                 await cart.increaseQuntity() 
+                await cart.incrTotalPrice() 
             } else {
                 await cart.decreaseQuntity() 
+                await cart.decrTotalPrice()
             }
            
             const cartItems = await cart.getCartItemsWithCartId()

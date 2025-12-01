@@ -3,11 +3,11 @@ import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 
 //Create
-export const createCart = async (user_id: number, created_at: string, updated_at: string):Promise<void> => {
+export const createCart = async (user_id: number, price:number, created_at: string, updated_at: string):Promise<void> => {
     const result:any = await sqlRun(`
-        INSERT INTO carts (user_id, created_at, updated_at)
-        VALUES (?, ?, ?);
-        `, [user_id, created_at, updated_at])
+        INSERT INTO carts (user_id, total_price, created_at, updated_at)
+        VALUES (?, ?, ?, ?);
+        `, [user_id, price || 0, created_at, updated_at])
 }
 export const createCartItem = async (cart_id: number, product_id: number, product_name:string, quantity: number, price: number, added_at: string):Promise<void> => {
     const result:any = await sqlRun(`
@@ -34,6 +34,15 @@ export const getCartItem = async (cart_id:number, product_id:number):Promise<Car
 }
 
 
+export const getTotalCartPrice = async (user_id:number):Promise<number> => {
+    const totalPrice:number = await sqlGet(`
+        SELECT total_price FROM carts WHERE user_id = ?
+        `, [user_id])
+        
+    return totalPrice
+}
+
+//GetAll
 export const getCartItemsWithCartId = async (cart_id:number):Promise<CartItem[]> => {
     const cartItems:CartItem[] = await sqlAll(`
         SELECT * FROM cart_items WHERE cart_id = ?
@@ -41,6 +50,9 @@ export const getCartItemsWithCartId = async (cart_id:number):Promise<CartItem[]>
         
     return cartItems
 }
+
+
+
 
 //Update
 
@@ -73,15 +85,41 @@ export const decreaseQuntity = async (id:number):Promise<void> => {
         [id])
 }
 
+export const incrTotalPrice = async (id:number, price:number):Promise<void> => {
+    // console.log(price);
+    
+    await sqlRun(`
+        UPDATE carts  
+        SET total_price = total_price + ${price}
+        WHERE user_id = ?
+        `,
+        [id])
+}
+export const decrTotalPrice = async (user_id:number, price:number):Promise<void> => {
+
+    await sqlRun(`
+        UPDATE carts  
+        SET total_price = total_price - ${price}
+        WHERE user_id = ?
+        `,
+        [user_id])
+}
+
+export const clearTotalPrice = async (user_id:number):Promise<void> => {
+
+    await sqlRun(`
+        UPDATE carts  
+        SET total_price = 0
+        WHERE user_id = ?
+        `,
+        [user_id])
+}
+
+
 
 
 //Delete
 
-export const deleteCart = async (id:number):Promise<void> => {
-    await sqlRun(`
-        DELETE FROM carts WHERE id = ?
-        `, [id])
-}
 export const deleteCartItem = async (id:number):Promise<void> => {
     await sqlRun(`
         DELETE FROM cart_items WHERE id = ?

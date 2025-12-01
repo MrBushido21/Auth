@@ -42,4 +42,11 @@ export const getAllProducts = async (search:string, sort:string): Promise<any[]>
         `, [title, description, price, id])
  }
 
+ //Delete
+
+ export const deleteProduct = async (id:number):Promise<void> => {
+    await sqlRun(`DELETE FROM products WHERE id = ?`, 
+        [id])
+ }
+
 
