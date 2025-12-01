@@ -34,12 +34,12 @@ export const getCartItem = async (cart_id:number, product_id:number):Promise<Car
 }
 
 
-export const getTotalCartPrice = async (user_id:number):Promise<number> => {
-    const totalPrice:number = await sqlGet(`
+export const getTotalCartPrice = async (user_id:number):Promise<any> => {
+    const totalPrice:any = await sqlGet(`
         SELECT total_price FROM carts WHERE user_id = ?
         `, [user_id])
         
-    return totalPrice
+    return totalPrice.total_price
 }
 
 //GetAll
@@ -47,7 +47,7 @@ export const getCartItemsWithCartId = async (cart_id:number):Promise<CartItem[]>
     const cartItems:CartItem[] = await sqlAll(`
         SELECT * FROM cart_items WHERE cart_id = ?
         `, [cart_id])
-        
+    
     return cartItems
 }
 
@@ -90,19 +90,19 @@ export const incrTotalPrice = async (id:number, price:number):Promise<void> => {
     
     await sqlRun(`
         UPDATE carts  
-        SET total_price = total_price + ${price}
+        SET total_price = total_price + ?
         WHERE user_id = ?
         `,
-        [id])
+        [price, id])
 }
 export const decrTotalPrice = async (user_id:number, price:number):Promise<void> => {
 
     await sqlRun(`
         UPDATE carts  
-        SET total_price = total_price - ${price}
+        SET total_price = total_price - ?
         WHERE user_id = ?
         `,
-        [user_id])
+        [price, user_id])
 }
 
 export const clearTotalPrice = async (user_id:number):Promise<void> => {

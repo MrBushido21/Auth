@@ -2,7 +2,7 @@ import type { CartItem, OrderItemsType, OrderType } from "../../types/types.js"
 import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
-export const createOrder = async (user_id: number, full_name:string, phone_number: number, city:string, email:string | null, 
+export const createOrder = async (user_id: number, full_name:string, phone_number: string, city:string, email:string | null, 
     comment:string | null, call:string, total_price: number, status:string, created_at:string): Promise<void> => {
     await sqlRun(`
         INSERT INTO orders (user_id, full_name, phone_number, city, email, comment, call, total_price, status, created_at)

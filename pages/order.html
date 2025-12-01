@@ -166,8 +166,8 @@
                 },
             });
 
-            const items = await res.json(); // массив товаров
-            renderCart(items);
+            const data = await res.json(); // массив товаров
+            renderCart(data.cartItems);
         }
 
         function renderCart(items) {
@@ -253,7 +253,8 @@
                 });
 
                 const result = await res.json();
-                console.log('Order response:', result);
+                
+                console.log('Order response:', result.message);
                 alert('Замовлення відправлено!');
             } catch (err) {
                 console.error('Помилка запиту:', err);

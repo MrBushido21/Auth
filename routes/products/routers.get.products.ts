@@ -23,5 +23,24 @@ router.get('/getproducts_data', async (req, res) => { //checkAdmin,
         return res.status(error.status || 500).json({message: error.message})
     }
 })
+router.get('/getproduct_data', async (req, res) => { //checkAdmin,
+    const raw = req.query.search
+    let search: string
+    if (Array.isArray(raw)) {
+        search = typeof raw[0] === "string" ? raw[0] : ""
+    } else if (typeof raw === "string") {
+        search = raw
+    } else {
+        search = ""
+    }
+    try {
+        const data = await servicesGetProducts.getProduct({search})
+        return res.status(200).json(data)
+    } catch (error:any) {
+        return res.status(error.status || 500).json({message: error.message})
+    }
+})
+
+
 
 export default router

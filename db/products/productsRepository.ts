@@ -5,5 +5,6 @@ export const productsRepository = {
     getAllProducts: product.getAllProducts,
     getProduct: product.getProduct,
     updateProduct: product.updateProduct,
-    deleteProduct: product.deleteProduct
+    deleteProduct: product.deleteProduct,
+    updateQuantityProduct: product.updateQuantityProduct,
 }

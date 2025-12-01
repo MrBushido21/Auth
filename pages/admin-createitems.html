@@ -64,6 +64,10 @@
     <label>ID категории</label>
     <input id="category_id" type="number" placeholder="ID категории" />
   </div>
+  <div class="form-group">
+    <label>Количество на складе</label>
+    <input id="quantity" type="number" placeholder="Количество на складе" />
+  </div>
 
   <button onclick="createProduct()">Создать товар</button>
 
@@ -74,6 +78,7 @@
         description: document.getElementById('description').value,
         price: Number(document.getElementById('price').value),
         category_id: Number(document.getElementById('category_id').value),
+        quantity: Number(document.getElementById('quantity').value),
         created_at: Date.now().toString(),
         updated_at: Date.now().toString(),
       };

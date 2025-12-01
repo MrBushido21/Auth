@@ -53,6 +53,7 @@ export type ProductType = {
     price: number
     image_url: string | null
     category_id: number
+    quantity: number
     created_at: string
     updated_at: string
 }
@@ -70,7 +71,7 @@ export type OrderType = {
     id: number
     user_id: number
     full_name: string
-    phone_number: number
+    phone_number: string
     city: string
     email: string | null
     comment: string | null

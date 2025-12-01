@@ -49,7 +49,7 @@ import { dateNow, newError } from "../../utils/utils.js"
             cart_id = (await this.getOrCreateCart()).id
         }
         const cartItems = await cartRepository.getCartItemsWithCartId(cart_id)
-        
+
         return cartItems
     }
 

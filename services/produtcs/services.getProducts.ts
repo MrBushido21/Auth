@@ -8,5 +8,10 @@ export const servicesGetProducts = {
         newError(data, 500, "Somthing wrong")
 
         return data
+    },
+    async getProduct({search}:{search: string | number}) {      
+        const data = await productsRepository.getProduct(search)
+        newError(data, 500, "Somthing wrong")
+        return data
     }
 }

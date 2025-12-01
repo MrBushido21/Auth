@@ -13,6 +13,7 @@ class Admin {
             this.data.description,
             this.data.price,
             this.data.category_id,
+            this.data.quantity,
             this.data.created_at,
             this.data.updated_at
         )
@@ -20,7 +21,7 @@ class Admin {
     }
 
     async editProduct() {
-        await productsRepository.updateProduct(this.data.id, this.data.title, this.data.description, this.data.price)
+        await productsRepository.updateProduct(this.data.id, this.data.title, this.data.description, this.data.price, this.data.quantity)
     }
     async deleteProduct() {
         await productsRepository.deleteProduct(this.data.id)

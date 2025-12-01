@@ -3,26 +3,25 @@ import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
 
-export const createProduct = async (title: string, description: string, price: number, category_id: number, created_at: string, updated_at: string):Promise<void> => {
+export const createProduct = async (title: string, description: string, price: number, category_id: number, quantity:number, created_at: string, updated_at: string):Promise<void> => {
     await sqlRun(`
-        INSERT INTO products (title, description, price, category_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?);
-        `, [title, description, price, category_id, created_at, updated_at])
+        INSERT INTO products (title, description, price, category_id, quantity, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
+        `, [title, description, price, category_id, quantity, created_at, updated_at])
 }
 
 //GetOne
 
-export const getProduct = async (id:number):Promise<ProductType> => {
+export const getProduct = async (id:number | string):Promise<ProductType> => {
     const product: ProductType = await sqlGet(`
         SELECT * FROM products WHERE id = ?
         `, [id])
     return product
 }
 
+
 //GetAll
-export const getAllProducts = async (search:string, sort:string): Promise<any[]> => {
-    
-    
+export const getAllProducts = async (search:string, sort:string): Promise<any[]> => {  
     const products: any[] = await sqlAll(`
         SELECT * FROM products WHERE title LIKE ? 
         ORDER BY price ${sort}
@@ -35,11 +34,19 @@ export const getAllProducts = async (search:string, sort:string): Promise<any[]>
 }
 
 //Update
- export const updateProduct = async (id:number, title:string, description:string, price:number):Promise<void> => {
+ export const updateProduct = async (id:number, title:string, description:string, price:number, quantity:number):Promise<void> => {
     await sqlRun(`
-        UPDATE products SET title = ?, description = ?, price = ?
+        UPDATE products SET title = ?, description = ?, price = ?, quantity = ?
         WHERE id = ? 
-        `, [title, description, price, id])
+        `, [title, description, price, quantity, id])
+ }
+
+ export const updateQuantityProduct = async (id:number, quantity:number):Promise<void> => {
+
+  await sqlRun(`
+        UPDATE products SET quantity = quantity - ?
+        WHERE id = ?
+        `, [quantity, id])
  }
 
  //Delete

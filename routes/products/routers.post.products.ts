@@ -23,7 +23,7 @@ router.post('/createproduct', async (req: Request, res: Response) => {
 })
 
 router.put('/admin/edit-product', async (req: Request, res: Response) => {
-    const { title, description, price } = req.body
+    const { title, description, price, quantity } = req.body
     let id:number
     if (req.query.id && !Array.isArray(req.query.id)) {
        id = +req.query.id
@@ -38,6 +38,7 @@ router.put('/admin/edit-product', async (req: Request, res: Response) => {
         price: price,
         image_url: "",
         category_id: 0,
+        quantity: quantity,
         created_at: "",
         updated_at: ""
     }
@@ -68,6 +69,7 @@ router.delete('/admin/delete-product', async (req: Request, res: Response) => {
         price: 0,
         image_url: "",
         category_id: 0,
+        quantity: 0,
         created_at: "",
         updated_at: ""
     }

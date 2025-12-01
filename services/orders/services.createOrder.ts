@@ -1,21 +1,29 @@
 import { orderRepository } from "../../db/order/orderRepository.js"
+import { productsRepository } from "../../db/products/productsRepository.js"
 import { dateNow } from "../../utils/utils.js"
 import Cart from "../cart/services.cartAdd.js"
+import { servicesUpdateQuantityProduct } from "../produtcs/services.updateQuantityProduct.js"
 
 export const servicesCreateOrder = {
     async createOrder({user_id, full_name, phone_number, city, email, comment, call}: 
         {user_id: number, full_name:string, phone_number: number, city:string, email:string | null, comment:string | null, call:string}) {
-           const cart = new Cart(user_id, 0, "", 0, 0)
+           try {
+            const cart = new Cart(user_id, 0, "", 0, 0)
             const total_price = await cart.getTotalCartPrice()
-        await orderRepository.createOrder(user_id, full_name, phone_number, city, email, comment, call, total_price, "in proccess", dateNow())    
+            await orderRepository.createOrder(user_id, full_name, String(phone_number), city, email, comment, call, total_price, "in proccess", dateNow())          
+           } catch (error) {
+            console.error(error);            
+           }
     },
     async createOrderItem({user_id}: {user_id: number}) {
-           const cart = new Cart(user_id, 0, "", 0, 0)
+          try {
+            const cart = new Cart(user_id, 0, "", 0, 0)            
             const cartItems = await cart.getCartItemsWithCartId()
-            const order_id = (await orderRepository.getOrederId(user_id)).id
-            
-            
-        await orderRepository.createOrderItem(order_id, cartItems)    
+            const order_id = (await orderRepository.getOrederId(user_id)).id   
+            await orderRepository.createOrderItem(order_id, cartItems)
+          } catch (error) {
+            console.error("orderItems: " + error);       
+          }    
     },
 
     async getOrders() {
@@ -28,7 +36,6 @@ export const servicesCreateOrder = {
     async getFullOrders({order_id}: {order_id:number}) {
         const order = await orderRepository.getOreder(order_id)
         const order_item = await orderRepository.getOrederItem(order_id)
-        // console.log(order_item);
         
         const response:any = {order, order_item}
         return response

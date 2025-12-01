@@ -72,7 +72,7 @@ async function loadCart() {
     const data = await res.json(); // массив товаров
     
     const items = data.cartItems; // массив товаров
-    const totalPrice = data.totalPrice.total_price; // массив товаров
+    const totalPrice = data.totalPrice;
 
     const span = document.getElementById("total");
     
