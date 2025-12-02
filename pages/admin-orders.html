@@ -7,8 +7,8 @@
   <style>
     body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
     h1 { text-align: center; }
-    ul { list-style: none; padding: 0; }
-    li { padding: 10px 0; border-bottom: 1px solid #ccc; }
+    ul { list-style: none; padding: 0;}
+    li { padding: 10px 0; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between;}
     a { text-decoration: none; color: #007bff; }
     a:hover { text-decoration: underline; }
   </style>
@@ -17,12 +17,13 @@
   <h1>Список заказов</h1>
   <ul id="ordersList">
     <!-- Сюда будут вставляться заказы -->
+     <button>Cменить статус</button>
   </ul>
 
   <script>
     async function fetchOrders() {
       try {
-        const response = await fetch('/orders'); // эндпоинт для получения заказов
+        const response = await fetch('/orders'); // эндпоинт для получения заказов ======================= TOKEN
         if (!response.ok) throw new Error('Ошибка при получении заказов');
 
         const orders = await response.json();
@@ -33,7 +34,10 @@
         orders.forEach(order => {
           const li = document.createElement('li');
           const link = document.createElement('a');
+          const input = document.createElement('input')
+          const btn = document.createElement('button')
           link.href = `/admin/fullorder?id=${order.id}`;
+          input.value = order.status
 
           // Форматируем дату по-русски
           const date = new Date(order.created_at);
@@ -46,8 +50,24 @@
           });
 
           link.textContent = `Заказ #${order.id} — ${formattedDate}`;
+          btn.textContent = 'Сменить статус';
           li.appendChild(link);
+          li.appendChild(input);
+          li.appendChild(btn);
           ordersList.appendChild(li);
+
+          btn.onclick = async () => {
+            const response = await fetch(`/order/update-status?id=${order.id}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({status: input.value})
+            })
+
+            const result = await response.json()
+            alert(`${result.message}`)
+          }
         });
 
       } catch (err) {

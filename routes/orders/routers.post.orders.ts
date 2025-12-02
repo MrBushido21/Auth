@@ -4,6 +4,7 @@ import { checkAuth } from "../../middleware/middleware.auth.js";
 import { servicesCreateOrder } from "../../services/orders/services.createOrder.js";
 import { cartRepository } from "../../db/cart/cartRepository.js";
 import { servicesUpdateQuantityProduct } from "../../services/produtcs/services.updateQuantityProduct.js";
+import { orderRepository } from "../../db/order/orderRepository.js";
 
 const router = Router();
 
@@ -33,6 +34,23 @@ router.post('/create-order', checkAuth, async (req: Request, res: Response) => {
             await cart.deleteCartItemWithCartId() 
             return res.status(200).json({message: "order has created"})
         }
+    } catch (error:any) {
+        return res.status(error.status || 500).json({error: error.message})  
+    }
+})
+router.patch('/order/update-status', checkAuth, async (req: Request, res: Response) => { // limiter
+    const status = req.body.status
+  
+    let order_id = 0
+    if ( req.query.id && !Array.isArray(req.query.id)) {
+        order_id = +req.query.id      
+    }  else {
+        return res.status(200).json({message: "uncorrect order_id"})
+    } 
+    
+    try {
+        await servicesCreateOrder.updateStatus({order_id, status})
+        return res.status(200).json({message: "status was updated"})
     } catch (error:any) {
         return res.status(error.status || 500).json({error: error.message})  
     }

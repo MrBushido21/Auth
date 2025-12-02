@@ -23,9 +23,9 @@ export const getProduct = async (id:number | string):Promise<ProductType> => {
 //GetAll
 export const getAllProducts = async (search:string, sort:string): Promise<any[]> => {  
     const products: any[] = await sqlAll(`
-        SELECT * FROM products WHERE title LIKE ? 
+        SELECT * FROM products WHERE title LIKE ? OR id = ? 
         ORDER BY price ${sort}
-        `, [`%${search}%`]);
+        `, [`%${search}%`, search]);
     if (!Array.isArray(products)) {
         console.log(`Unknow format of data, Data: ${products}`);
     }

@@ -10,7 +10,7 @@ export const servicesCreateOrder = {
            try {
             const cart = new Cart(user_id, 0, "", 0, 0)
             const total_price = await cart.getTotalCartPrice()
-            await orderRepository.createOrder(user_id, full_name, String(phone_number), city, email, comment, call, total_price, "in proccess", dateNow())          
+            await orderRepository.createOrder(user_id, full_name, String(phone_number), city, email, comment, call, total_price, "paid", dateNow())          
            } catch (error) {
             console.error(error);            
            }
@@ -29,7 +29,7 @@ export const servicesCreateOrder = {
     async getOrders() {
         const orders = await orderRepository.getOrders()
         const response:any = []
-        orders.map(order => {response.push({id: order.id, created_at: order.created_at})})
+        orders.map(order => {response.push({id: order.id, created_at: order.created_at, status: order.status})})
         return response
     },
 
@@ -41,4 +41,7 @@ export const servicesCreateOrder = {
         return response
     },
 
+    async updateStatus({order_id, status}: {order_id:number, status:string}) {
+      await orderRepository.updateStatus(+order_id, status)   
+    } 
 }

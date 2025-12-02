@@ -69,12 +69,6 @@
       placeholder="Поиск товаров..." 
       oninput="loadProducts()"
     />
-    <input 
-      type="text" 
-      id="searchId" 
-      placeholder="Поиск по айди" 
-      oninput="loadProduct()"
-    />
   </div>
 
   <div id="products">Загрузка...</div> 
@@ -176,22 +170,6 @@
       })
         .then(res => res.json())
         .then(response => renderProducts(response))
-        .catch(err => {
-          document.getElementById('products').innerText = 'Ошибка загрузки данных: ' + err;
-        });
-    }
-    //=========  
-    function loadProduct() {
-      const searchId = document.getElementById("searchId").value;
-      
-      fetch(`/getproduct_data?search=${encodeURIComponent(searchId)}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json", 
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NDMxNzY5NiwiZXhwIjoxNzY0MzIxMjk2fQ.Nwhu4d5QPip4Mj8dONy62ECShw0OOLRQaD3yfQIE3aw"
-       }
-      })
-        .then(res => res.json())
-        .then(response => renderProducts([response]))
         .catch(err => {
           document.getElementById('products').innerText = 'Ошибка загрузки данных: ' + err;
         });

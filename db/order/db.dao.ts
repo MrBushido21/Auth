@@ -48,6 +48,14 @@ export const deleteOrder = async () => {
 }
 
 
+//update
+
+export const updateStatus = async (id:number, status:string) => {
+    await sqlRun(`
+        UPDATE orders SET status = ? WHERE id = ?
+        `, [status, id])
+}
+
 //Get All
 
 export const getOrders = async ():Promise<OrderType[]> => {
