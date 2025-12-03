@@ -31,5 +31,8 @@ router.get("/cart", async (req, res) => {
 router.get("/order", async (req, res) => {
     res.sendFile("order.html", { root: "./pages" });
 });
+router.get("/user", async (req, res) => {
+    res.sendFile("user.html", { root: "./pages" });
+});
 export default router;
 //# sourceMappingURL=routes.get.html.js.map

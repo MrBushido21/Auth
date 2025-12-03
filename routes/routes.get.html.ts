@@ -32,5 +32,8 @@ router.get("/cart", async (req: Request, res: Response) => {
 router.get("/order", async (req: Request, res: Response) => {
     res.sendFile("order.html", { root: "./pages" });
 });
+router.get("/user", async (req: Request, res: Response) => {
+    res.sendFile("user.html", { root: "./pages" });
+});
 
 export default router
