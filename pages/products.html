@@ -83,61 +83,102 @@
   </div>
 
   <div id="products">Загрузка...</div> 
+  <button id="loadMore" onclick="loadMore()" style="display: none; margin: 20px auto; display: block;">заугрузить еще</button>
   <script>
-    function addToCart(productId, productName) {
+    // ====== Глобальные данные ======
+    let currentPage = 0; // Какая сейчас страница
+    const limit = 5; // Сколько грузим за раз
+    let isLoading = false; // Чтобы не спамили кликами
+  
+    function addToCart(productId) {
       fetch("/cart/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json", 
-        "authorization": ""
-       },
-        body: JSON.stringify({ product_id: productId, quantity: 1, product_name: productName})
-        
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: productId })
       })
       .then(r => r.json())
-      .then(response => {
-        alert("Товар добавлен в корзину!");
-        console.log(response);
-      })
+      .then(() => alert("Товар добавлен в корзину!"))
       .catch(err => alert("Ошибка: " + err));
     }
-
-    function renderProducts(data) {
-      const container = document.getElementById('products');
-      container.innerHTML = '';
-
-      data.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
+  
+    // ===== Рендер карточек =====
+    function renderProducts(items) {
+      const container = document.getElementById("products");
+  
+      // Если пустой ответ и это страница 1 — показываем "ничего не найдено"
+      if (items.length === 0 && currentPage === 1) {
+        container.innerHTML = '<p>Ничего не найдено</p>';
+        document.getElementById("loadMore").style.display = "none";
+        return;
+      }
+  
+      // Добавляем товары к существующим
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "product-card";
         card.innerHTML = `
           <h3>${item.title}</h3>
           <p>${item.description}</p>
           <p class="price">${item.price} грн</p>
-          <button onclick="addToCart(${item.id}, '${item.title}')">Добавить в корзину</button>
+          <button onclick="addToCart(${item.id})">Добавить в корзину</button>
         `;
         container.appendChild(card);
       });
+  
+      // Если массив пустой — товаров больше нет
+      if (items.length === 0) {
+        document.getElementById("loadMore").style.display = "none";
+      } else {
+        document.getElementById("loadMore").style.display = "block";
+      }
     }
-
-        // ======== Основная функция загрузки ========
-        function loadProducts() {
+  
+    // ===== Универсальная загрузка =====
+    function fetchProducts() {
+      if (isLoading) return;
+      isLoading = true;
+  
       const search = document.getElementById("search").value;
       const sort = document.getElementById("sort").value;
-
-      fetch(`/getproducts_data?search=${encodeURIComponent(search)}&sort=${sort}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json", 
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NDMxNzY5NiwiZXhwIjoxNzY0MzIxMjk2fQ.Nwhu4d5QPip4Mj8dONy62ECShw0OOLRQaD3yfQIE3aw"
-       }
-      })
+  
+      // Показываем загрузку только если это страница 1
+      if (currentPage === 0) {
+        document.getElementById("products").innerHTML = "Загрузка...";
+      }
+  
+      fetch(`/getproducts_data?search=${encodeURIComponent(search)}&sort=${sort}&page=${currentPage}&limit=${limit}`)
         .then(res => res.json())
-        .then(response => renderProducts(response))
+        .then((items) => {
+          // Убираем надпись "Загрузка..."
+          if (currentPage === 0) {
+            document.getElementById("products").innerHTML = "";
+          }
+  
+          renderProducts(items);
+          isLoading = false;
+        })
         .catch(err => {
-          document.getElementById('products').innerText = 'Ошибка загрузки данных: ' + err;
+          document.getElementById("products").innerHTML = "Ошибка загрузки данных: " + err;
+          isLoading = false;
         });
     }
-
-    // При загрузке страницы
-    loadProducts();
+  
+    // ===== Первая загрузка или поиск — сбрасываем страницу =====
+    function loadProducts() {
+      currentPage = 0;
+      fetchProducts();
+    }
+  
+    // ===== Загрузка следующей страницы =====
+    function loadMore() {
+      currentPage++;
+      fetchProducts();
+    }
+  
+    // ===== Старт =====
+    window.onload = loadProducts;
   </script>
+  
+
   </body>
 </html>

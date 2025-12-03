@@ -8,6 +8,7 @@ const router = Router()
 router.get('/getproducts_data', async (req, res) => { //checkAdmin,
     const raw = req.query.search
     const sort = req.query.sort as "asc" | "desc"
+    let page = 0
     let search: string
     if (Array.isArray(raw)) {
         search = typeof raw[0] === "string" ? raw[0] : ""
@@ -16,8 +17,13 @@ router.get('/getproducts_data', async (req, res) => { //checkAdmin,
     } else {
         search = ""
     }
+    
+    if (req.query.page && !Array.isArray(req.query.page)) {
+        page = +req.query.page
+    }
+
     try {
-        const data = await servicesGetProducts.getProducts({search, sort})
+        const data = await servicesGetProducts.getProducts({search, sort, page})
         return res.status(200).json(data)
     } catch (error:any) {
         return res.status(error.status || 500).json({message: error.message})

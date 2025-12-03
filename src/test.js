@@ -1,3 +1,2 @@
-import crypto from "crypto";
-console.log(crypto.randomBytes(32).toString("hex"));
+export {};
 //# sourceMappingURL=test.js.map
