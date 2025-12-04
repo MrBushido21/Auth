@@ -108,7 +108,7 @@
         const res = await fetch('/getuser', {
             method: "GET",
             headers: {
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDc2MzQwMCwiZXhwIjoxNzY0NzY3MDAwfQ.qAdvUVxgektCqdqjG1ITv4X1liiZX7DSfHOZaSDQJbU"
+        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDgzMjg1NCwiZXhwIjoxNzY0ODM2NDU0fQ.ECJLOgXLQ8IzXbdcISESP1vaHUMRJdhe6_Bh3BWe2_M"
        }
         });
         const data = await res.json();
@@ -169,10 +169,21 @@
     }
 
     function changePassword() {
-      const newPassword = prompt('Введите новый пароль:');
-      if (newPassword) {
-        // Здесь можно добавить fetch запрос на бэк для смены пароля
-        alert('Пароль успешно изменен');
+      const email = prompt('Введите email:');
+      if (email) {
+        fetch('/resetpassword', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "Запрос на смену пароля отправлен");
+      })
+      .catch(err => {
+        alert("Ошибка сервера");
+        console.error(err);
+      });
       }
     }
 

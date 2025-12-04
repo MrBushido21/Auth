@@ -10,7 +10,7 @@ export const resetpasswordService = {
           console.log(token);
           console.log(key);
           
-          const link = `http://localhost:3000/changepassword?token=${token}${key}`
+          const link = `http://localhost:3000/changepassword?token=${token}&key=${key}`
         
           // sendlerEmailCode(email, link)
         
