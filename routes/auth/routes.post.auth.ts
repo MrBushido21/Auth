@@ -107,28 +107,29 @@ router.post("/logout", async (req: Request<{}, {}, UsersType, {}, CookieOptions>
 
   if (id) {
     res.clearCookie("refresh_token"); // удаляем cookie
-    await updateRefreshToken(id, "")
+    await authRepository.updateRefreshToken(id, "")
     return res.json({ message: "Logged out" });
   }
 });
 
 
 // Сброс пароля
-router.post('/resetpassword', async (req: Request, res: Response) => {
-  const { email } = req.body
-  await resetpasswordService.reset({email})
+router.post('/reset', async (req: Request, res: Response) => {
+  const { email, type } = req.body
+  await resetpasswordService.reset({email, type})
   return res.status(200).json({message: "confirm link was send on your email"})
 })
 
 
 //Смена пароля 
-router.patch('/changepassword', async (req: Request, res: Response) => {
+router.patch('/changepasswordoremail', async (req: Request, res: Response) => {
   const token = req.body.token
-  const newpassord = req.body.newpassord
+  const newvalue = req.body.newvalue
   const key = req.body.key
+  const type = req.body.type
 
   try {
-    const access_token = await changepasswordService.changepassword({token, key, newpassord})
+    const access_token = await changepasswordService.changepasswordoremail({token, key, newvalue, type})
 
   if (!access_token) {
     return res.status(403).json({ message: "Your token was expire or unccorect" })

@@ -4,7 +4,7 @@ import type { CodesType, UsersType } from "../../types/types.js";
 import { createToken, hashedString, newError } from "../../utils/utils.js";
 
 export const changepasswordService = {
-    async changepassword({ token, key, newpassord }: { token: string; key:string; newpassord: string }) {
+    async changepasswordoremail({ token, key, newvalue, type }: { token: string; key:string; newvalue: string, type:string }) {
         let codes: CodesType | null = null
         if (typeof key === "string") {
             codes = await authRepository.getResetTokenForKey(key)
@@ -17,9 +17,15 @@ export const changepasswordService = {
         
         if (data && codes?.token !== null) {
             if (isMatch && Date.now() < Number(codes.expires_at)) {
-                const hashedPass = await hashedString(newpassord)
-                authRepository.changePassword(data.id, hashedPass)
-                authRepository.deleteUserCode(codes.id)
+                if (type === "password") {
+                    const hashedPass = await hashedString(newvalue)
+                    authRepository.changePassword(data.id, hashedPass)
+                    authRepository.deleteUserCode(codes.id)
+                } else {
+                    authRepository.changeEmail(data.id, newvalue)
+                    authRepository.deleteUserCode(codes.id)
+                }
+
                 const token = createToken(data)
                     const [access_token, refresh_token] = token
                     return access_token

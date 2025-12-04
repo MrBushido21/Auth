@@ -108,7 +108,7 @@
         const res = await fetch('/getuser', {
             method: "GET",
             headers: {
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDgzMjg1NCwiZXhwIjoxNzY0ODM2NDU0fQ.ECJLOgXLQ8IzXbdcISESP1vaHUMRJdhe6_Bh3BWe2_M"
+        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDgzNjU5NSwiZXhwIjoxNzY0ODQwMTk1fQ._BedEC3cMN3tvgCFCQHiULkGv5lcWkd0dBz_UMchPeo"
        }
         });
         const data = await res.json();
@@ -160,21 +160,31 @@
     // }
 
     function changeEmail() {
-      const newEmail = prompt('Введите новый email:');
-      if (newEmail) {
-        // Здесь можно добавить fetch запрос на бэк для смены email
-        alert('Email изменен на ' + newEmail);
-        document.getElementById('user-email').textContent = newEmail;
+      const email = prompt('Введите текущий email:');
+      if (email) {
+        fetch('/reset', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, type: "email" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "Запрос на смену пароля отправлен");
+      })
+      .catch(err => {
+        alert("Ошибка сервера");
+        console.error(err);
+      });
       }
     }
 
     function changePassword() {
       const email = prompt('Введите email:');
       if (email) {
-        fetch('/resetpassword', {
+        fetch('/reset', {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, type: "password" })
       })
       .then(res => res.json())
       .then(data => {
@@ -188,7 +198,20 @@
     }
 
     function logout() {
-      // Можно добавить fetch запрос на '/logout'
+      fetch('/logout', {
+        method: 'POST',
+        headers: {
+        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDgzMjg1NCwiZXhwIjoxNzY0ODM2NDU0fQ.ECJLOgXLQ8IzXbdcISESP1vaHUMRJdhe6_Bh3BWe2_M"
+       }
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "Запрос на смену пароля отправлен");
+      })
+      .catch(err => {
+        alert("Ошибка сервера");
+        console.error(err);
+      });
       alert('Вы вышли из аккаунта');
       // Например, редирект на страницу входа
       window.location.href = '/login';

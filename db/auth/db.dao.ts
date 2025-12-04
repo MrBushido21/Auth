@@ -156,5 +156,13 @@ export const changePassword = async (id: number, password: string) => {
         `,
         [password, id])
 }
+export const changeEmail = async (id: number, email: string) => {
+    await sqlRun(`
+        UPDATE users 
+        SET email = ?
+        WHERE id = ?
+        `,
+        [email, id])
+}
 
 

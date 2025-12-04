@@ -11,7 +11,7 @@
     h1{font-size:20px;margin:0 0 12px}
     p.help{color:#6b7280;margin:0 0 18px;font-size:13px}
     label{display:block;font-size:13px;margin-bottom:6px}
-    input[type=password]{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px}
+    input[type=email]{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px}
     .row{margin-bottom:12px}
     button{width:100%;padding:11px;border:0;border-radius:10px;background:#111827;color:#fff;font-weight:600;cursor:pointer}
     button[disabled]{opacity:.6;cursor:not-allowed}
@@ -30,16 +30,11 @@
 
     <form id="form">
       <div class="row">
-        <label for="password">Новый пароль</label>
-        <input id="password" name="password" type="password" autocomplete="new-password" required minlength="6" />
+        <label for="email">Новый email</label>
+        <input id="email" name="email" type="email"/>
       </div>
 
-      <div class="row">
-        <label for="password2">Повторите пароль</label>
-        <input id="password2" name="password2" type="password" autocomplete="new-password" required minlength="6" />
-      </div>
-
-      <button id="submit">Сменить пароль</button>
+      <button id="submit">Сменить email</button>
     </form>
 
     <div id="result" class="meta" aria-live="polite"></div>
@@ -73,11 +68,7 @@
         e.preventDefault();
         showMessage('', '');
 
-        const p1 = document.getElementById('password').value.trim();
-        const p2 = document.getElementById('password2').value.trim();
-
-        if(p1.length < 6){ showMessage('Пароль должен быть не короче 6 символов.','err'); return; }
-        if(p1 !== p2){ showMessage('Пароли не совпадают.','err'); return; }
+        const p1 = document.getElementById('email').value.trim();
 
         submit.disabled = true;
         submit.textContent = 'Отправка...';

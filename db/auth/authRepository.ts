@@ -20,4 +20,5 @@ export const authRepository = {
     updateVerifyStatus: auth.updateVerifyStatus,
     updateVerifyCode: auth.updateVerifyCode,
     changePassword: auth.changePassword,
+    changeEmail: auth.changeEmail,
 }

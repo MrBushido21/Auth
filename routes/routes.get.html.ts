@@ -35,5 +35,11 @@ router.get("/order", async (req: Request, res: Response) => {
 router.get("/user", async (req: Request, res: Response) => {
     res.sendFile("user.html", { root: "./pages" });
 });
+router.get("/changepasswordform", async (req: Request, res: Response) => {
+    res.sendFile("changepassword.html", { root: "./pages" });
+});
+router.get("/changeemailform", async (req: Request, res: Response) => {
+    res.sendFile("changeemail.html", { root: "./pages" });
+});
 
 export default router

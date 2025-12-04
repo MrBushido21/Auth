@@ -34,5 +34,11 @@ router.get("/order", async (req, res) => {
 router.get("/user", async (req, res) => {
     res.sendFile("user.html", { root: "./pages" });
 });
+router.get("/changepasswordform", async (req, res) => {
+    res.sendFile("changepassword.html", { root: "./pages" });
+});
+router.get("/changeemailform", async (req, res) => {
+    res.sendFile("changeemail.html", { root: "./pages" });
+});
 export default router;
 //# sourceMappingURL=routes.get.html.js.map

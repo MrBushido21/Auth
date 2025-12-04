@@ -3,20 +3,26 @@ import { dateExpire, dateNow, hashedString } from "../../utils/utils.js"
 import crypto from "crypto";
 
 export const resetpasswordService = {
-    async reset({email}:{email:string}) {
+    async reset({email, type}:{email:string, type:string}) {
         const token = crypto.randomBytes(32).toString("hex")
         const key = crypto.randomBytes(10).toString("hex")
           const hashedToken = await hashedString(token)
-          console.log(token);
-          console.log(key);
           
-          const link = `http://localhost:3000/changepassword?token=${token}&key=${key}`
+          let link:string = ""
+          
+          if (type === "email") {
+          link = `http://localhost:3000/changeemailform?token=${token}&key=${key}&type=${type}`  
+          } else {
+            link = `http://localhost:3000/changepasswordform?token=${token}&key=${key}&type=${type}`
+          }
+          
+          console.log(link);
         
           // sendlerEmailCode(email, link)
         
           const data = await authRepository.getUserForEmail(email)
           if (data) {
-            authRepository.addRestToken(data.id, hashedToken, key, dateNow(), dateExpire(120000))
+            authRepository.addRestToken(data.id, hashedToken, key, dateNow(), dateExpire(300000))
           }
     }
 }
