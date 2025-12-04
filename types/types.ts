@@ -54,6 +54,8 @@ export type ProductType = {
     image_url: string | null
     category_id: number
     quantity: number
+    rating: number
+    qntrewies: number
     created_at: string
     updated_at: string
 }

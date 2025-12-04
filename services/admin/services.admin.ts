@@ -8,12 +8,16 @@ class Admin {
     }
 
     async createdProduct() {
+        const rating = 0
+        const qntrewies = 0
         await productsRepository.createProduct(
             this.data.title,
             this.data.description,
             this.data.price,
             this.data.category_id,
             this.data.quantity,
+            rating,
+            qntrewies,
             this.data.created_at,
             this.data.updated_at
         )
@@ -22,6 +26,9 @@ class Admin {
 
     async editProduct() {
         await productsRepository.updateProduct(this.data.id, this.data.title, this.data.description, this.data.price, this.data.quantity)
+    }
+    async updateRating() {
+        await productsRepository.updateRating(this.data.id, this.data.rating)
     }
     async deleteProduct() {
         await productsRepository.deleteProduct(this.data.id)

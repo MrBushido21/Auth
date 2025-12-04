@@ -7,4 +7,5 @@ export const productsRepository = {
     updateProduct: product.updateProduct,
     deleteProduct: product.deleteProduct,
     updateQuantityProduct: product.updateQuantityProduct,
+    updateRating: product.updateRating,
 }

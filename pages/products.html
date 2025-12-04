@@ -1,20 +1,22 @@
-<!DOCTYPE html><html lang="ru">
+<!DOCTYPE html>
+<html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Список товаров</title>
   <style>
-  body { 
-      font-family: Arial; 
-      max-width: 1200px; 
-      margin: 40px auto; 
-      padding: 20px; 
-      background: #f0f0f0; 
+    body {
+      font-family: Arial;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f0f0f0;
     }
 
-    h1 { 
-      text-align: center; 
-      margin-bottom: 30px; 
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
     }
 
     /* Контейнер поиска + сортировки */
@@ -24,7 +26,9 @@
       margin-bottom: 25px;
       justify-content: center;
     }
-    #controls input, #controls select {
+
+    #controls input,
+    #controls select {
       padding: 10px;
       font-size: 16px;
       border-radius: 6px;
@@ -41,14 +45,20 @@
       padding: 15px;
       background: white;
       border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .product-card h3 { margin: 0 0 10px; }
-    .price { font-weight: bold; margin: 10px 0; }
+    .product-card h3 {
+      margin: 0 0 10px;
+    }
+
+    .price {
+      font-weight: bold;
+      margin: 10px 0;
+    }
 
     button {
       margin-top: auto;
@@ -61,20 +71,17 @@
       border-radius: 6px;
     }
 
-    button:hover { background: #1a5fc4; }
-
+    button:hover {
+      background: #1a5fc4;
+    }
   </style>
 </head>
+
 <body>
   <h1>Список товаров</h1>
   <!-- ========= Поиск + сортировка ========= -->
   <div id="controls">
-    <input 
-      type="text" 
-      id="search" 
-      placeholder="Поиск товаров..." 
-      oninput="loadProducts()"
-    />
+    <input type="text" id="search" placeholder="Поиск товаров..." oninput="loadProducts()" />
 
     <select id="sort" onchange="loadProducts()">
       <option value="asc">Цена: от дешевого</option>
@@ -82,36 +89,51 @@
     </select>
   </div>
 
-  <div id="products">Загрузка...</div> 
-  <button id="loadMore" onclick="loadMore()" style="display: none; margin: 20px auto; display: block;">заугрузить еще</button>
+  <div id="products">Загрузка...</div>
+  <button id="loadMore" onclick="loadMore()" style="display: none; margin: 20px auto; display: block;">заугрузить
+    еще</button>
   <script>
     // ====== Глобальные данные ======
     let currentPage = 0; // Какая сейчас страница
     const limit = 5; // Сколько грузим за раз
     let isLoading = false; // Чтобы не спамили кликами
-  
+    
+    // const value = input.value
     function addToCart(productId) {
       fetch("/cart/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_id: productId })
       })
-      .then(r => r.json())
-      .then(() => alert("Товар добавлен в корзину!"))
-      .catch(err => alert("Ошибка: " + err));
+        .then(r => r.json())
+        .then(() => alert("Товар добавлен в корзину!"))
+        .catch(err => alert("Ошибка: " + err));
     }
-  
+    
+    
+    function editRating(productId, rating) {
+      fetch("/updat-rating", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: productId, rating})
+      })
+        .then(r => r.json())
+        .then(() => alert(r.message))
+        .catch(err => alert("Ошибка: " + err.message));
+    }
+
+
     // ===== Рендер карточек =====
     function renderProducts(items) {
       const container = document.getElementById("products");
-  
+
       // Если пустой ответ и это страница 1 — показываем "ничего не найдено"
       if (items.length === 0 && currentPage === 1) {
         container.innerHTML = '<p>Ничего не найдено</p>';
         document.getElementById("loadMore").style.display = "none";
         return;
       }
-  
+
       // Добавляем товары к существующим
       items.forEach(item => {
         const card = document.createElement("div");
@@ -119,12 +141,22 @@
         card.innerHTML = `
           <h3>${item.title}</h3>
           <p>${item.description}</p>
+          <p>${item.rating ? "Рейтинг: " + item.rating : ""}</p>
+          <p>${item.qntrewies ? "Количество откликов: " + item.qntrewies : ""}</p>
+          <input type="text" id="rating" placeholder="Оцените товар" style="margin: 10px"/>
+          <div style="display: "flex", column-gap: "10px">
+            <button onclick="editRating(${item.id}, ${1})">1</button>
+            <button onclick="editRating(${item.id}, ${2})">2</button>
+            <button onclick="editRating(${item.id}, ${3})">3</button>
+            <button onclick="editRating(${item.id}, ${4})">4</button>
+            <button onclick="editRating(${item.id}, 5)">5</button>
+          </div>
           <p class="price">${item.price} грн</p>
           <button onclick="addToCart(${item.id})">Добавить в корзину</button>
         `;
         container.appendChild(card);
       });
-  
+
       // Если массив пустой — товаров больше нет
       if (items.length === 0) {
         document.getElementById("loadMore").style.display = "none";
@@ -132,20 +164,20 @@
         document.getElementById("loadMore").style.display = "block";
       }
     }
-  
+
     // ===== Универсальная загрузка =====
     function fetchProducts() {
       if (isLoading) return;
       isLoading = true;
-  
+
       const search = document.getElementById("search").value;
       const sort = document.getElementById("sort").value;
-  
+
       // Показываем загрузку только если это страница 1
       if (currentPage === 0) {
         document.getElementById("products").innerHTML = "Загрузка...";
       }
-  
+
       fetch(`/getproducts_data?search=${encodeURIComponent(search)}&sort=${sort}&page=${currentPage}&limit=${limit}`)
         .then(res => res.json())
         .then((items) => {
@@ -153,7 +185,7 @@
           if (currentPage === 0) {
             document.getElementById("products").innerHTML = "";
           }
-  
+
           renderProducts(items);
           isLoading = false;
         })
@@ -162,23 +194,23 @@
           isLoading = false;
         });
     }
-  
+
     // ===== Первая загрузка или поиск — сбрасываем страницу =====
     function loadProducts() {
       currentPage = 0;
       fetchProducts();
     }
-  
+
     // ===== Загрузка следующей страницы =====
     function loadMore() {
       currentPage++;
       fetchProducts();
     }
-  
     // ===== Старт =====
     window.onload = loadProducts;
   </script>
-  
 
-  </body>
+
+</body>
+
 </html>

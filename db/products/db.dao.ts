@@ -3,11 +3,12 @@ import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
 
-export const createProduct = async (title: string, description: string, price: number, category_id: number, quantity:number, created_at: string, updated_at: string):Promise<void> => {
+export const createProduct = async (title: string, description: string, price: number, category_id: number, quantity:number, rating:number, qntrewies:number,
+     created_at: string, updated_at: string):Promise<void> => {
     await sqlRun(`
-        INSERT INTO products (title, description, price, category_id, quantity, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?);
-        `, [title, description, price, category_id, quantity, created_at, updated_at])
+        INSERT INTO products (title, description, price, category_id, quantity, rating, qntrewies, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `, [title, description, price, category_id, quantity, rating, qntrewies, created_at, updated_at])
 }
 
 //GetOne
@@ -47,6 +48,13 @@ export const getAllProducts = async (search:string, sort:string): Promise<any[]>
         UPDATE products SET quantity = quantity - ?
         WHERE id = ?
         `, [quantity, id])
+ }
+ export const updateRating = async (id:number, rating:number):Promise<void> => {
+  await sqlRun(`
+        UPDATE products SET rating = ROUND(((rating + ?) * 1.0 ) / (qntrewies + 1) + 0.05, 1),
+        qntrewies = qntrewies + 1
+        WHERE id = ?
+        `, [rating, id])
  }
 
  //Delete
