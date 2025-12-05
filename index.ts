@@ -13,6 +13,9 @@ import orderGetRouter from "./routes/orders/routers.get.orders.js"
 import userGetRouter from "./routes/user/router.get.user.js"
 import rewieGetRouter from "./routes/rewie/routers.get.rewie.js"
 import rewiePostRouter from "./routes/rewie/routers.post.rewie.js"
+import wishlistGetRouter from "./routes/wishlist/routers.get.wishlist.js"
+import wishlistPostRouter from "./routes/wishlist/routers.post.wishlist.js"
+import wishlistDeleteRouter from "./routes/wishlist/routers.delete.wishlist.js"
 import { createTableUsers } from "./db/auth/db.createTable.js";
 import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
@@ -20,6 +23,8 @@ import { dateExpire, sendlerEmailCode } from "./utils/utils.js";
 import { createTables } from "./db/products/db.createTable.js";
 import { deleteOrder } from "./db/order/db.dao.js";
 import { createTableRewies } from "./db/rewies/db.createtable.js";
+import { updateRating } from "./db/rewies/db.dao.js";
+import { createTableWishlist } from "./db/wishlist/db.createTebale.js";
 
 
 const app = express();
@@ -29,6 +34,7 @@ const run = async () => {
 await createTableUsers()
 await createTables()
 await createTableRewies()
+await createTableWishlist()
 
 const jsonBodyModdleweare = express.json()
 app.use(jsonBodyModdleweare)
@@ -46,10 +52,14 @@ app.use('/', orderGetRouter)
 app.use('/', userGetRouter)
 app.use('/', rewieGetRouter)
 app.use('/', rewiePostRouter)
+app.use('/', wishlistGetRouter)
+app.use('/', wishlistPostRouter)
+app.use('/', wishlistDeleteRouter)
 
 app.get('/', async (req, res) => {
   // deleteAll()  
   // deleteOrder()
+  // updateRating(3)
   const data = await getUsers() 
   res.send(data)
 })

@@ -89,7 +89,7 @@
 
     <div id="availability"></div>
 
-    <a href="/otzyvy" class="rating" id="ratingBlock"></a>
+    <a href="/otzyvy" style="text-decoration: none; color: inherit;" class="rating stars" id="ratingBlock"></a>
 
     <div class="code" id="productCode"></div>
 
@@ -157,8 +157,7 @@ async function loadProduct() {
   // рейтинг и отзывы
   const ratingBlock = document.getElementById("ratingBlock");
   ratingBlock.innerHTML =
-    `<span class="stars">${getStars(p.rating)}</span> ${p.rating.toFixed(1)} • ${p.qntrewies} отзывов`;
-
+    `<a href="/otzyvy?id=${p.id}" style="text-decoration: none; color: inherit;" class="rating stars" id="ratingBlock">${getStars(p.rating)} ${p.rating.toFixed(1)} • ${p.qntrewies} отзывов</a>`
   // код товара
   document.getElementById("productCode").textContent = "Код товара: " + p.id;
 

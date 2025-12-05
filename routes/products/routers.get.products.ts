@@ -39,8 +39,6 @@ router.get('/getproduct', async (req, res) => {
     } else {
         return res.status(404).json({message: "product undefined"})
     }
-
-    console.log(id);
     
     try {
         const product = await servicesGetProducts.getProduct({id})

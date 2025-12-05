@@ -178,12 +178,9 @@
       }
 
       const data = await res.json();
-      const porduct = data.porduct
+      const product = data.product
       const rewies = data.rewies
-      if(rewies.length === 0){
-        reviewsBox.innerHTML = "<div class='small'>Немає відгуків</div>";
-        return;
-      }
+      
 
 // ---------- ЗАПОЛНЯЕМ ШАПКУ ТОВАРА ----------
 
@@ -211,6 +208,10 @@ document.getElementById("count").textContent = product.qntrewies;
 // цена
 meta.querySelector(".price").textContent = product.price + " ₴";
       reviewsBox.innerHTML = "";
+      if(rewies.length === 0){
+        reviewsBox.innerHTML = "<div class='small'>Немає відгуків</div>";
+        return
+      }
 
       rewies.forEach(r => {
         const div = document.createElement("div");
@@ -225,7 +226,7 @@ meta.querySelector(".price").textContent = product.price + " ₴";
           </div>
 
           ${r.comment ? `<div style="margin-top:8px;font-weight:600">${escapeHtml(r.comment)}</div>` : ""}
-          ${r.advanage ? `<div class="small" style="margin-top:6px">Переваги: ${escapeHtml(r.advanage)}</div>` : ""}
+          ${r.advantage ? `<div class="small" style="margin-top:6px">Переваги: ${escapeHtml(r.advantage)}</div>` : ""}
           ${r.flaws ? `<div class="small" style="margin-top:6px">Недоліки: ${escapeHtml(r.flaws)}</div>` : ""}
         `;
         reviewsBox.appendChild(div);
@@ -251,7 +252,7 @@ meta.querySelector(".price").textContent = product.price + " ₴";
     }
 
     // токен должен быть у тебя в localStorage или где-то ещё
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NDkyNTAwMSwiZXhwIjoxNzY0OTI4NjAxfQ.Y6zp7ImCOGMx1KZ9tA7tUYnTryjij2dUcmu9VH5SwrI"
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NDkzNzMzOCwiZXhwIjoxNzY0OTQwOTM4fQ.1nwfCj919lC0awG57u_NV5DqlJnkE5gGBeN4-19m5ls"
 
     try {
       const res = await fetch("/createrewie", {

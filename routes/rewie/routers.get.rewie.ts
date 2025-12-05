@@ -3,6 +3,7 @@ import { checkAuth } from "../../middleware/middleware.auth.js";
 import { servicesRewie } from "../../services/rewie/services.rewie.js";
 import { productsRepository } from "../../db/products/productsRepository.js";
 import { servicesGetProducts } from "../../services/produtcs/services.getProducts.js";
+import { userRepository } from "../../db/user/userRepository.js";
 
 const router = Router()
       

@@ -141,25 +141,21 @@
 
       // Добавляем товары к существующим
       items.forEach(item => {
+        const link = document.createElement("a");
+        link.href = `/product?id=${item.id}`
+        link.style.textDecoration = 'none'
+        link.style.color = 'inherit'
+
         const card = document.createElement("div");
         card.className = "product-card";
         card.innerHTML = `
           <h3>${item.title}</h3>
           <p>${item.description}</p>
-          <p>${item.rating ? "Рейтинг: " + item.rating : ""}</p>
-          <p>${item.qntrewies ? "Количество откликов: " + item.qntrewies : ""}</p>
-          <input type="text" id="rating" placeholder="Оцените товар" style="margin: 10px"/>
-          <div style="display: "flex", column-gap: "10px">
-            <button onclick="editRating(${item.id}, 1)">1</button>
-            <button onclick="editRating(${item.id}, 2)">2</button>
-            <button onclick="editRating(${item.id}, 3)">3</button>
-            <button onclick="editRating(${item.id}, 4)">4</button>
-            <button onclick="editRating(${item.id}, 5)">5</button>
-          </div>
           <p class="price">${item.price} грн</p>
           <button onclick="addToCart(${item.id})">Добавить в корзину</button>
         `;
-        container.appendChild(card);
+        link.appendChild(card);
+        container.appendChild(link);
       });
 
       // Если массив пустой — товаров больше нет
