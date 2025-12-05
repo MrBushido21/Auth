@@ -5,6 +5,20 @@ export const servicesRewie = {
     async create({product_id, user_id, comment, advantage, flaws, rating}: 
         {product_id:number, user_id:number, comment:string, advantage:string, flaws:string, rating:number}) {
         
-        await rewiesRepository.createrRewies(product_id, user_id, comment, advantage, flaws, rating, dateNow())
+        try {
+            await rewiesRepository.createrRewies(product_id, user_id, comment, advantage, flaws, rating, dateNow())
+        } catch (error) {
+            console.error(error);
+            
+        }
+    }, 
+
+    async getRewies({product_id}: {product_id:number}) {
+        try {
+            const rewies = await rewiesRepository.getRewies(product_id)
+            return rewies
+        } catch (error) {
+            console.error(error);          
+        }
     }
 }

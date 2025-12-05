@@ -90,3 +90,14 @@ export type OrderItemsType = {
     quantity:number
     price:number
 }
+
+export type RewieType = {
+    id: number
+    product_id:number
+    user_id: number
+    comment:string,
+    advantage:string
+    flaws:string
+    rating:number
+    created_at:string
+}

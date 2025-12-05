@@ -11,6 +11,8 @@ import cartGetRouter from "./routes/cart/routers.get.cart.js"
 import orderPostRouter from "./routes/orders/routers.post.orders.js"
 import orderGetRouter from "./routes/orders/routers.get.orders.js"
 import userGetRouter from "./routes/user/router.get.user.js"
+import rewieGetRouter from "./routes/rewie/routers.get.rewie.js"
+import rewiePostRouter from "./routes/rewie/routers.post.rewie.js"
 import { createTableUsers } from "./db/auth/db.createTable.js";
 import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
@@ -42,6 +44,8 @@ app.use('/', cartGetRouter)
 app.use('/', orderPostRouter)
 app.use('/', orderGetRouter)
 app.use('/', userGetRouter)
+app.use('/', rewieGetRouter)
+app.use('/', rewiePostRouter)
 
 app.get('/', async (req, res) => {
   // deleteAll()  

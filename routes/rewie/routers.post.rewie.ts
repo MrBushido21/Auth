@@ -3,7 +3,7 @@ import { checkAuth } from "../../middleware/middleware.auth.js";
 import { servicesRewie } from "../../services/rewie/services.rewie.js";
 
 const router = Router()
-
+      
 router.post('/createrewie', checkAuth, async (req, res) => {
     const user = req.user
     let user_id:number
@@ -21,6 +21,7 @@ router.post('/createrewie', checkAuth, async (req, res) => {
 
     try {
         await servicesRewie.create({product_id, user_id, comment, advantage, flaws, rating})
+        return res.status(200).json({message: "Відгук додано"})
     } catch (error) {
         return res.status(500).json({error: "somthing wrong"})
     }

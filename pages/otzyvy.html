@@ -60,7 +60,8 @@
         <!-- if image provided, replace with <img> -->
         <span>Фото</span>
       </div>
-      <div class="meta">
+      <!-- ТОВАР -->
+      <div class="meta" id="meta">
         <div class="title" id="title">Назва товару приклад</div>
         <div class="small">Категорія · Код товару 12345</div>
         <div class="rating-row">
@@ -146,6 +147,7 @@
   const submitBtn = document.getElementById('submit')
   const stars = document.querySelectorAll('.star')
   const reviewsBox = document.getElementById("reviews")
+  const meta = document.getElementById("meta")
   let rating = 0
 
   // -------------------- ОТКРЫТИЕ / ЗАКРЫТИЕ МОДАЛКИ --------------------
@@ -176,15 +178,16 @@
       }
 
       const data = await res.json();
-
-      if(data.length === 0){
+      const porduct = data.porduct
+      const rewies = data.rewies
+      if(rewies.length === 0){
         reviewsBox.innerHTML = "<div class='small'>Немає відгуків</div>";
         return;
       }
 
       reviewsBox.innerHTML = "";
 
-      data.forEach(r => {
+      rewies.forEach(r => {
         const div = document.createElement("div");
         div.className = "review";
         div.innerHTML = `
@@ -211,7 +214,7 @@
   loadReviews(); // ← запускаем при загрузке страницы
 
   // -------------------- 2) ОТПРАВКА ОТЗЫВА --------------------
-  submitBtn.addEventListener('click', async ()=>{
+  submitBtn.addEventListener('click', async () => {
 
     const pros = document.getElementById('pros').value.trim()
     const cons = document.getElementById('cons').value.trim()
@@ -223,10 +226,10 @@
     }
 
     // токен должен быть у тебя в localStorage или где-то ещё
-    const token = localStorage.getItem("token")
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NDkyNTAwMSwiZXhwIjoxNzY0OTI4NjAxfQ.Y6zp7ImCOGMx1KZ9tA7tUYnTryjij2dUcmu9VH5SwrI"
 
     try {
-      const res = await fetch("/createrewies", {
+      const res = await fetch("/createrewie", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -234,7 +237,7 @@
         },
         body: JSON.stringify({
           product_id: productId,
-          advanage: pros,
+          advantage: pros,
           flaws: cons,
           comment: comment,
           rating: rating
@@ -261,7 +264,7 @@
       console.log(e);
       alert("Помилка запиту.");
     }
-  });
+  })
 
   // -------------------- SAFE HTML --------------------
   function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
