@@ -17,11 +17,13 @@ import cookieParser from "cookie-parser";
 import { dateExpire, sendlerEmailCode } from "./utils/utils.js";
 import { createTables } from "./db/products/db.createTable.js";
 import { deleteOrder } from "./db/order/db.dao.js";
+import { createTableRewies } from "./db/rewies/db.createtable.js";
 const app = express();
 const port = process.env.PORT || 3000;
 const run = async () => {
     await createTableUsers();
     await createTables();
+    await createTableRewies();
     const jsonBodyModdleweare = express.json();
     app.use(jsonBodyModdleweare);
     app.use(cookieParser());

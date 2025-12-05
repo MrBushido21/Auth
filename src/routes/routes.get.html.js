@@ -43,5 +43,8 @@ router.get("/changepasswordform", async (req, res) => {
 router.get("/changeemailform", async (req, res) => {
     res.sendFile("changeemail.html", { root: "./pages" });
 });
+router.get("/otzyvy", async (req, res) => {
+    res.sendFile("otzyvy.html", { root: "./pages" });
+});
 export default router;
 //# sourceMappingURL=routes.get.html.js.map
