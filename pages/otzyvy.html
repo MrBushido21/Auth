@@ -134,78 +134,137 @@
   </div>
 
   <script>
-    // state
-    const backdrop = document.getElementById('backdrop')
-    const openBtn = document.getElementById('openReview')
-    const closeBtn = document.getElementById('close')
-    const cancelBtn = document.getElementById('cancel')
-    const submitBtn = document.getElementById('submit')
-    const stars = document.querySelectorAll('.star')
-    let rating = 0
+  // -------------------- ПОЛУЧАЕМ product_id ИЗ URL --------------------
+  const url = new URL(window.location.href);
+  const productId = url.searchParams.get("id");
 
-    openBtn.addEventListener('click', ()=>{backdrop.style.display='flex';window.scrollTo(0,document.body.scrollHeight)})
-    closeBtn.addEventListener('click', ()=>backdrop.style.display='none')
-    cancelBtn.addEventListener('click', ()=>backdrop.style.display='none')
-    backdrop.addEventListener('click',(e)=>{if(e.target===backdrop)backdrop.style.display='none'})
+  // -------------------- ELEMENTS --------------------
+  const backdrop = document.getElementById('backdrop')
+  const openBtn = document.getElementById('openReview')
+  const closeBtn = document.getElementById('close')
+  const cancelBtn = document.getElementById('cancel')
+  const submitBtn = document.getElementById('submit')
+  const stars = document.querySelectorAll('.star')
+  const reviewsBox = document.getElementById("reviews")
+  let rating = 0
 
-    stars.forEach(s=>{
-      s.addEventListener('mouseenter', ()=>{
-        const v = +s.dataset.value
-        highlight(v)
-      })
-      s.addEventListener('mouseleave', ()=>highlight(rating))
-      s.addEventListener('click', ()=>{rating = +s.dataset.value; highlight(rating)})
-    })
-    function highlight(v){stars.forEach(s=>s.classList.toggle('active', +s.dataset.value<=v))}
+  // -------------------- ОТКРЫТИЕ / ЗАКРЫТИЕ МОДАЛКИ --------------------
+  openBtn.addEventListener('click', ()=>{backdrop.style.display='flex'})
+  closeBtn.addEventListener('click', ()=>backdrop.style.display='none')
+  cancelBtn.addEventListener('click', ()=>backdrop.style.display='none')
+  backdrop.addEventListener('click',(e)=>{if(e.target===backdrop)backdrop.style.display='none'})
 
-    // submit -> append to list
-    submitBtn.addEventListener('click', ()=>{
-      const pros = document.getElementById('pros').value.trim()
-      const cons = document.getElementById('cons').value.trim()
-      const comment = document.getElementById('comment').value.trim()
-      const youtube = document.getElementById('youtube').value.trim()
-      if(rating===0){alert('Будь ласка, оцініть товар зорями.');return}
+  // -------------------- РЕЙТИНГ --------------------
+  stars.forEach(s=>{
+    s.addEventListener('mouseenter', ()=>highlight(+s.dataset.value))
+    s.addEventListener('mouseleave', ()=>highlight(rating))
+    s.addEventListener('click', ()=>{ rating = +s.dataset.value; highlight(rating) })
+  })
+  function highlight(v){
+    stars.forEach(s=>s.classList.toggle('active', +s.dataset.value <= v))
+  }
 
-      const reviews = document.getElementById('reviews')
-      const div = document.createElement('div')
-      div.className='review'
-      div.innerHTML = `
-        <div class="row" style="justify-content:space-between">
-          <div>
-            <div class="name">Ви</div>
-            <div class="stars">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</div>
+  // -------------------- 1) ПОЛУЧЕНИЕ СПИСКА ОТЗЫВОВ --------------------
+  async function loadReviews(){
+    try {
+      const res = await fetch(`/getrewies?id=${productId}`);
+
+      if(!res.ok){
+        // backend пока отдаёт 404 → просто не показываем ничего
+        reviewsBox.innerHTML = "<div class='small'>Немає відгуків</div>";
+        return;
+      }
+
+      const data = await res.json();
+
+      if(data.length === 0){
+        reviewsBox.innerHTML = "<div class='small'>Немає відгуків</div>";
+        return;
+      }
+
+      reviewsBox.innerHTML = "";
+
+      data.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "review";
+        div.innerHTML = `
+          <div class="row" style="justify-content:space-between">
+            <div>
+              <div class="name">${escapeHtml(r.user_name || "Анонім")}</div>
+              <div class="stars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div>
+            </div>
+            <div class="small">${escapeHtml(r.created_at || "")}</div>
           </div>
-          <div class="small">зараз</div>
-        </div>
-        ${comment?`<div style="margin-top:8px;font-weight:600">${escapeHtml(comment)}</div>`:''}
-        ${pros?`<div class="small" style="margin-top:6px">Переваги: ${escapeHtml(pros)}</div>`:''}
-        ${cons?`<div class="small" style="margin-top:6px">Недоліки: ${escapeHtml(cons)}</div>`:''}
-        ${youtube?`<div style="margin-top:8px"><a href="${escapeAttr(youtube)}" target="_blank">Переглянути відео</a></div>`:''}
-      `
-      reviews.prepend(div)
 
-      // update count & average (simple demo: recalc average from stars in DOM)
-      const countEl = document.getElementById('count')
-      const avgEl = document.getElementById('avg')
-      const allStars = document.querySelectorAll('.review .stars')
-      let sum=0
-      allStars.forEach(s=>{sum += (s.textContent.match(/★/g)||[]).length})
-      const cnt = allStars.length
-      const avg = (sum/cnt)
-      countEl.textContent = cnt
-      avgEl.innerHTML = avg.toFixed(2) + '<span style="font-size:14px;color:#666">/5</span>'
+          ${r.comment ? `<div style="margin-top:8px;font-weight:600">${escapeHtml(r.comment)}</div>` : ""}
+          ${r.advanage ? `<div class="small" style="margin-top:6px">Переваги: ${escapeHtml(r.advanage)}</div>` : ""}
+          ${r.flaws ? `<div class="small" style="margin-top:6px">Недоліки: ${escapeHtml(r.flaws)}</div>` : ""}
+        `;
+        reviewsBox.appendChild(div);
+      });
 
-      // reset & close modal
-      rating=0;highlight(0)
-      document.getElementById('pros').value=''
-      document.getElementById('cons').value=''
-      document.getElementById('comment').value=''
-      document.getElementById('youtube').value=''
-      backdrop.style.display='none'
-    })
+    } catch(e){
+      console.log("Помилка:", e);
+    }
+  }
 
-    function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-    function escapeAttr(s){return s.replace(/"/g,'&quot;')}
+  loadReviews(); // ← запускаем при загрузке страницы
+
+  // -------------------- 2) ОТПРАВКА ОТЗЫВА --------------------
+  submitBtn.addEventListener('click', async ()=>{
+
+    const pros = document.getElementById('pros').value.trim()
+    const cons = document.getElementById('cons').value.trim()
+    const comment = document.getElementById('comment').value.trim()
+
+    if(rating === 0){
+      alert("Будь ласка, оцініть товар.");
+      return;
+    }
+
+    // токен должен быть у тебя в localStorage или где-то ещё
+    const token = localStorage.getItem("token")
+
+    try {
+      const res = await fetch("/createrewies", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token || ""
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          advanage: pros,
+          flaws: cons,
+          comment: comment,
+          rating: rating
+        })
+      });
+
+      if(!res.ok){
+        alert("Помилка при надсиланні відгуку.");
+        return;
+      }
+
+      // отзыв успешно создан → перезагружаем список
+      await loadReviews();
+
+      // закрываем и очищаем
+      backdrop.style.display = "none";
+      document.getElementById('pros').value='';
+      document.getElementById('cons').value='';
+      document.getElementById('comment').value='';
+      rating = 0;
+      highlight(0);
+
+    } catch(e){
+      console.log(e);
+      alert("Помилка запиту.");
+    }
+  });
+
+  // -------------------- SAFE HTML --------------------
+  function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
   </script>
 </body>
 </html>
