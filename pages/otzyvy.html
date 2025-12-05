@@ -185,6 +185,31 @@
         return;
       }
 
+// ---------- ЗАПОЛНЯЕМ ШАПКУ ТОВАРА ----------
+
+// фото
+const thumb = document.getElementById("thumb");
+if(product.image_url && product.image_url.trim() !== ""){
+  thumb.innerHTML = `<img src="${product.image_url}" alt="${product.title}">`;
+} else {
+  thumb.innerHTML = `<span>Фото</span>`;
+}
+
+// название
+document.getElementById("title").textContent = product.title;
+
+// категория + id товара
+meta.querySelector(".small").textContent = `Категорія ${product.category_id} · Код товару ${product.id}`;
+
+// рейтинг
+document.getElementById("avg").innerHTML =
+  `${Number(product.rating).toFixed(1)}<span style="font-size:14px;color:#666">/5</span>`;
+
+// количество отзывов
+document.getElementById("count").textContent = product.qntrewies;
+
+// цена
+meta.querySelector(".price").textContent = product.price + " ₴";
       reviewsBox.innerHTML = "";
 
       rewies.forEach(r => {
