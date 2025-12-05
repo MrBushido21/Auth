@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { servicesGetProducts } from "../../services/produtcs/services.getProducts.js";
 import { checkAdmin } from "../../middleware/middleware.admin.js";
+import { productsRepository } from "../../db/products/productsRepository.js";
 
 
 const router = Router()
@@ -30,6 +31,24 @@ router.get('/getproducts_data', async (req, res) => { //checkAdmin,
     }
 })
 
+router.get('/getproduct', async (req, res) => {
+    let id:number
+
+    if (req.query.id && !Array.isArray(req.query.id)) {
+        id = +req.query.id
+    } else {
+        return res.status(404).json({message: "product undefined"})
+    }
+
+    console.log(id);
+    
+    try {
+        const product = await servicesGetProducts.getProduct({id})
+        return res.status(200).json(product)
+    } catch (error:any) {
+        return res.status(500).json({error: error.message})
+    }
+})
 
 
 export default router

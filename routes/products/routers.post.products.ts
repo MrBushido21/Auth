@@ -22,7 +22,6 @@ router.post('/createproduct', async (req: Request, res: Response) => {
     }
 
 })
-
 router.put('/admin/edit-product', async (req: Request, res: Response) => {
     const { title, description, price, quantity} = req.body
     let id:number

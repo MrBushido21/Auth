@@ -1,3 +1,4 @@
+import { getProduct } from "../../db/products/db.dao.js"
 import { productsRepository } from "../../db/products/productsRepository.js"
 import { newError } from "../../utils/utils.js"
 
@@ -16,5 +17,11 @@ export const servicesGetProducts = {
         page++
 
         return sliceDate
+    },
+
+    async getProduct({id}: {id:number}) {
+        const product = await productsRepository.getProduct(id)
+        newError(product, 500, "Somthing wrong")
+        return product
     }
 }

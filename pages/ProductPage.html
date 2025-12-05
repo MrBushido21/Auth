@@ -39,7 +39,9 @@
   }
 
   .info {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
   }
 
   .title {
@@ -87,7 +89,7 @@
 
     <div id="availability"></div>
 
-    <div class="rating" id="ratingBlock"></div>
+    <a href="/otzyvy" class="rating" id="ratingBlock"></a>
 
     <div class="code" id="productCode"></div>
 
@@ -107,7 +109,9 @@ function getStars(rating) {
 
 async function loadProduct() {
   try {
-    let res = await fetch('/getproduct');
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    let res = await fetch(`/getproduct?id=${id}`);
     if (!res.ok) throw new Error();
     return await res.json();
   } catch (e) {
@@ -147,7 +151,7 @@ async function loadProduct() {
     avail.textContent = "В наличии";
   } else {
     avail.className = "availability no";
-    avail.textContent = "Нема";
+    avail.textContent = "Нет в наличии";
   }
 
   // рейтинг и отзывы

@@ -26,6 +26,9 @@ router.get("/refresh", (req: Request, res: Response) => {
 router.get("/getproducts", async (req: Request, res: Response) => {
     res.sendFile("products.html", { root: "./pages" });
 });
+router.get("/product", async (req: Request, res: Response) => {
+    res.sendFile("productPage.html", { root: "./pages" });
+});
 router.get("/cart", async (req: Request, res: Response) => {
     res.sendFile("cart.html", { root: "./pages" });
 });

@@ -79,6 +79,11 @@
 
 <body>
   <h1>Список товаров</h1>
+  <!-- =========================================================== -->
+
+  <!-- ========ПРОБЛЕМА С КНОПКОЙ ЗАГРУЗИТЬ ЕЩЕ================== -->
+
+  <!-- =========================================================== -->
   <!-- ========= Поиск + сортировка ========= -->
   <div id="controls">
     <input type="text" id="search" placeholder="Поиск товаров..." oninput="loadProducts()" />
@@ -145,10 +150,10 @@
           <p>${item.qntrewies ? "Количество откликов: " + item.qntrewies : ""}</p>
           <input type="text" id="rating" placeholder="Оцените товар" style="margin: 10px"/>
           <div style="display: "flex", column-gap: "10px">
-            <button onclick="editRating(${item.id}, ${1})">1</button>
-            <button onclick="editRating(${item.id}, ${2})">2</button>
-            <button onclick="editRating(${item.id}, ${3})">3</button>
-            <button onclick="editRating(${item.id}, ${4})">4</button>
+            <button onclick="editRating(${item.id}, 1)">1</button>
+            <button onclick="editRating(${item.id}, 2)">2</button>
+            <button onclick="editRating(${item.id}, 3)">3</button>
+            <button onclick="editRating(${item.id}, 4)">4</button>
             <button onclick="editRating(${item.id}, 5)">5</button>
           </div>
           <p class="price">${item.price} грн</p>
