@@ -19,6 +19,7 @@ class Wishlist {
     }
     async getAll() {
         try {
+            //Добавить товары, тут только айдишники пока что 
             const itemsWishList = await wishlistRepository.getItemsWishList(this.user_id)
             return itemsWishList
         } catch (error) {

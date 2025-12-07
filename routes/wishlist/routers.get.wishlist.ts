@@ -17,6 +17,7 @@ router.get('/getwishlist', checkAuth, async (req, res) => {
     try {
         const wishList = new Wishlist(user_id, 0)
         const items = await wishList.getAll()
+        console.log(items);
         return res.status(200).json(items)
     } catch (error) {
         return res.status(500).json({error: "somthing wrong"}) 
