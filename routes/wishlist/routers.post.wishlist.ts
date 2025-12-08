@@ -14,8 +14,7 @@ router.post('/createwishlist', checkAuth, async (req, res) => {
     } else {
         return res.status(404).json({error: "user undefined"})
     }
-    console.log(user_id);
-    
+
     try {
         const wishList = new Wishlist(user_id, product_id)
         await wishList.create()

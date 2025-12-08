@@ -121,15 +121,17 @@
         }
 
         function deleteFromWish(productId) {
-        fetch("/deleteitemwishlist", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json", 
-            "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE3OTgyMiwiZXhwIjoxNzY1MTgzNDIyfQ.j490AJm3L2xK79t8ZWS9SH-yQxmRAK0ahTGp4UbQvyQ" },
-            body: JSON.stringify({ product_id: productId })
-        })
-            .then(r => r.json())
-            .then(() => alert("Товар добавлен в избранное!"))
-            .catch(err => alert("Ошибка: " + err));
+            fetch("/deleteitemwishlist", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE4MzY1OCwiZXhwIjoxNzY1MTg3MjU4fQ.CQG_y5wVxlQGtGMt_MOR-UKJl8jesfbab5xNBEHixYM"
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+                .then(r => r.json())
+                .then(() => alert("Товар добавлен в избранное!"))
+                .catch(err => alert("Ошибка: " + err));
         }
 
 
@@ -138,7 +140,7 @@
             const container = document.getElementById("products");
 
             // Если пустой ответ и это страница 1 — показываем "ничего не найдено"
-            if (items.length === 0 && currentPage === 1) {
+            if (items.length === 0 && currentPage === 0) {
                 container.innerHTML = '<p>Ничего не найдено</p>';
                 document.getElementById("loadMore").style.display = "none";
                 return;
@@ -150,8 +152,8 @@
             }
             items.forEach(item => {
                 const card = document.createElement("div");
-                    card.className = "product-card";
-                    card.innerHTML = `
+                card.className = "product-card";
+                card.innerHTML = `
                         <a href="/product?id=${item.id}" class="card-link">
                             <h3>${item.title}</h3>
                             </a>
@@ -161,14 +163,18 @@
                         <button style="margin: 10px 0;" onclick="deleteFromWish(${item.id})">Удалить из избранного</button>
                         `;
 
-                        container.appendChild(card); 
+                container.appendChild(card);
             });
 
-            // Если массив пустой — товаров больше нет
-            if (items.length === 0) {
-                document.getElementById("loadMore").style.display = "none";
-            } else {
+
+
+            // Логика кнопки
+            if (items.length === limit) {
+                // Если пришло ровно 5 — могут быть ещё товары
                 document.getElementById("loadMore").style.display = "block";
+            } else {
+                // Если пришло < 5 — товаров больше нет
+                document.getElementById("loadMore").style.display = "none";
             }
         }
 
@@ -180,22 +186,22 @@
             const search = document.getElementById("search").value;
             const sort = document.getElementById("sort").value;
 
-            // Показываем загрузку только если это страница 1
+            // Если это первая страница — очищаем и ставим "Загрузка..."
             if (currentPage === 0) {
                 document.getElementById("products").innerHTML = "Загрузка...";
             }
-
             fetch(`/getwishlist`, {
-                headers: { "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE3OTgyMiwiZXhwIjoxNzY1MTgzNDIyfQ.j490AJm3L2xK79t8ZWS9SH-yQxmRAK0ahTGp4UbQvyQ" },
+                headers: { "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE4MzY1OCwiZXhwIjoxNzY1MTg3MjU4fQ.CQG_y5wVxlQGtGMt_MOR-UKJl8jesfbab5xNBEHixYM" },
             })
                 .then(res => res.json())
                 .then((items) => {
-                    // Убираем надпись "Загрузка..."
+
                     if (currentPage === 0) {
                         document.getElementById("products").innerHTML = "";
                     }
 
                     renderProducts(items);
+
                     isLoading = false;
                 })
                 .catch(err => {
