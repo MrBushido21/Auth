@@ -1,4 +1,7 @@
+import { productsRepository } from "../../db/products/productsRepository.js"
 import { wishlistRepository } from "../../db/wishlist/wishlistRepository.js"
+import type { ProductType } from "../../types/types.js"
+import { newError } from "../../utils/utils.js"
 
 class Wishlist {
     user_id:number
@@ -19,9 +22,15 @@ class Wishlist {
     }
     async getAll() {
         try {
-            //Добавить товары, тут только айдишники пока что 
-            const itemsWishList = await wishlistRepository.getItemsWishList(this.user_id)
-            return itemsWishList
+            const wishList = await wishlistRepository.getItemsWishList(this.user_id)
+            newError(wishList, 500, "somthig error")
+            let itemsWishList:ProductType[] = []
+            
+            for (const item of wishList) {
+                let product = await productsRepository.getProduct(item.product_id)
+                itemsWishList.push(product)
+            }
+            return itemsWishList              
         } catch (error) {
             console.error(error);            
         }

@@ -60,6 +60,11 @@
       margin: 10px 0;
     }
 
+    .card-link {
+      text-decoration: none;
+      color: inherit
+    }
+
     button {
       margin-top: auto;
       padding: 10px;
@@ -103,7 +108,6 @@
     const limit = 5; // Сколько грузим за раз
     let isLoading = false; // Чтобы не спамили кликами
     
-    // const value = input.value
     function addToCart(productId) {
       fetch("/cart/add", {
         method: "POST",
@@ -112,6 +116,16 @@
       })
         .then(r => r.json())
         .then(() => alert("Товар добавлен в корзину!"))
+        .catch(err => alert("Ошибка: " + err));
+    }
+    function addToWish(productId) {
+      fetch("/createwishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE3OTgyMiwiZXhwIjoxNzY1MTgzNDIyfQ.j490AJm3L2xK79t8ZWS9SH-yQxmRAK0ahTGp4UbQvyQ" },
+        body: JSON.stringify({ product_id: productId })
+      })
+        .then(r => r.json())
+        .then(() => alert("Товар добавлен в избранное!"))
         .catch(err => alert("Ошибка: " + err));
     }
     
@@ -133,7 +147,7 @@
       const container = document.getElementById("products");
 
       // Если пустой ответ и это страница 1 — показываем "ничего не найдено"
-      if (items.length === 0 && currentPage === 1) {
+      if (items.length === 0 && currentPage === 0) {
         container.innerHTML = '<p>Ничего не найдено</p>';
         document.getElementById("loadMore").style.display = "none";
         return;
@@ -141,21 +155,19 @@
 
       // Добавляем товары к существующим
       items.forEach(item => {
-        const link = document.createElement("a");
-        link.href = `/product?id=${item.id}`
-        link.style.textDecoration = 'none'
-        link.style.color = 'inherit'
 
         const card = document.createElement("div");
         card.className = "product-card";
         card.innerHTML = `
-          <h3>${item.title}</h3>
+          <a href="/product?id=${item.id}" class="card-link">
+            <h3>${item.title}</h3>
+            </a>
           <p>${item.description}</p>
           <p class="price">${item.price} грн</p>
           <button onclick="addToCart(${item.id})">Добавить в корзину</button>
+          <button style="margin: 10px 0;" onclick="addToWish(${item.id})">Добавить в избранное</button>
         `;
-        link.appendChild(card);
-        container.appendChild(link);
+        container.appendChild(card);
       });
 
       // Если массив пустой — товаров больше нет

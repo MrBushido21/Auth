@@ -89,4 +89,9 @@ export type RewieType = {
     rating: number;
     created_at: string;
 };
+export type wishListType = {
+    id: number;
+    user_id: number;
+    product_id: number;
+};
 //# sourceMappingURL=types.d.ts.map

@@ -6,7 +6,7 @@ const router = Router();
 
 
 router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
-    const { product_id, product_name, quantity, price } = req.body
+    const { product_id } = req.body
     let user = req.user
     let user_id: number | undefined = 0
     if (user && typeof user !== "string") {
@@ -17,7 +17,7 @@ router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
 
     try {
         if (user_id) {
-            const cart = new Cart(user_id, product_id, product_name, quantity, price)
+            const cart = new Cart(user_id, product_id, "", 1, 0)
             await cart.getOrCreateCart()
             await cart.controllerCartItems()
             await cart.incrTotalPrice()

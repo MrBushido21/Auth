@@ -1,6 +1,7 @@
 import { sqlRun } from "../db.constructor.js"
 
 export const createTableWishlist = async ():Promise<void> => {
+    // await sqlRun(`DROP TABLE wishlist`)
     await sqlRun(`
         CREATE TABLE IF NOT EXISTS wishlist (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

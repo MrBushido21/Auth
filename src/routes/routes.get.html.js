@@ -46,5 +46,8 @@ router.get("/changeemailform", async (req, res) => {
 router.get("/otzyvy", async (req, res) => {
     res.sendFile("otzyvy.html", { root: "./pages" });
 });
+router.get("/wishlist", async (req, res) => {
+    res.sendFile("wishlist.html", { root: "./pages" });
+});
 export default router;
 //# sourceMappingURL=routes.get.html.js.map

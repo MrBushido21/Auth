@@ -47,5 +47,8 @@ router.get("/changeemailform", async (req: Request, res: Response) => {
 router.get("/otzyvy", async (req: Request, res: Response) => {
     res.sendFile("otzyvy.html", { root: "./pages" });
 });
+router.get("/wishlist", async (req: Request, res: Response) => {
+    res.sendFile("wishlist.html", { root: "./pages" });
+});
 
 export default router

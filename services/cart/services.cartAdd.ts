@@ -36,7 +36,7 @@ import { dateNow, newError } from "../../utils/utils.js"
         if (cartItem) {
             await cartRepository.updateCartItem(this.product_id, this.quantity, price)
         } else {
-            await cartRepository.createCartItem(cart_id, this.product_id, this.product_name, this.quantity, price, dateNow())
+            await cartRepository.createCartItem(cart_id, this.product_id, product.title, this.quantity, price, dateNow())
             cartItem = await cartRepository.getCartItem(cart_id, this.product_id)
         }
         return cartItem

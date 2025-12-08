@@ -1,3 +1,4 @@
+import type { wishListType } from "../../types/types.js"
 import { sqlAll, sqlRun } from "../db.constructor.js"
 
 //Create
@@ -9,8 +10,8 @@ export const createWishlist = async (user_id:number, product_id:number) => {
 }
 
 //GetAll
-export const getItemsWishList = async (user_id:number) => {
-    const wishList = await sqlAll(`
+export const getItemsWishList = async (user_id:number):Promise<wishListType[]> => {
+    const wishList:wishListType[] = await sqlAll(`
         SELECT * FROM wishlist WHERE user_id = ?
         `, [user_id])
 
@@ -20,5 +21,5 @@ export const getItemsWishList = async (user_id:number) => {
 
 //Delete
 export const deleteWishList = async (user_id:number, product_id:number) => {
-    await sqlRun(`DELETE wishlist WHERE user_id = ? AND product_id = ?`, [user_id, product_id])
+    await sqlRun(`DELETE FROM wishlist WHERE user_id = ? AND product_id = ?`, [user_id, product_id])
 }

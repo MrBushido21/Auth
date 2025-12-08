@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Избранное</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Контейнер поиска + сортировки */
+        #controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        #controls input,
+        #controls select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        #products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-card h3 {
+            margin: 0 0 10px;
+        }
+
+        .price {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: inherit
+        }
+
+        button {
+            margin-top: auto;
+            padding: 10px;
+            background: #2c7be5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            border-radius: 6px;
+        }
+
+        button:hover {
+            background: #1a5fc4;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Список товаров</h1>
+    <!-- =========================================================== -->
+
+    <!-- ========ПРОБЛЕМА С КНОПКОЙ ЗАГРУЗИТЬ ЕЩЕ================== -->
+
+    <!-- =========================================================== -->
+    <!-- ========= Поиск + сортировка ========= -->
+    <div id="controls">
+        <input type="text" id="search" placeholder="Поиск товаров..." oninput="loadProducts()" />
+
+        <select id="sort" onchange="loadProducts()">
+            <option value="asc">Цена: от дешевого</option>
+            <option value="desc">Цена: от дорогого</option>
+        </select>
+    </div>
+
+    <div id="products">Загрузка...</div>
+    <button id="loadMore" onclick="loadMore()" style="display: none; margin: 20px auto; display: block;">заугрузить
+        еще</button>
+    <script>
+        // ====== Глобальные данные ======
+        let currentPage = 0; // Какая сейчас страница
+        const limit = 5; // Сколько грузим за раз
+        let isLoading = false; // Чтобы не спамили кликами
+
+        // const value = input.value
+        function addToCart(productId) {
+            fetch("/cart/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ product_id: productId })
+            })
+                .then(r => r.json())
+                .then(() => alert("Товар добавлен в корзину!"))
+                .catch(err => alert("Ошибка: " + err));
+        }
+
+        function deleteFromWish(productId) {
+        fetch("/deleteitemwishlist", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json", 
+            "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE3OTgyMiwiZXhwIjoxNzY1MTgzNDIyfQ.j490AJm3L2xK79t8ZWS9SH-yQxmRAK0ahTGp4UbQvyQ" },
+            body: JSON.stringify({ product_id: productId })
+        })
+            .then(r => r.json())
+            .then(() => alert("Товар добавлен в избранное!"))
+            .catch(err => alert("Ошибка: " + err));
+        }
+
+
+        // ===== Рендер карточек =====
+        function renderProducts(items) {
+            const container = document.getElementById("products");
+
+            // Если пустой ответ и это страница 1 — показываем "ничего не найдено"
+            if (items.length === 0 && currentPage === 1) {
+                container.innerHTML = '<p>Ничего не найдено</p>';
+                document.getElementById("loadMore").style.display = "none";
+                return;
+            }
+
+            // Добавляем товары к существующим
+            if (items.length === 0) {
+                container.innerHTML = `<a href="/getproducts" class="card-link">Добвьте товар</a>`
+            }
+            items.forEach(item => {
+                const card = document.createElement("div");
+                    card.className = "product-card";
+                    card.innerHTML = `
+                        <a href="/product?id=${item.id}" class="card-link">
+                            <h3>${item.title}</h3>
+                            </a>
+                        <p>${item.description}</p>
+                        <p class="price">${item.price} грн</p>
+                        <button onclick="addToCart(${item.id})">Добавить в корзину</button>
+                        <button style="margin: 10px 0;" onclick="deleteFromWish(${item.id})">Удалить из избранного</button>
+                        `;
+
+                        container.appendChild(card); 
+            });
+
+            // Если массив пустой — товаров больше нет
+            if (items.length === 0) {
+                document.getElementById("loadMore").style.display = "none";
+            } else {
+                document.getElementById("loadMore").style.display = "block";
+            }
+        }
+
+        // ===== Универсальная загрузка =====
+        function fetchProducts() {
+            if (isLoading) return;
+            isLoading = true;
+
+            const search = document.getElementById("search").value;
+            const sort = document.getElementById("sort").value;
+
+            // Показываем загрузку только если это страница 1
+            if (currentPage === 0) {
+                document.getElementById("products").innerHTML = "Загрузка...";
+            }
+
+            fetch(`/getwishlist`, {
+                headers: { "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE3OTgyMiwiZXhwIjoxNzY1MTgzNDIyfQ.j490AJm3L2xK79t8ZWS9SH-yQxmRAK0ahTGp4UbQvyQ" },
+            })
+                .then(res => res.json())
+                .then((items) => {
+                    // Убираем надпись "Загрузка..."
+                    if (currentPage === 0) {
+                        document.getElementById("products").innerHTML = "";
+                    }
+
+                    renderProducts(items);
+                    isLoading = false;
+                })
+                .catch(err => {
+                    document.getElementById("products").innerHTML = "Ошибка загрузки данных: " + err;
+                    isLoading = false;
+                });
+        }
+
+        // ===== Первая загрузка или поиск — сбрасываем страницу =====
+        function loadProducts() {
+            currentPage = 0;
+            fetchProducts();
+        }
+
+        // ===== Загрузка следующей страницы =====
+        function loadMore() {
+            currentPage++;
+            fetchProducts();
+        }
+        // ===== Старт =====
+        window.onload = loadProducts;
+    </script>
+
+
+</body>
+
+</html>
