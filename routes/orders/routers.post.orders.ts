@@ -5,11 +5,13 @@ import { servicesCreateOrder } from "../../services/orders/services.createOrder.
 import { cartRepository } from "../../db/cart/cartRepository.js";
 import { servicesUpdateQuantityProduct } from "../../services/produtcs/services.updateQuantityProduct.js";
 import { orderRepository } from "../../db/order/orderRepository.js";
+import { validation } from "../../middleware/middleware.validation.js";
+import { orderSchema } from "../../shemas/validation.js";
 
 const router = Router();
 
 
-router.post('/create-order', checkAuth, async (req: Request, res: Response) => { // limiter
+router.post('/create-order', checkAuth, validation(orderSchema), async (req: Request, res: Response) => { // limiter
     const { full_name, phone_number, call, city, email, comment } = req.body
     let user = req.user
     let user_id: number | undefined = 0

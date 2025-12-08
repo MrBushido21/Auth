@@ -13,11 +13,12 @@ export const registerShemas = z.object({
 });
 
 export const orderSchema = z.object({
-  phone: z
+  body: z.object({
+    phone_number: z
     .string()
     .regex(/^380\d{9}$/, "Номер телефона должен начинаться с 380 и содержать 12 цифр"),
 
-  fullName: z
+    full_name: z
     .string()
     .trim()
     .min(3, "Введите корректное ФИО")
@@ -40,4 +41,5 @@ export const orderSchema = z.object({
     .string()
     .trim()
     .min(2, "Введите город"),
+  })
 });
