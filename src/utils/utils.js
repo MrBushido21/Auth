@@ -127,4 +127,25 @@ export const limiter = rateLimit({
     ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
     // store: ... , // Redis, Memcached, etc. See below.
 });
+//Достаю user_id
+export const chekUser = (req) => {
+    let user = req.user;
+    let user_id = 0;
+    if (user && typeof user !== "string") {
+        return user_id = user.id;
+    }
+    else {
+        return user_id = req.user_id;
+    }
+};
+//Достаю id из query
+export const chekQueryId = (req) => {
+    let order_id = 0;
+    if (req.query.id && !Array.isArray(req.query.id)) {
+        order_id = +req.query.id;
+    }
+    else {
+        return 0;
+    }
+};
 //# sourceMappingURL=utils.js.map

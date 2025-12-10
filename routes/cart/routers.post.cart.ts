@@ -1,19 +1,14 @@
 import { Router, type Request, type Response } from "express";
 import Cart from "../../services/cart/services.cartAdd.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
+import { chekUser } from "../../utils/utils.js";
 
 const router = Router();
 
 
-router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
+router.post('/cart/add', checkAuth, async (req: Request<{}, {}, {product_id:number}>, res: Response) => {
     const { product_id } = req.body
-    let user = req.user
-    let user_id: number | undefined = 0
-    if (user && typeof user !== "string") {
-        user_id = user.id      
-    }  else {
-        user_id = req.user_id
-    } 
+    const user_id = chekUser(req)
 
     try {
         if (user_id) {
@@ -29,15 +24,9 @@ router.post('/cart/add', checkAuth, async (req: Request, res: Response) => {
     }
 
 })
-router.post('/cart/quantity', checkAuth, async (req: Request, res: Response) => {
-    const user = req.user 
+router.post('/cart/quantity', checkAuth, async (req: Request<{}, {}, {operator: "+" | "-"}, {id:string}>, res: Response) => {
     const product_id = req.query.id
-    let user_id: number | undefined = 0
-    if (user && typeof user !== "string") {
-        user_id = user.id      
-    }  else {
-        user_id = req.user_id
-    } 
+    const user_id = chekUser(req)
     
     try {
         if (user_id && product_id) {

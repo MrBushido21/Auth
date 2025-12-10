@@ -1,10 +1,10 @@
-import { Router } from "express";
+import { Router, type Request } from "express";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import Wishlist from "../../services/wishlist/servicesWishList.js";
 
 const router = Router()
 
-router.post('/createwishlist', checkAuth, async (req, res) => {
+router.post('/createwishlist', checkAuth, async (req:Request<{}, {}, {product_id:number}>, res) => {
     const user = req.user
     let user_id:number
     const product_id = req.body.product_id

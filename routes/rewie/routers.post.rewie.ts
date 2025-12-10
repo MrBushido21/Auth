@@ -1,11 +1,12 @@
-import { Router } from "express";
+import { Router, type Request } from "express";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import { servicesRewie } from "../../services/rewie/services.rewie.js";
 import Admin from "../../services/admin/services.admin.js";
+import type { CreaterewieType } from "../../types/requests.js";
 
 const router = Router()
       
-router.post('/createrewie', checkAuth, async (req, res) => {
+router.post('/createrewie', checkAuth, async (req:Request<{}, {}, CreaterewieType>, res) => {
     const user = req.user
     let user_id:number
     let user_name:string

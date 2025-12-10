@@ -7,20 +7,16 @@ import { servicesUpdateQuantityProduct } from "../../services/produtcs/services.
 import { orderRepository } from "../../db/order/orderRepository.js";
 import { validation } from "../../middleware/middleware.validation.js";
 import { orderSchema } from "../../shemas/validation.js";
+import { chekQueryId, chekUser } from "../../utils/utils.js";
+import type { CreateOrderType } from "../../types/requests.js";
 
 const router = Router();
 
 
-router.post('/create-order', checkAuth, validation(orderSchema), async (req: Request, res: Response) => { // limiter
+router.post('/create-order', checkAuth, validation(orderSchema), async (req: Request<{}, {}, CreateOrderType>, res: Response) => { // limiter
     const { full_name, phone_number, call, city, email, comment } = req.body
-    let user = req.user
-    let user_id: number | undefined = 0
-    if (user && typeof user !== "string") {
-        user_id = user.id      
-    }  else {
-        user_id = req.user_id
-    } 
-    //Почему обрезаеться 0 в БД
+    const user_id = chekUser(req) 
+   
     try {
         if (user_id) {
             const cart = new Cart(user_id, 0, "", 0, 0)
@@ -40,19 +36,19 @@ router.post('/create-order', checkAuth, validation(orderSchema), async (req: Req
         return res.status(error.status || 500).json({error: error.message})  
     }
 })
-router.patch('/order/update-status', checkAuth, async (req: Request, res: Response) => { // limiter
+router.patch('/order/update-status', checkAuth, async (req: Request<{}, {}, {status:string}>, res: Response) => { // limiter
     const status = req.body.status
   
-    let order_id = 0
-    if ( req.query.id && !Array.isArray(req.query.id)) {
-        order_id = +req.query.id      
-    }  else {
-        return res.status(200).json({message: "uncorrect order_id"})
-    } 
+    const order_id = chekQueryId(req)
     
     try {
-        await servicesCreateOrder.updateStatus({order_id, status})
-        return res.status(200).json({message: "status was updated"})
+        if (order_id && order_id !== 0) {
+            await servicesCreateOrder.updateStatus({order_id, status})
+            return res.status(200).json({message: "status was updated"})
+        } else {
+            return res.status(404).json({message: "uncorrect order_id"})
+        }
+        
     } catch (error:any) {
         return res.status(error.status || 500).json({error: error.message})  
     }

@@ -4,17 +4,12 @@ import { servicesGetProducts } from "../../services/produtcs/services.getProduct
 import Cart from "../../services/cart/services.cartAdd.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import type { PayloadType } from "../../types/types.js";
+import { chekUser } from "../../utils/utils.js";
 
 const router = Router()
 
 router.get('/getcartitems', checkAuth, async (req:Request, res: Response) => {
-    let user = req.user
-    let user_id: number | undefined = 0
-    if (user && typeof user !== "string") {
-        user_id = user.id      
-    }  else {
-        user_id = req.user_id
-    } 
+    const user_id = chekUser(req)
     
     try {
         if (user_id) {                 

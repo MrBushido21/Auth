@@ -1,5 +1,5 @@
 import type { PayloadType, UsersType } from "../types/types.js";
-import type { CookieOptions } from "express";
+import type { CookieOptions, Request } from "express";
 export declare const generateCode: () => number;
 export declare const dateNow: () => string;
 export declare const dateExpire: (time: number) => string;
@@ -14,4 +14,6 @@ export declare const decodedAccsesToken: (token: string) => PayloadType | null;
 export declare const decodedRefreshToken: (token: string) => PayloadType | null;
 export declare const sendlerEmailCode: (email: string, code: string) => void;
 export declare const limiter: import("express-rate-limit").RateLimitRequestHandler;
+export declare const chekUser: (req: Request) => number | undefined;
+export declare const chekQueryId: (req: Request) => 0 | undefined;
 //# sourceMappingURL=utils.d.ts.map
