@@ -2,18 +2,13 @@ import { Router } from "express";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import User from "../../services/user/servicesClassUser.js";
 import { servicesCreateOrder } from "../../services/orders/services.createOrder.js";
+import { chekUser } from "../../utils/utils.js";
 
 const router = Router()
 
 router.get('/getuser', checkAuth, async (req, res) => {
-    let user = req.user
-    let user_id: number | undefined = 0
-    if (user && typeof user !== "string") {
-        user_id = user.id      
-    }  else {
-        user_id = req.user_id
-    } 
-
+    const user_id = chekUser(req)
+    
     if (user_id) {
         try {
             const userClass = new User(user_id)

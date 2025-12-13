@@ -12,12 +12,14 @@ import { loginService } from "../../services/auth/services.login.js";
 import { refreshService } from "../../services/auth/services.refresh.js";
 import { resetpasswordService } from "../../services/auth/services.resetpassword.js";
 import { changepasswordService } from "../../services/auth/services.changepassword.js";
+import type { AuthType, ChangepasswordoremailType, ResetType, VerifyType } from "../../types/requests.js";
+import { error } from "console";
 
 
 const router = Router();
 
 // регистрация
-router.post("/registration", async (req: Request<{}, {}, UsersType>, res: Response) => { //validation(registerShemas),
+router.post("/registration", async (req: Request<{}, {}, AuthType>, res: Response) => { //validation(registerShemas),
   const { email, password_hash } = req.body;
 
  try {
@@ -34,7 +36,7 @@ router.post("/registration", async (req: Request<{}, {}, UsersType>, res: Respon
 
 //Верификация емейла
 
-router.post('/verify', limiter, async (req: Request, res: Response) => {
+router.post('/verify', limiter, async (req: Request<{}, {}, VerifyType>, res: Response) => {
   const { id, verifeid_code } = req.body.data
 
   //Проблема в sql запросе
@@ -49,7 +51,7 @@ router.post('/verify', limiter, async (req: Request, res: Response) => {
 
 //Отправить код повторно
 
-router.post('/verify/new', async (req: Request, res: Response) => {//==================
+router.post('/verify/new', async (req: Request<{}, {}, {id:number}>, res: Response) => {//==================
   let verifeid_code = Math.floor(Math.random() * 100000).toString()
   const { id } = req.body
   const record = await getCodeForId(id)
@@ -68,7 +70,7 @@ router.post('/verify/new', async (req: Request, res: Response) => {//===========
 })
 
 // логин
-router.post("/login", limiter, async (req: Request<{}, {}, UsersType, {}>, res: Response) => {
+router.post("/login", limiter, async (req: Request<{}, {}, AuthType, {}>, res: Response) => {
   const { email, password_hash } = req.body;
   
   try {
@@ -84,7 +86,7 @@ router.post("/login", limiter, async (req: Request<{}, {}, UsersType, {}>, res: 
 });
 
 //Обновление акцес токена
-router.post("/refresh", async (req: Request<{}, {}, UsersType, {}>, res: Response) => {
+router.post("/refresh", async (req: Request<{}, {}, {id:number}, {}>, res: Response) => {
   const {id} = req.body
   const refresh_token = req.cookies.refresh_token
 
@@ -97,7 +99,7 @@ router.post("/refresh", async (req: Request<{}, {}, UsersType, {}>, res: Respons
 })
 
 //Логаут
-router.post("/logout", async (req: Request<{}, {}, UsersType, {}, CookieOptions>, res: Response) => {
+router.post("/logout", async (req: Request<{}, {}, {}, {}, CookieOptions>, res: Response) => {
   const token = req.headers.authorization
   let decoded = null
   if (token) {
@@ -114,19 +116,22 @@ router.post("/logout", async (req: Request<{}, {}, UsersType, {}, CookieOptions>
 
 
 // Сброс пароля
-router.post('/reset', async (req: Request, res: Response) => {
+router.post('/reset', async (req: Request<{}, {}, ResetType, {}>, res: Response) => {
   const { email, type } = req.body
+  if (!(type === "email" || type === "password")) {
+    return res.status(400).json({message: "Type of 'reset' must be or 'email' or 'password'"})
+  }
   await resetpasswordService.reset({email, type})
   return res.status(200).json({message: "confirm link was send on your email"})
 })
 
 
 //Смена пароля 
-router.patch('/changepasswordoremail', async (req: Request, res: Response) => {
+router.patch('/changepasswordoremail', async (req: Request<{}, {}, ChangepasswordoremailType, {}>, res: Response) => {
   const token = req.body.token
   const newvalue = req.body.newvalue
   const key = req.body.key
-  const type = req.body.type
+ const type = req.body.type
 
   try {
     const access_token = await changepasswordService.changepasswordoremail({token, key, newvalue, type})
@@ -143,7 +148,7 @@ router.patch('/changepasswordoremail', async (req: Request, res: Response) => {
 })
 
 //Админ
-router.post('/admin', checkAuth, async (req: Request, res: Response) => {
+router.post('/admin', checkAuth, async (req: Request<{}, {}, {id:number}, {}>, res: Response) => {
   const {id} = req.body
   const data = await getUserForId(id)
   if (!data) {

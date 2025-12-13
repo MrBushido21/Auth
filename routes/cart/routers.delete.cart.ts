@@ -1,18 +1,13 @@
 import { Router, type Request, type Response } from "express"
 import { checkAuth } from "../../middleware/middleware.auth.js"
 import Cart from "../../services/cart/services.cartAdd.js"
+import { chekUser } from "../../utils/utils.js"
 
 const router = Router()
 
-router.delete('/deletecartitem', checkAuth, async (req:Request, res:Response) => {
+router.delete('/deletecartitem', checkAuth, async (req:Request<{}, {}, {}, {id:string}>, res:Response) => {
     const product_id = req.query.id
-    let user = req.user
-    let user_id: number | undefined = 0
-    if (user && typeof user !== "string") {
-        user_id = user.id      
-    }  else {
-        user_id = req.user_id
-    } 
+    const user_id = chekUser(req)
     try {
         if (user_id && product_id) {
             const cart = new Cart(user_id, +product_id, "", 0, 0)
@@ -27,14 +22,7 @@ router.delete('/deletecartitem', checkAuth, async (req:Request, res:Response) =>
 })
 
 router.delete('/clearcart', checkAuth, async (req:Request, res:Response) => {
-    //Корзину нельзя удалять ее нужно очищать
-    let user = req.user
-    let user_id: number | undefined = 0
-    if (user && typeof user !== "string") {
-        user_id = user.id      
-    }  else {
-        user_id = req.user_id
-    } 
+    const user_id = chekUser(req) 
 
     try {
         if (user_id) {
