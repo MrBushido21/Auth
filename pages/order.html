@@ -137,10 +137,35 @@
         </div>
 
         <div class="form-group">
-            <label for="city">Місто</label>
-            <input type="text" id="city" name="city" value="Дніпро" />
+            <label for="city">Місто (населений пунк)</label>
+            <input type="text" id="cityInput" placeholder="Почніть вводити місто..." autocomplete="off" />
+            <input type="hidden" id="cityRef" />
+            <div id="cityList" style="
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            background: white;
+            position: relative;
+            z-index: 10;
+        "></div>
         </div>
-
+        <div class="form-group">
+            <label>Відділення Нової Пошти</label>
+            <input type="text" id="warehouseInput" placeholder="Оберіть відділення..." autocomplete="off" disabled />
+            <input type="hidden" id="warehouseRef" />
+            <div id="warehouseList" style="
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            background: white;
+            position: relative;
+            z-index: 10;
+            "></div>
+        </div>
         <div class="form-group">
             <label for="email">E-пошта</label>
             <input type="email" id="email" name="email" />
@@ -253,12 +278,133 @@
                 });
 
                 const result = await res.json();
-                
+
                 console.log('Order response:', result.message);
                 alert('Замовлення відправлено!');
             } catch (err) {
                 console.error('Помилка запиту:', err);
                 alert('Сталася помилка, спробуйте ще раз');
+            }
+        });
+        const cityInput = document.getElementById("cityInput");
+        const cityList = document.getElementById("cityList");
+        const cityRefInput = document.getElementById("cityRef");
+
+        let cityTimeout = null;
+
+        cityInput.addEventListener("input", () => {
+            const value = cityInput.value.trim();
+
+            cityRefInput.value = "";
+            cityList.innerHTML = "";
+            cityList.style.display = "none";
+
+            if (value.length < 2) return;
+
+            clearTimeout(cityTimeout);
+
+            cityTimeout = setTimeout(async () => {
+                const res = await fetch(`/np/cities?search=${encodeURIComponent(value)}`);
+                const cities = await res.json();
+
+                if (!cities.length) return;
+
+                cityList.style.display = "block";
+
+                cities.forEach(city => {
+                    const div = document.createElement("div");
+                    div.textContent = `${city.Description} (${city.AreaDescription})`;
+                    div.style.padding = "8px";
+                    div.style.cursor = "pointer";
+
+                    div.addEventListener("click", () => {
+                        cityInput.value = city.Description;
+                        cityRefInput.value = city.Ref;
+                        cityList.style.display = "none";
+
+                        // 🔥 ВАЖНО
+                        warehouseInput.disabled = false;
+                        warehouseInput.value = "";
+                        warehouseRefInput.value = "";
+                    });
+
+                    cityList.appendChild(div);
+                });
+            }, 400); // debounce
+        });
+
+        // скрыть список при клике вне
+        document.addEventListener("click", (e) => {
+            if (!cityInput.contains(e.target) && !cityList.contains(e.target)) {
+                cityList.style.display = "none";
+            }
+        });
+        const warehouseInput = document.getElementById("warehouseInput");
+        const warehouseList = document.getElementById("warehouseList");
+        const warehouseRefInput = document.getElementById("warehouseRef");
+
+        // ⛔ при ручном изменении города — блокируем отделения
+        cityInput.addEventListener("input", () => {
+        warehouseInput.disabled = true;
+        warehouseInput.value = "";
+        warehouseRefInput.value = "";
+        });
+        
+        let warehouseTimeout = null;
+
+        // когда выбран город — включаем поле отделений
+        cityInput.addEventListener("change", () => {
+            if (cityRefInput.value) {
+                warehouseInput.disabled = false;
+            } else {
+                warehouseInput.disabled = true;
+            }
+        });
+
+        // поиск отделений
+        warehouseInput.addEventListener("input", () => {
+            const search = warehouseInput.value.trim();
+            const cityRef = cityRefInput.value;
+
+            warehouseRefInput.value = "";
+            warehouseList.innerHTML = "";
+            warehouseList.style.display = "none";
+
+            if (!cityRef || search.length < 1) return;
+
+            clearTimeout(warehouseTimeout);
+
+            warehouseTimeout = setTimeout(async () => {
+                const res = await fetch(
+                    `/np/warehouses?cityRef=${cityRef}&search=${encodeURIComponent(search)}`
+                );
+                const warehouses = await res.json();
+
+                if (!warehouses.length) return;
+
+                warehouseList.style.display = "block";
+
+                warehouses.forEach(w => {
+                    const div = document.createElement("div");
+                    div.textContent = `${w.Description}`;
+                    div.style.padding = "8px";
+                    div.style.cursor = "pointer";
+
+                    div.addEventListener("click", () => {
+                        warehouseInput.value = w.Description;
+                        warehouseRefInput.value = w.Ref;
+                        warehouseList.style.display = "none";
+                    });
+
+                    warehouseList.appendChild(div);
+                });
+            }, 300);
+        });
+
+        // скрывать список
+        document.addEventListener("click", (e) => {
+            if (!warehouseInput.contains(e.target) && !warehouseList.contains(e.target)) {
+                warehouseList.style.display = "none";
             }
         });
     </script>

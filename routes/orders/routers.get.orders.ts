@@ -30,4 +30,5 @@ router.get('/admin/full-order', async (req, res) => {
         return res.status(500).json({error: error.message})
     }
 })
+
 export default router
