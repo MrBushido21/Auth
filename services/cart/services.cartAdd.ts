@@ -31,7 +31,7 @@ import { dateNow, newError } from "../../utils/utils.js"
         const cart_id = (await cartRepository.getCart(this.user_id)).id
         let cartItem = await cartRepository.getCartItem(cart_id, this.product_id)
         const product = await productsRepository.getProduct(this.product_id)
-        const price = product.price * this.quantity
+        const price = (product.price * (1 - product.sale)) * this.quantity
         
         if (cartItem) {
             await cartRepository.updateCartItem(this.product_id, this.quantity, price)
@@ -56,9 +56,11 @@ import { dateNow, newError } from "../../utils/utils.js"
     async getTotalCartPrice() {
         let cartItems = await this.getCartItemsWithCartId()
         let price = 0
-        cartItems.map(item => {
-            price += +item.price
-        })
+        for (const item of cartItems) {
+         const product = await productsRepository.getProductWithCartId(item.product_id)
+         price += (product.price * (1 - product.sale)) * item.quantity   
+        }
+        
         return price
     }
 

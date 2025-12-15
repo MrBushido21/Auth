@@ -8,7 +8,7 @@ import { getUserForId } from "../db/auth/db.dao.js";
 import rateLimit from "express-rate-limit";
 
 export const generateCode = () => {
-  return Math.floor(Math.random() * 100000)
+  return Math.floor(Math.random() + 100000 * 900000)
 }
 //Создание текущей даты
 export const dateNow = () => {  

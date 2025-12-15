@@ -8,6 +8,13 @@ export const servicesGetProducts = {
         let data = await productsRepository.getAllProducts(search, sort)
         newError(data, 500, "Somthing wrong")
 
+        let newData = []
+
+        data.map(product => {
+            product.price = product.price * (1 - product.sale)
+            newData.push(product)
+        })
+
         let start = page * 5
         let end = start + 5
         if (start === data.length) {

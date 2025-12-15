@@ -56,6 +56,7 @@ export type ProductType = {
     quantity: number
     rating: number
     qntrewies: number
+    sale: number
     created_at: string
     updated_at: string
 }

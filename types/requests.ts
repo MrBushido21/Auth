@@ -26,6 +26,7 @@ export type CreateOrderType = {
     phone_number: number;
     call: string;
     city: string;
+    department:string
     email: string | null;
     comment: string | null;    
 }
@@ -42,6 +43,7 @@ export type EditProductType = {
     description: string
     price: number
     quantity: number 
+    sale: number
 }
 export type CreaterewieType = {
     product_id:number

@@ -1,7 +1,7 @@
 import { sqlRun } from "../db.constructor.js"
 export const createTables = async ():Promise<void> => {
    // await sqlRun(`DROP TABLE orders`)
-   // await sqlRun(`DROP TABLE order_items`)
+   // await sqlRun(`DROP TABLE cart_items`)
    // await sqlRun(`DROP TABLE products`)
     await sqlRun(`
         CREATE TABLE IF NOT EXISTS products (
@@ -14,6 +14,7 @@ export const createTables = async ():Promise<void> => {
         quantity NUMBER NOT NULL,
         rating NUMBER,
         qntrewies NUMBER,
+        sale NUMBER,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
         );
@@ -51,6 +52,7 @@ export const createTables = async ():Promise<void> => {
         full_name TEXT NOT NULL,
         phone_number TEXT NOT NULL,
         city TEXT NOT NULL,
+        department TEXT NOT NULL,
         email TEXT,
         comment TEXT,
         call TEXT NOT NULL,

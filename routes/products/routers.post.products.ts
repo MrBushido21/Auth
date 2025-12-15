@@ -25,7 +25,7 @@ router.post('/createproduct', async (req: Request<{}, {}, CreateProductType>, re
 
 })
 router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {id:string}>, res: Response) => {
-    const { title, description, price, quantity} = req.body
+    const { title, description, price, quantity, sale} = req.body
     let id:number
     if (req.query.id && !Array.isArray(req.query.id)) {
        id = +req.query.id
@@ -43,6 +43,7 @@ router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {
         quantity: quantity,
         rating: 0,
         qntrewies: 0,
+        sale: +sale / 100,
         created_at: "",
         updated_at: ""
     }
@@ -74,6 +75,7 @@ router.delete('/admin/delete-product', async (req: Request<{}, {}, {}, {id:strin
         quantity: 0,
         rating: 0,
         qntrewies: 0,
+        sale: 0,
         created_at: "",
         updated_at: ""
     }

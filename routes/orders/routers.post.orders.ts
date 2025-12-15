@@ -14,7 +14,7 @@ const router = Router();
 
 
 router.post('/create-order', checkAuth, validation(orderSchema), async (req: Request<{}, {}, CreateOrderType>, res: Response) => { // limiter
-    const { full_name, phone_number, call, city, email, comment } = req.body
+    const { full_name, phone_number, call, department, city, email, comment } = req.body
     const user_id = chekUser(req) 
    
     try {
@@ -27,7 +27,7 @@ router.post('/create-order', checkAuth, validation(orderSchema), async (req: Req
             }
             const cart_items = await cart.getCartItemsWithCartId()              
             await servicesUpdateQuantityProduct.updateQuantityProduct({cart_items}) 
-            await servicesCreateOrder.createOrder({user_id, full_name, phone_number, city, email, comment, call})
+            await servicesCreateOrder.createOrder({user_id, full_name, phone_number, city, department, email, comment, call})
             await servicesCreateOrder.createOrderItem({user_id})
             await cart.deleteCartItemWithCartId() 
             return res.status(200).json({message: "order has created"})

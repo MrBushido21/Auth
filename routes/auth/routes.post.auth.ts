@@ -43,7 +43,7 @@ router.post('/verify', limiter, async (req: Request<{}, {}, VerifyType>, res: Re
  try {
   const [accsesToken, refreshToken] = await verifyService.veify({ id, verifeid_code })
   res.cookie("refresh_token", refreshToken, options);
-  return res.status(200).json({success: true, access_token: accsesToken,})
+  return res.status(200).json({access_token: accsesToken})
  } catch (error:any) {
   return res.status(error.status || 500).json({error: error.message})
  }

@@ -5,12 +5,12 @@ import Cart from "../cart/services.cartAdd.js"
 import { servicesUpdateQuantityProduct } from "../produtcs/services.updateQuantityProduct.js"
 
 export const servicesCreateOrder = {
-    async createOrder({user_id, full_name, phone_number, city, email, comment, call}: 
-        {user_id: number, full_name:string, phone_number: number, city:string, email:string | null, comment:string | null, call:string}) {
+    async createOrder({user_id, full_name, phone_number, city, department, email, comment, call}: 
+        {user_id: number, full_name:string, phone_number: number, city:string, department:string, email:string | null, comment:string | null, call:string}) {
            try {
             const cart = new Cart(user_id, 0, "", 0, 0)
             const total_price = await cart.getTotalCartPrice()
-            await orderRepository.createOrder(user_id, full_name, String(phone_number), city, email, comment, call, total_price, "paid", dateNow())          
+            await orderRepository.createOrder(user_id, full_name, String(phone_number), city, department, email, comment, call, total_price, "paid", dateNow())          
            } catch (error) {
             console.error(error);            
            }
