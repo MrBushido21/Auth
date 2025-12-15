@@ -176,6 +176,7 @@
             <textarea id="comment" name="comment" rows="4"></textarea>
         </div>
         <div id="cart-container"></div>
+        <div style="font-weight: 700; font-size: 20px;" id="doOplaty"></div>
         <button id="submitOrder">Оформити замовлення</button>
     </div>
 
@@ -192,11 +193,18 @@
             });
 
             const data = await res.json(); // массив товаров
+            const totalPrcie = data.totalPrice
             renderCart(data.cartItems);
+            addTotalPrice(totalPrcie);
+        }
+
+        function addTotalPrice(totalPrice) {
+            container = document.getElementById("doOplaty");
+            container.textContent = `До оплати: ${totalPrice}`;
         }
 
         function renderCart(items) {
-            const container = document.getElementById("cart-container");
+             container = document.getElementById("cart-container");
             container.innerHTML = "";
 
             if (items.length === 0) {
@@ -209,11 +217,12 @@
                 div.className = "cart-item";
 
                 div.innerHTML = `
+        <p><strong>Назва товару:</strong> ${item.product_name}</p>
         <p><strong>ID товара:</strong> ${item.product_id}</p>
         <p><strong>Цена:</strong> ${item.price} грн</p>
         <div class="qty-controls">
           <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>
-          <span><strong>${item.quantity}</strong></span>
+          <span><stronconstg>${item.quantity}</strong></span>
           <button class="qty-btn" onclick="increaseQty(${item.product_id})">+</button>
         </div>
         <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">
@@ -265,7 +274,8 @@
                 full_name: document.getElementById('fullname').value,
                 phone_number: document.getElementById('phone').value,
                 call: document.getElementById('no_call').checked ? "yes" : "no",
-                city: document.getElementById('city').value,
+                city: document.getElementById('cityInput').value,
+                warehouse: document.getElementById('warehouseRef').value,
                 email: document.getElementById('email').value,
                 comment: document.getElementById('comment').value
             };

@@ -2,7 +2,10 @@ import { Router } from "express";
 import { getAllProducts } from "../db/products/db.dao.js";
 const router = Router();
 router.get("/login", (req, res) => {
-    res.sendFile("index.html", { root: "./pages" });
+    res.sendFile("login.html", { root: "./pages" });
+});
+router.get("/verify", (req, res) => {
+    res.sendFile("verify.html", { root: "./pages" });
 });
 router.get("/admin/createitems", (req, res) => {
     res.sendFile("admin-createitems.html", { root: "./pages" });

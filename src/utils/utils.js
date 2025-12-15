@@ -100,8 +100,8 @@ export const sendlerEmailCode = (email, code) => {
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-            user: "",
-            pass: ""
+            user: process.env.EMAIL,
+            pass: process.env.SENDLER_PASS
         }
     });
     const mailOptions = {

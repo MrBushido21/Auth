@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Подтверждение</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #5563DE;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #5563DE;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    .msg {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h3>Введите код</h3>
+  <input id="code" type="text" placeholder="Код подтверждения">
+  <button id="verifyBtn">Подтвердить</button>
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+  const codeInput = document.getElementById("code");
+const msg = document.getElementById("msg");
+const btn = document.getElementById("verifyBtn");
+
+btn.addEventListener("click", async () => {
+  const code = codeInput.value.trim();
+  const userId = sessionStorage.getItem("userId"); // получаем id
+
+  if (!code) {
+    msg.textContent = "Введите код";
+    msg.style.color = "red";
+    return;
+  }
+
+  if (!userId) {
+    msg.textContent = "Ошибка: нет данных пользователя";
+    msg.style.color = "red";
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = "Проверка кода...";
+  msg.style.color = "#333";
+  
+  try {
+    const res = await fetch("http://localhost:3000/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({data:{
+        id: userId, 
+        verifeid_code:code
+    }})
+    });
+
+    const data = await res.json();
+
+    if (res.status === 200) {
+      msg.textContent = "Код подтверждён ✔";
+      msg.style.color = "green";
+
+      setTimeout(() => {
+        sessionStorage.removeItem("userId"); // чистим после использования
+        window.location.href = "/getproducts";
+      }, 800);
+    } else {
+      msg.textContent = data.error || "Неверный код";
+      msg.style.color = "red";
+      btn.disabled = false;
+    }
+
+  } catch (err) {
+    console.error(err);
+    msg.textContent = "Ошибка соединения";
+    msg.style.color = "red";
+    btn.disabled = false;
+  }
+});
+
+</script>
+
+</body>
+</html>

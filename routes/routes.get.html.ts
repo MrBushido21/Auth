@@ -3,7 +3,10 @@ import { getAllProducts } from "../db/products/db.dao.js";
 
 const router = Router()
 router.get("/login", (req: Request, res: Response) => {
-    res.sendFile("index.html", { root: "./pages" });
+    res.sendFile("login.html", { root: "./pages" });
+});
+router.get("/verify", (req: Request, res: Response) => {
+    res.sendFile("verify.html", { root: "./pages" });
 });
 router.get("/admin/createitems", (req: Request, res: Response) => {
     res.sendFile("admin-createitems.html", { root: "./pages" });

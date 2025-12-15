@@ -54,7 +54,11 @@ import { dateNow, newError } from "../../utils/utils.js"
     }
 
     async getTotalCartPrice() {
-        let price = await cartRepository.getTotalCartPrice(this.user_id)
+        let cartItems = await this.getCartItemsWithCartId()
+        let price = 0
+        cartItems.map(item => {
+            price += +item.price
+        })
         return price
     }
 

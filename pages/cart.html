@@ -43,6 +43,16 @@
     }
 
     .btn-delete { background: #ff4d4d; color: white; }
+    .btn-order {
+      margin-top: 20px;
+    }
+    .btn-order a {
+      text-decoration: none;
+      background: #ff4d4d; 
+      color: white; 
+      border-radius: 4px;
+      padding: 10px;
+    }
     .btn-clear { background: #333; color: white; width: 100%; }
 
   </style>
@@ -56,6 +66,9 @@
 
 <div id="cart-container"></div>
 <span id="total"></span>
+<div class="btn-order">
+  <a href="/order">Оформить заказ</a>
+</div>
 
 <script>
  token = ""
