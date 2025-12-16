@@ -53,6 +53,7 @@ export type ProductType = {
     price: number
     image_url: string | null
     category_id: number
+    category: string
     quantity: number
     rating: number
     qntrewies: number

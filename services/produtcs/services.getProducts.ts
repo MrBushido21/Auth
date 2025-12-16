@@ -3,9 +3,9 @@ import { productsRepository } from "../../db/products/productsRepository.js"
 import { newError } from "../../utils/utils.js"
 
 export const servicesGetProducts = {
-    async getProducts({ search, sort, page }: { search: string, sort: "asc" | "desc", page:number }) {
+    async getProducts({ search, sort, page, category_id }: { search: string, sort: "asc" | "desc", page:number, category_id:number }) {
         sort === "asc" ? "ASC" : "DESC"
-        let data = await productsRepository.getAllProducts(search, sort)
+        let data = await productsRepository.getAllProducts(search, sort, category_id)
         newError(data, 500, "Somthing wrong")
 
         let newData = []

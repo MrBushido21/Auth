@@ -92,6 +92,10 @@
   <!-- ========= Поиск + сортировка ========= -->
   <div id="controls">
     <input type="text" id="search" placeholder="Поиск товаров..." oninput="loadProducts()" />
+    
+    <select id="category" onchange="loadProducts()">
+      <option value="">Все категории</option>
+    </select>
 
     <select id="sort" onchange="loadProducts()">
       <option value="asc">Цена: от дешевого</option>
@@ -107,6 +111,8 @@
     let currentPage = 0; // Какая сейчас страница
     const limit = 5; // Сколько грузим за раз
     let isLoading = false; // Чтобы не спамили кликами
+    let categoriesLoaded = false;
+
 
     function addToCart(productId) {
       fetch("/cart/add", {
@@ -190,23 +196,46 @@
 
       const search = document.getElementById("search").value;
       const sort = document.getElementById("sort").value;
+      const categoryId = document.getElementById("category").value;
 
-      // Если это первая страница — очищаем и ставим "Загрузка..."
-      if (currentPage === 0) {
-        document.getElementById("products").innerHTML = "Загрузка...";
-      }
+let query = "";
 
-      fetch(`/getproducts_data?search=${encodeURIComponent(search)}&sort=${sort}&page=${currentPage}&limit=${limit}`)
+if (categoryId) {
+  query = `category_id=${categoryId}`;
+} else {
+  query = `search=${encodeURIComponent(search)}`;
+}
+
+fetch(`/getproducts_data?${query}&sort=${sort}&page=${currentPage}&limit=${limit}`)
+
         .then(res => res.json())
         .then((items) => {
 
-          if (currentPage === 0) {
-            document.getElementById("products").innerHTML = "";
-          }
+                // ===== наполняем категории ОДИН РАЗ =====
+        if (!categoriesLoaded && items.length > 0) {
+          const select = document.getElementById("category");
+          const map = new Map();
 
-          renderProducts(items);
+          items.forEach(item => {
+            map.set(item.category_id, item.category);
+          });
 
-          isLoading = false;
+          map.forEach((name, id) => {
+            const option = document.createElement("option");
+            option.value = id;       // ← category_id (для бека)
+            option.textContent = name; // ← category (для пользователя)
+            select.appendChild(option);
+          });
+
+          categoriesLoaded = true;
+        }
+
+        if (currentPage === 0) {
+          document.getElementById("products").innerHTML = "";
+        }
+
+        renderProducts(items);
+        isLoading = false;
         })
         .catch(err => {
           document.getElementById("products").innerHTML = "Ошибка загрузки данных: " + err;

@@ -15,6 +15,7 @@ class Admin {
             this.data.description,
             this.data.price,
             this.data.category_id,
+            this.data.category,
             this.data.quantity,
             rating,
             qntrewies,

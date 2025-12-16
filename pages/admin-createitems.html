@@ -65,6 +65,10 @@
     <input id="category_id" type="number" placeholder="ID категории" />
   </div>
   <div class="form-group">
+    <label>Название категории</label>
+    <input id="category" type="text" placeholder="Название категории" />
+  </div>
+  <div class="form-group">
     <label>Количество на складе</label>
     <input id="quantity" type="number" placeholder="Количество на складе" />
   </div>
@@ -78,6 +82,7 @@
         description: document.getElementById('description').value,
         price: Number(document.getElementById('price').value),
         category_id: Number(document.getElementById('category_id').value),
+        category: document.getElementById('category').value,
         quantity: Number(document.getElementById('quantity').value),
         created_at: Date.now().toString(),
         updated_at: Date.now().toString(),

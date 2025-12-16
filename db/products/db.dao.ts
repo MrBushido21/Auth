@@ -3,12 +3,14 @@ import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
 
-export const createProduct = async (title: string, description: string, price: number, category_id: number, quantity:number, rating:number, qntrewies:number,
+export const createProduct = async (title: string, description: string, price: number, 
+     category_id: number, category:string, quantity:number, rating:number, qntrewies:number,
      sale: number, created_at: string, updated_at: string):Promise<void> => {
     await sqlRun(`
-        INSERT INTO products (title, description, price, category_id, quantity, rating, qntrewies, sale, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        `, [title, description, price, category_id, quantity, rating, qntrewies, sale, created_at, updated_at])
+        INSERT INTO products (title, description, price, category_id, category, quantity, rating, qntrewies, 
+        sale, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `, [title, description, price, category_id, category, quantity, rating, qntrewies, sale, created_at, updated_at])
 }
 
 //GetOne
@@ -29,16 +31,26 @@ export const getProductWithCartId = async (id:number):Promise<ProductType> => {
 
 
 //GetAll
-export const getAllProducts = async (search:string, sort:string): Promise<ProductType[]> => {  
-    const products: ProductType[] = await sqlAll(`
-        SELECT * FROM products WHERE title LIKE ? OR id = ? 
-        ORDER BY price ${sort}
-        `, [`%${search}%`, search]);
-    if (!Array.isArray(products)) {
-        console.log(`Unknow format of data, Data: ${products}`);
-    }
+export const getAllProducts = async (search:string, sort:string, category_id:number): Promise<ProductType[]> => {  
+   if (category_id) {
+    return await sqlAll(
+      `
+      SELECT * FROM products
+      WHERE category_id = ?
+      ORDER BY price ${sort}
+      `,
+      [category_id]
+    );
+  }
 
-    return products
+  return await sqlAll(
+    `
+    SELECT * FROM products
+    WHERE title LIKE ? OR id = ?
+    ORDER BY price ${sort}
+    `,
+    [`%${search}%`, search]
+  );
 }
 
 

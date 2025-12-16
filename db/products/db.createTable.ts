@@ -11,6 +11,7 @@ export const createTables = async ():Promise<void> => {
         price NUMBER NOT NULL,
         image_url TEXT,
         category_id NUMBER NOT NULL,
+        category TEXT NOT NULL,
         quantity NUMBER NOT NULL,
         rating NUMBER,
         qntrewies NUMBER,

@@ -34,6 +34,7 @@ export type GetproductsDataType = {
     search:string
     sort:"asc" | "desc"  
     page:string  
+    category_id:string
 }
 export type CreateProductType = {
     data: ProductType 
