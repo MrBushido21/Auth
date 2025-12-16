@@ -25,7 +25,7 @@ router.post('/createproduct', async (req: Request<{}, {}, CreateProductType>, re
 
 })
 router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {id:string}>, res: Response) => {
-    const { title, description, price, quantity, sale} = req.body
+    const { title, description, price, quantity, sale, category_id, category} = req.body
     let id:number
     if (req.query.id && !Array.isArray(req.query.id)) {
        id = +req.query.id
@@ -39,8 +39,8 @@ router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {
         description: description,
         price: price,
         image_url: "",
-        category_id: 0,
-        category: "",
+        category_id:category_id,
+        category: category,
         quantity: quantity,
         rating: 0,
         qntrewies: 0,
@@ -62,7 +62,9 @@ router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {
 })
 
 router.delete('/admin/delete-product', async (req: Request<{}, {}, {}, {id:string}>, res: Response) => {
+    
     let id = chekQueryId(req)
+    
     if (!id || id === 0) {
         return res.status(404).json({message: "uncorrect product_id"})
     }

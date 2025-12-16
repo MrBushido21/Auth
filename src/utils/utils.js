@@ -147,5 +147,6 @@ export const chekQueryId = (req) => {
     else {
         return 0;
     }
+    return order_id;
 };
 //# sourceMappingURL=utils.js.map

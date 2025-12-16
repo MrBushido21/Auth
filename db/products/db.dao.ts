@@ -55,11 +55,13 @@ export const getAllProducts = async (search:string, sort:string, category_id:num
 
 
 //Update
- export const updateProduct = async (id:number, title:string, description:string, price:number, quantity:number, sale:number):Promise<void> => {
+ export const updateProduct = async (id:number, title:string, description:string, price:number,
+   quantity:number, sale:number, category_id:number, category:string):Promise<void> => {
     await sqlRun(`
-        UPDATE products SET title = ?, description = ?, price = ?, quantity = ?, sale = ?
+        UPDATE products SET title = ?, description = ?, price = ?, quantity = ?, sale = ?,
+        category_id = ?, category = ?
         WHERE id = ? 
-        `, [title, description, price, quantity, sale, id])
+        `, [title, description, price, quantity, sale, category_id, category, id])
  }
 
  export const updateQuantityProduct = async (id:number, quantity:number):Promise<void> => {

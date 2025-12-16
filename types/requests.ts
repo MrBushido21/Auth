@@ -45,6 +45,8 @@ export type EditProductType = {
     price: number
     quantity: number 
     sale: number
+    category_id: number
+    category: string
 }
 export type CreaterewieType = {
     product_id:number

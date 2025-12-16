@@ -160,10 +160,12 @@ export const chekUser = (req:Request) => {
 }
 //Достаю id из query
 export const chekQueryId = (req:Request) => {
+  
   let order_id = 0
   if ( req.query.id && !Array.isArray(req.query.id)) {
       order_id = +req.query.id      
   }  else {
       return 0
   } 
+  return order_id
 }

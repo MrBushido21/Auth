@@ -111,6 +111,12 @@
         <label>Добавить скидку в %:</label>
         <input type="number" step="0.01" value="${item.sale * 100}" id="sale-${item.id}" />
 
+        <label>Номер категории:</label>
+        <input type="number" value="${item.category_id}" id="category_id-${item.id}" />
+
+        <label>Название категории:</label>
+        <input type="text" value="${item.category}" id="category-${item.id}" />
+
         <button onclick="editProduct(${item.id})">Редактировать товар</button>
         <button onclick="deleteProduct(${item.id})">Удалить товар</button>
       `;
@@ -132,12 +138,14 @@
       const price = parseFloat(document.getElementById(`price-${id}`).value);
       const quantity = parseFloat(document.getElementById(`quantity-${id}`).value);
       const sale = parseFloat(document.getElementById(`sale-${id}`).value);
+      const category_id = parseFloat(document.getElementById(`category_id-${id}`).value);
+      const category = document.getElementById(`category-${id}`).value;
 
       try {
         const res = await fetch(`/admin/edit-product?id=${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, price, quantity, sale })
+          body: JSON.stringify({ title, description, price, quantity, sale, category_id, category })
         });
 
         if (!res.ok) throw new Error('Ошибка при обновлении товара');

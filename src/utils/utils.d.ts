@@ -15,5 +15,5 @@ export declare const decodedRefreshToken: (token: string) => PayloadType | null;
 export declare const sendlerEmailCode: (email: string, code: string) => void;
 export declare const limiter: import("express-rate-limit").RateLimitRequestHandler;
 export declare const chekUser: (req: Request) => number | undefined;
-export declare const chekQueryId: (req: Request) => 0 | undefined;
+export declare const chekQueryId: (req: Request) => number;
 //# sourceMappingURL=utils.d.ts.map

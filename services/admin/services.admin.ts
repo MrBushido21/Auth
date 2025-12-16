@@ -27,7 +27,9 @@ class Admin {
     }
 
     async editProduct() {
-        await productsRepository.updateProduct(this.data.id, this.data.title, this.data.description, this.data.price, this.data.quantity, this.data.sale)
+        await productsRepository.updateProduct(this.data.id, this.data.title, 
+            this.data.description, this.data.price, this.data.quantity, this.data.sale,
+        this.data.category_id, this.data.category)
     }
     async updateRating() {
         await productsRepository.updateRating(this.data.id, this.data.rating)
