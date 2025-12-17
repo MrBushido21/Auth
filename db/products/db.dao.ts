@@ -5,12 +5,12 @@ import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 export const createProduct = async (title: string, description: string, price: number, 
      category_id: number, category:string, quantity:number, rating:number, qntrewies:number,
-     sale: number, created_at: string, updated_at: string):Promise<void> => {
+     sale: number, image_url:string, created_at: string, updated_at: string):Promise<void> => {
     await sqlRun(`
         INSERT INTO products (title, description, price, category_id, category, quantity, rating, qntrewies, 
-        sale, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        `, [title, description, price, category_id, category, quantity, rating, qntrewies, sale, created_at, updated_at])
+        sale, image_url, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `, [title, description, price, category_id, category, quantity, rating, qntrewies, sale, image_url, created_at, updated_at])
 }
 
 //GetOne

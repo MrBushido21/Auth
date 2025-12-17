@@ -73,39 +73,41 @@
     <input id="quantity" type="number" placeholder="Количество на складе" />
   </div>
 
+  <div class="form-group">
+    <label>Фото товара</label>
+    <input id="image" type="file" accept="image/*" />
+  </div>
+
   <button onclick="createProduct()">Создать товар</button>
 
   <script>
-    function createProduct() {
-      const data = {
-        title: document.getElementById('title').value,
-        description: document.getElementById('description').value,
-        price: Number(document.getElementById('price').value),
-        category_id: Number(document.getElementById('category_id').value),
-        category: document.getElementById('category').value,
-        quantity: Number(document.getElementById('quantity').value),
-        created_at: Date.now().toString(),
-        updated_at: Date.now().toString(),
-      };
+async function createProduct() {
+  const formData = new FormData();
 
-      fetch("http://localhost:3000/createproduct", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": ""
-        },
-        body: JSON.stringify({ data })
-      })
-        .then(res => res.json())
-        .then(response => {
-          console.log("Ответ от сервера:", response);
-          alert("Ответ от сервера: " + JSON.stringify(response));
-        })
-        .catch(error => {
-          console.error("Ошибка:", error);
-          alert("Ошибка при запросе: " + error);
-        });
-    }
-  </script>
+  formData.append("description", document.getElementById("description").value);
+  formData.append("title", document.getElementById("title").value);
+  formData.append("price", document.getElementById("price").value);
+  formData.append("category_id", document.getElementById("category_id").value);
+  formData.append("category", document.getElementById("category").value);
+  formData.append("quantity", document.getElementById("quantity").value);
+
+  const imageInput = document.getElementById("image");
+  if (imageInput.files.length > 0) {
+    formData.append("image", imageInput.files[0]);
+  }
+
+  const res = await fetch("http://localhost:3000/createproduct", {
+    method: "POST",
+    headers: {
+      authorization: "",
+    },
+    body: formData, // ⬅️ ВАЖНО
+  });
+
+  const response = await res.json();
+  console.log("Ответ:", response);
+}
+</script>
+
 </body>
 </html>

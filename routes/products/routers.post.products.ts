@@ -3,12 +3,33 @@ import type { ProductType } from "../../types/types.js";
 import Admin from "../../services/admin/services.admin.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import type { CreateProductType, EditProductType } from "../../types/requests.js";
-import { chekQueryId } from "../../utils/utils.js";
+import { chekQueryId, dateNow } from "../../utils/utils.js";
+import multer from "multer";
+import { convertImg } from "../../services/image/image.services.js";
 
 const router = Router();
 
-router.post('/createproduct', async (req: Request<{}, {}, CreateProductType>, res: Response) => {
-    const data = req.body.data
+const upload = multer({ dest: "uploads/" });
+
+router.post('/createproduct', upload.single("image"), async (req: Request<{}, {}, any>, res: Response) => { 
+    const imgUrl = await convertImg(req.file?.path)
+    
+    const data:ProductType = {
+        id: 0,
+        title: req.body.title,
+        description: req.body.description,
+        price: req.body.price,
+        image_url: imgUrl?.url,
+        category_id:req.body.category_id,
+        category: req.body.category,
+        quantity: req.body.quantity,
+        rating: 0,
+        qntrewies: 0,
+        sale: +req.body.sale / 100,
+        created_at: dateNow(),
+        updated_at: dateNow()
+
+    }
     if (!data) {
         return res.status(404).json({ message: "Data undefined" })
     }
@@ -33,7 +54,7 @@ router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {
         return res.status(404).json({message: "uncorrect product_id"})
     }
 
-    const data = {
+    const data:ProductType = {
         id: id,
         title: title,
         description: description,
@@ -68,7 +89,7 @@ router.delete('/admin/delete-product', async (req: Request<{}, {}, {}, {id:strin
     if (!id || id === 0) {
         return res.status(404).json({message: "uncorrect product_id"})
     }
-    const data = {
+    const data: ProductType = {
         id: id,
         title: "",
         description: "",

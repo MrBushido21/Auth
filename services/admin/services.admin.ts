@@ -1,5 +1,6 @@
 import { productsRepository } from "../../db/products/productsRepository.js";
 import type { ProductType } from "../../types/types.js";
+import { dateNow } from "../../utils/utils.js";
 
 class Admin {
     data: ProductType
@@ -10,6 +11,8 @@ class Admin {
     async createdProduct() {
         const rating = 0
         const qntrewies = 0
+        const sale = 0
+   
         await productsRepository.createProduct(
             this.data.title,
             this.data.description,
@@ -19,7 +22,8 @@ class Admin {
             this.data.quantity,
             rating,
             qntrewies,
-            0,
+            sale,
+            this.data.image_url,
             this.data.created_at,
             this.data.updated_at
         )

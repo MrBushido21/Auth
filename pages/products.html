@@ -161,23 +161,21 @@
 
       // Добавляем товары к существующим
       items.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "product-card";
-        card.innerHTML = `
+    const card = document.createElement("div");
+    card.className = "product-card";
+    card.innerHTML = `
       <a href="/product?id=${item.id}" class="card-link">
+        <img src="${item.image_url}" alt="${item.title}" style="width:100%; border-radius:8px; margin-bottom:10px;">
         <h3>${item.title}</h3>
       </a>
       <p>${item.description}</p>
-      ${item.sale
-    ? `<p class="price">Скидка ${item.sale * 100}%</p>`
-    : ""
-  }
+      ${item.sale ? `<p class="price">Скидка ${item.sale * 100}%</p>` : ""}
       <p class="price">${item.price} грн</p>
       <button onclick="addToCart(${item.id})">Добавить в корзину</button>
-      <button style="margin: 10px 0;" onclick="addToWish(${item.id})">Добавить из избранного</button>
+      <button style="margin: 10px 0;" onclick="addToWish(${item.id})">Добавить в избранное</button>
     `;
-        container.appendChild(card);
-      });
+    container.appendChild(card);
+  });
 
       // Логика кнопки
       if (items.length === limit) {
