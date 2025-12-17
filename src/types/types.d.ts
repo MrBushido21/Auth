@@ -44,6 +44,7 @@ export type ProductType = {
     description: string;
     price: number;
     image_url: any;
+    public_id: any;
     category_id: number;
     category: string;
     quantity: number;

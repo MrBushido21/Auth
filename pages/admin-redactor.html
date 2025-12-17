@@ -7,10 +7,10 @@
   body { font-family: Arial; max-width: 1200px; margin: 40px auto; padding: 20px; background: #f0f0f0; }
     h1 { text-align: center; margin-bottom: 30px; }
     #products {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-    }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
     .product-card {
       padding: 15px;
       background: white;
@@ -55,6 +55,18 @@
     button:hover { background: #1a5fc4; }
     label { font-weight: bold; font-size: 14px; }
 
+ .product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+}
+
+.image-input {
+  font-size: 13px;
+}
 
   </style>
 </head>
@@ -91,37 +103,70 @@
     }
 
     function createProductCard(item) {
-      const card = document.createElement('div');
-      card.className = 'product-card';
+  const card = document.createElement('div');
+  card.className = 'product-card';
 
-      card.innerHTML = `
-        <p>ID товару: ${item.id}</p>
-        <label>Название:</label>
-        <input type="text" value="${item.title}" id="title-${item.id}" />
+  card.innerHTML = `
+    <p>ID товару: ${item.id}</p>
 
-        <label>Описание:</label>
-        <textarea id="desc-${item.id}">${item.description}</textarea>
+    <img 
+      src="${item.image_url || '/no-image.png'}"
+      class="product-image"
+      id="preview-${item.id}"
+    />
 
-        <label>Цена (грн):</label>
-        <input type="number" step="0.01" value="${item.price}" id="price-${item.id}" />
+    <label>Новое изображение:</label>
+    <input 
+      type="file"
+      accept="image/*"
+      id="file-${item.id}"
+      onchange="previewFile(${item.id})"
+    />
 
-        <label>Количество на складе:</label>
-        <input type="number" step="0.01" value="${item.quantity}" id="quantity-${item.id}" />
+    <label>Название:</label>
+    <input type="text" value="${item.title}" id="title-${item.id}" />
 
-        <label>Добавить скидку в %:</label>
-        <input type="number" step="0.01" value="${item.sale * 100}" id="sale-${item.id}" />
+    <label>Описание:</label>
+    <textarea id="desc-${item.id}">${item.description}</textarea>
 
-        <label>Номер категории:</label>
-        <input type="number" value="${item.category_id}" id="category_id-${item.id}" />
+    <label>Цена (грн):</label>
+    <input type="number" step="0.01" value="${item.price}" id="price-${item.id}" />
 
-        <label>Название категории:</label>
-        <input type="text" value="${item.category}" id="category-${item.id}" />
+    <label>Количество:</label>
+    <input type="number" value="${item.quantity}" id="quantity-${item.id}" />
 
-        <button onclick="editProduct(${item.id})">Редактировать товар</button>
-        <button onclick="deleteProduct(${item.id})">Удалить товар</button>
-      `;
-      return card;
-    }
+    
+    <label>Скидка (%):</label>
+    <input 
+      type="number" 
+      step="0.01" 
+      value="${item.sale * 100}" 
+      id="sale-${item.id}"
+    />
+
+    <label>ID категории:</label>
+    <input type="number" value="${item.category_id}" id="category_id-${item.id}" />
+
+    <label>Название категории:</label>
+    <input type="text" value="${item.category}" id="category-${item.id}" />
+
+    <button onclick="editProduct(${item.id})">Редактировать</button>
+    <button onclick="deleteProduct(${item.id})">Удалить</button>
+  `;
+
+  return card;
+}
+
+function previewFile(id) {
+  const fileInput = document.getElementById(`file-${id}`);
+  const img = document.getElementById(`preview-${id}`);
+
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  img.src = URL.createObjectURL(file);
+}
+
 
     function renderProducts(data) {
       const container = document.getElementById('products');
@@ -133,27 +178,34 @@
     }
 
     async function editProduct(id) {
-      const title = document.getElementById(`title-${id}`).value;
-      const description = document.getElementById(`desc-${id}`).value;
-      const price = parseFloat(document.getElementById(`price-${id}`).value);
-      const quantity = parseFloat(document.getElementById(`quantity-${id}`).value);
-      const sale = parseFloat(document.getElementById(`sale-${id}`).value);
-      const category_id = parseFloat(document.getElementById(`category_id-${id}`).value);
-      const category = document.getElementById(`category-${id}`).value;
+  const formData = new FormData();
 
-      try {
-        const res = await fetch(`/admin/edit-product?id=${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, price, quantity, sale, category_id, category })
-        });
+  formData.append('title', document.getElementById(`title-${id}`).value);
+  formData.append('description', document.getElementById(`desc-${id}`).value);
+  formData.append('price', document.getElementById(`price-${id}`).value);
+  formData.append('quantity', document.getElementById(`quantity-${id}`).value);
+  formData.append('sale', document.getElementById(`sale-${id}`).value);
+  formData.append('category_id', document.getElementById(`category_id-${id}`).value);
+  formData.append('category', document.getElementById(`category-${id}`).value);
 
-        if (!res.ok) throw new Error('Ошибка при обновлении товара');
-        alert('Товар успешно обновлен!');
-      } catch(err) {
-        alert(err.message);
-      }
-    }
+  const fileInput = document.getElementById(`file-${id}`);
+  if (fileInput.files[0]) {
+    formData.append('image', fileInput.files[0]); // ← КЛЮЧ image
+  }
+
+  const res = await fetch(`/admin/edit-product?id=${id}`, {
+    method: 'PUT',
+    body: formData // ⬅️ headers НЕ указываем!
+  });
+
+  if (!res.ok) {
+    alert('Ошибка обновления');
+    return;
+  }
+
+  alert('Товар обновлён');
+}
+
     async function deleteProduct(id) {
 
       try {

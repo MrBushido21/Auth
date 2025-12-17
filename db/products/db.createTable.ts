@@ -10,6 +10,7 @@ export const createTables = async ():Promise<void> => {
         description TEXT NOT NULL,
         price NUMBER NOT NULL,
         image_url TEXT,
+        public_id TEXT,
         category_id NUMBER NOT NULL,
         category TEXT NOT NULL,
         quantity NUMBER NOT NULL,

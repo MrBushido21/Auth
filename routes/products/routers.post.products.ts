@@ -20,6 +20,7 @@ router.post('/createproduct', upload.single("image"), async (req: Request<{}, {}
         description: req.body.description,
         price: req.body.price,
         image_url: imgUrl?.url,
+        public_id: imgUrl?.public_id,
         category_id:req.body.category_id,
         category: req.body.category,
         quantity: req.body.quantity,
@@ -45,8 +46,10 @@ router.post('/createproduct', upload.single("image"), async (req: Request<{}, {}
     }
 
 })
-router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {id:string}>, res: Response) => {
+router.put('/admin/edit-product', upload.single("image"), async (req: Request<{}, {}, EditProductType, {id:string}>, res: Response) => {
     const { title, description, price, quantity, sale, category_id, category} = req.body
+    
+    const imgUrl = await convertImg(req.file?.path)
     let id:number
     if (req.query.id && !Array.isArray(req.query.id)) {
        id = +req.query.id
@@ -59,7 +62,8 @@ router.put('/admin/edit-product', async (req: Request<{}, {}, EditProductType, {
         title: title,
         description: description,
         price: price,
-        image_url: "",
+        image_url: imgUrl?.url,
+        public_id: imgUrl?.public_id,
         category_id:category_id,
         category: category,
         quantity: quantity,
@@ -95,6 +99,7 @@ router.delete('/admin/delete-product', async (req: Request<{}, {}, {}, {id:strin
         description: "",
         price: 0,
         image_url: "",
+        public_id: "",
         category_id: 0,
         category: "",
         quantity: 0,
