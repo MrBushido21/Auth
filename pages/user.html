@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <title>Страница пользователя</title>
@@ -8,6 +9,30 @@
       font-family: Arial, sans-serif;
       padding: 20px;
       background: #f5f5f5;
+    }
+
+    .avatar-block {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ddd;
+    }
+
+    .avatar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .avatar-actions input {
+      font-size: 14px;
     }
 
     .user-info {
@@ -80,7 +105,17 @@
     }
   </style>
 </head>
+
 <body>
+  <div class="avatar-block">
+    <img id="avatar" class="avatar" src="/images/default-avatar.png" alt="Аватар">
+
+    <div class="avatar-actions">
+      <input type="file" id="avatarInput" accept="image/*">
+      <button onclick="uploadAvatar()">Сменить аватар</button>
+    </div>
+  </div>
+
   <div class="user-info">
     <div>
       Email: <span id="user-email"></span>
@@ -102,24 +137,34 @@
     let orders = [];
     let page = 0;
     const perPage = 5;
-
+    const token = localStorage.getItem("accessToken");
     async function fetchUser() {
-      try {
-        const res = await fetch('/getuser', {
-            method: "GET",
-            headers: {
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDgzNjU5NSwiZXhwIjoxNzY0ODQwMTk1fQ._BedEC3cMN3tvgCFCQHiULkGv5lcWkd0dBz_UMchPeo"
-       }
-        });
-        const data = await res.json();
-
-        document.getElementById('user-email').textContent = data.email;
-        orders = data.orders;
-        renderOrders(orders);
-      } catch (err) {
-        console.error('Ошибка при получении данных пользователя', err);
+  try {
+    const res = await fetch('/getuser', {
+      method: "GET",
+      headers: {
+        "authorization": token
       }
+    });
+    const data = await res.json();
+
+    // email
+    document.getElementById('user-email').textContent = data.email;
+
+    // аватар, если есть
+    if (data.avatar) {
+      document.getElementById('avatar').src = data.avatar + '?t=' + Date.now();
     }
+
+    // заказы
+    orders = data.orders || [];
+    renderOrders(orders);
+
+  } catch (err) {
+    console.error('Ошибка при получении данных пользователя', err);
+  }
+}
+
 
     function formatDate(dateStr) {
       const date = new Date(dateStr);
@@ -154,64 +199,98 @@
         loadMoreBtn.style.display = 'block';
       }
     }
-
-    // function loadOrders() {
-    //   renderOrders();
-    // }
-
+    
+//Смена емейла
     function changeEmail() {
       const email = prompt('Введите текущий email:');
       if (email) {
         fetch('/reset', {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, type: "email" })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message || "Запрос на смену пароля отправлен");
-      })
-      .catch(err => {
-        alert("Ошибка сервера");
-        console.error(err);
-      });
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, type: "email" })
+        })
+          .then(res => res.json())
+          .then(data => {
+            alert(data.message || "Запрос на смену пароля отправлен");
+          })
+          .catch(err => {
+            alert("Ошибка сервера");
+            console.error(err);
+          });
       }
     }
-
+//===Смена пароля
     function changePassword() {
       const email = prompt('Введите email:');
       if (email) {
         fetch('/reset', {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, type: "password" })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message || "Запрос на смену пароля отправлен");
-      })
-      .catch(err => {
-        alert("Ошибка сервера");
-        console.error(err);
-      });
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, type: "password" })
+        })
+          .then(res => res.json())
+          .then(data => {
+            alert(data.message || "Запрос на смену пароля отправлен");
+          })
+          .catch(err => {
+            alert("Ошибка сервера");
+            console.error(err);
+          });
       }
     }
 
+//==== Загурзка аватарки
+    async function uploadAvatar() {
+      const input = document.getElementById('avatarInput');
+      if (!input.files.length) {
+        alert("Выберите изображение");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("avatar", input.files[0]);
+
+      try {
+        const res = await fetch('/user/avatar', {
+          method: 'POST',
+          headers: {
+            "authorization": token
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.message || "Ошибка загрузки");
+          return;
+        }
+
+        // Обновляем аватар без перезагрузки
+        document.getElementById('avatar').src = data.avatarUrl + '?t=' + Date.now();
+        alert("Аватар обновлён");
+      } catch (err) {
+        console.error(err);
+        alert("Ошибка сервера");
+      }
+    }
+
+//========== Логаут
     function logout() {
       fetch('/logout', {
         method: 'POST',
         headers: {
-        "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9sZWdsaXMiLCJpZCI6NzE2OTgsImlhdCI6MTc2NDgzMjg1NCwiZXhwIjoxNzY0ODM2NDU0fQ.ECJLOgXLQ8IzXbdcISESP1vaHUMRJdhe6_Bh3BWe2_M"
-       }
+          "authorization": token
+        }
       })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message || "Запрос на смену пароля отправлен");
-      })
-      .catch(err => {
-        alert("Ошибка сервера");
-        console.error(err);
-      });
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message || "Запрос на смену пароля отправлен");
+        })
+        .catch(err => {
+          alert("Ошибка сервера");
+          console.error(err);
+        });
       alert('Вы вышли из аккаунта');
       // Например, редирект на страницу входа
       window.location.href = '/login';
@@ -221,4 +300,5 @@
     fetchUser();
   </script>
 </body>
+
 </html>

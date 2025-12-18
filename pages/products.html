@@ -19,6 +19,30 @@
       margin-bottom: 30px;
     }
 
+    /* ===== Шапка с профилем ===== */
+.header {
+  position: relative;
+}
+
+.user-link {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 8px 14px;
+  background: white;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #2c7be5;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: background 0.2s;
+}
+
+.user-link:hover {
+  background: #f2f6ff;
+}
+
+
     /* Контейнер поиска + сортировки */
     #controls {
       display: flex;
@@ -83,7 +107,11 @@
 </head>
 
 <body>
+  <div class="header">
   <h1>Список товаров</h1>
+  <a href="/user" class="user-link">👤 Кабинет</a>
+</div>
+
   <!-- =========================================================== -->
 
   <!-- ========ПРОБЛЕМА С КНОПКОЙ ЗАГРУЗИТЬ ЕЩЕ================== -->

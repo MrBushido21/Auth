@@ -1,7 +1,7 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
 import type { UsersType } from "../../types/types.js";
 import { getCodeForId, getUserForId, updateRefreshToken} from "../../db/auth/db.dao.js";
-import { createToken, dateExpire, decodedAccsesToken, limiter, options, } from "../../utils/utils.js";
+import { createToken, dateExpire, decodedAccsesToken, generateCode, limiter, options, sendlerEmailCode, } from "../../utils/utils.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import { registerShemas } from "../../shemas/validation.js";
 import { validation } from "../../middleware/middleware.validation.js";
@@ -51,11 +51,11 @@ router.post('/verify', limiter, async (req: Request<{}, {}, VerifyType>, res: Re
 
 //Отправить код повторно
 
-router.post('/verify/new', async (req: Request<{}, {}, {id:number}>, res: Response) => {//==================
-  let verifeid_code = Math.floor(Math.random() * 100000).toString()
-  const { id } = req.body
+router.post('/verify/new', async (req: Request<{}, {}, {id:number, email:string}>, res: Response) => {//==================
+  let verifeid_code = generateCode().toString()
+  const { id, email } = req.body
   const record = await getCodeForId(id)
-  // Дописать отправку ссілки
+  // Дописать отправку ссілки при смене пароля
 
   if (!record) {
     return res.status(403).json({ message: 'Not found user' })
@@ -63,8 +63,7 @@ router.post('/verify/new', async (req: Request<{}, {}, {id:number}>, res: Respon
 
   await authRepository.updateVerifyCode(record.id, verifeid_code, dateExpire(120000))
 
-
-  // sendlerEmailCode(email, code)
+ sendlerEmailCode(email, verifeid_code)
 
   return res.status(200).json({message: "ok"})
 })

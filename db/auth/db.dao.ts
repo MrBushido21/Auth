@@ -3,12 +3,12 @@ import { isUser } from "../../utils/utils.js";
 import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js";
 // Create
 export const createUser = async (user: UsersType): Promise<void> => {
-    const { id, password_hash, email, status, created_at, updated_at, verifeid_at } = user
+    const { id, password_hash, email, status,  avatar, created_at, updated_at, verifeid_at} = user
 
     await sqlRun(`
-            INSERT INTO users (id, email, password_hash, status, created_at, updated_at, verifeid_at)
-            VALUES (?,?,?,?,?,?,?);        
-        `, [id, email, password_hash, status, created_at, updated_at, verifeid_at])
+            INSERT INTO users (id, email, password_hash, status, avatar, created_at, updated_at, verifeid_at)
+            VALUES (?,?,?,?,?,?,?,?);        
+        `, [id, email, password_hash, status, avatar, created_at, updated_at, verifeid_at])
 }
 
 

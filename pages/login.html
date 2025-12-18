@@ -115,14 +115,19 @@
     console.log("Ответ сервера:", data);
 
     if (res.status === 200) {
-      if (isRegistration) {
-        // сохраняем id для verify
-        sessionStorage.setItem("userId", data.message.id);
-        window.location.href = "/verify";
-      } else {
-        window.location.href = "/getproducts";
-      }
+    if (isRegistration) {
+      sessionStorage.setItem("userId", data.message.id);
+      sessionStorage.setItem("email", data.message.email);
+      
+      window.location.href = "/verify";
     } else {
+      // ✅ сохраняем access token
+      localStorage.setItem("accessToken", data.access_token);
+
+      window.location.href = "/getproducts";
+    }
+  }
+ else {
       showMessage(data.error || "Ошибка", "red");
     }
   } catch (err) {

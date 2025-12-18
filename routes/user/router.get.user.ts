@@ -14,7 +14,7 @@ router.get('/getuser', checkAuth, async (req, res) => {
             const userClass = new User(user_id)
             const user = await userClass.getUser()
             const orders = await servicesCreateOrder.getOrders()           
-            return res.status(200).json({email: user.email, orders: orders})
+            return res.status(200).json({email: user.email, avatar: user.avatar, orders: orders})
             
         } catch (error) {
             

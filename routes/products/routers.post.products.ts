@@ -9,9 +9,9 @@ import { convertImg } from "../../services/image/image.services.js";
 
 const router = Router();
 
-const upload = multer({ dest: "uploads/" });
+export const middlewareMulter = multer({ dest: "uploads/" });
 
-router.post('/createproduct', upload.single("image"), async (req: Request<{}, {}, any>, res: Response) => { 
+router.post('/createproduct', middlewareMulter.single("image"), async (req: Request<{}, {}, any>, res: Response) => { 
     const imgUrl = await convertImg(req.file?.path)
     
     const data:ProductType = {
@@ -46,7 +46,7 @@ router.post('/createproduct', upload.single("image"), async (req: Request<{}, {}
     }
 
 })
-router.put('/admin/edit-product', upload.single("image"), async (req: Request<{}, {}, EditProductType, {id:string}>, res: Response) => {
+router.put('/admin/edit-product', middlewareMulter.single("image"), async (req: Request<{}, {}, EditProductType, {id:string}>, res: Response) => {
     const { title, description, price, quantity, sale, category_id, category} = req.body
     
     const imgUrl = await convertImg(req.file?.path)

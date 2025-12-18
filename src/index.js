@@ -12,6 +12,7 @@ import orderPostRouter from "./routes/orders/routers.post.orders.js";
 import orderGetRouter from "./routes/orders/routers.get.orders.js";
 import npGetRouter from "./routes/orders/routers.get.novaposhta.js";
 import userGetRouter from "./routes/user/router.get.user.js";
+import userPostRouter from "./routes/user/router.post.user.js";
 import rewieGetRouter from "./routes/rewie/routers.get.rewie.js";
 import rewiePostRouter from "./routes/rewie/routers.post.rewie.js";
 import wishlistGetRouter from "./routes/wishlist/routers.get.wishlist.js";
@@ -47,6 +48,7 @@ const run = async () => {
     app.use('/', orderGetRouter);
     app.use('/', npGetRouter);
     app.use('/', userGetRouter);
+    app.use('/', userPostRouter);
     app.use('/', rewieGetRouter);
     app.use('/', rewiePostRouter);
     app.use('/', wishlistGetRouter);

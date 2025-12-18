@@ -5,6 +5,8 @@ export type UsersType = {
     email: string
     password_hash: string
     status: string
+    avatar:string
+    public_id:string
     created_at: string
     updated_at: string
     verifeid_at: string,

@@ -5,7 +5,7 @@
   <title>Подтверждение</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial;
       background: #5563DE;
       display: flex;
       justify-content: center;
@@ -17,13 +17,13 @@
       background: white;
       padding: 30px;
       border-radius: 10px;
-      width: 300px;
+      width: 320px;
       text-align: center;
     }
     input {
       width: 100%;
       padding: 10px;
-      margin: 15px 0;
+      margin: 10px 0;
       font-size: 16px;
     }
     button {
@@ -33,6 +33,8 @@
       color: white;
       border: none;
       cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
     }
     button:disabled {
       background: #aaa;
@@ -50,17 +52,82 @@
   <h3>Введите код</h3>
   <input id="code" type="text" placeholder="Код подтверждения">
   <button id="verifyBtn">Подтвердить</button>
+  <button id="sendCodeBtn">Отправить новый код</button>
   <div class="msg" id="msg"></div>
 </div>
 
 <script>
-  const codeInput = document.getElementById("code");
+const codeInput = document.getElementById("code");
 const msg = document.getElementById("msg");
-const btn = document.getElementById("verifyBtn");
+const verifyBtn = document.getElementById("verifyBtn");
+const sendCodeBtn = document.getElementById("sendCodeBtn");
 
-btn.addEventListener("click", async () => {
+// Получаем id и email
+const userId = sessionStorage.getItem("userId");
+const email = sessionStorage.getItem("email");
+
+if (!userId || !email) {
+  msg.textContent = "Ошибка: нет данных пользователя";
+  msg.style.color = "red";
+  sendCodeBtn.disabled = true;
+}
+
+// ===== Таймер 2 минуты для кнопки отправки кода =====
+function startTimer() {
+  let countdown = 120;
+  sendCodeBtn.disabled = true;
+  msg.textContent = `Вы сможете отправить код через ${countdown} секунд`;
+
+  const timer = setInterval(() => {
+    countdown--;
+    msg.textContent = `Вы сможете отправить код через ${countdown} секунд`;
+    if (countdown <= 0) {
+      clearInterval(timer);
+      sendCodeBtn.disabled = false;
+      msg.textContent = "Вы можете отправить новый код";
+    }
+  }, 1000);
+}
+
+// Запускаем таймер при загрузке страницы
+startTimer();
+
+// ===== Отправка нового кода =====
+sendCodeBtn.addEventListener("click", async () => {
+  if (!userId || !email) return;
+
+  sendCodeBtn.disabled = true;
+  msg.textContent = "Отправка нового кода...";
+  msg.style.color = "#333";
+
+  try {
+    const res = await fetch("http://localhost:3000/verify/new", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: Number(userId), email })
+    });
+
+    const data = await res.json();
+    if (res.status === 200) {
+      msg.textContent = "Новый код отправлен на email ✔";
+      msg.style.color = "green";
+      startTimer(); // сбрасываем таймер на 2 минуты после отправки
+    } else {
+      msg.textContent = data.error || "Ошибка отправки кода";
+      msg.style.color = "red";
+      sendCodeBtn.disabled = false;
+    }
+  } catch (err) {
+    console.error(err);
+    msg.textContent = "Ошибка соединения";
+    msg.style.color = "red";
+    sendCodeBtn.disabled = false;
+  }
+});
+
+// ===== Подтверждение введённого кода =====
+verifyBtn.addEventListener("click", async () => {
   const code = codeInput.value.trim();
-  const userId = sessionStorage.getItem("userId"); // получаем id
 
   if (!code) {
     msg.textContent = "Введите код";
@@ -74,18 +141,14 @@ btn.addEventListener("click", async () => {
     return;
   }
 
-  btn.disabled = true;
   msg.textContent = "Проверка кода...";
   msg.style.color = "#333";
-  
+
   try {
     const res = await fetch("http://localhost:3000/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({data:{
-        id: userId, 
-        verifeid_code:code
-    }})
+      body: JSON.stringify({ data: { id: Number(userId), verifeid_code: code } })
     });
 
     const data = await res.json();
@@ -93,25 +156,21 @@ btn.addEventListener("click", async () => {
     if (res.status === 200) {
       msg.textContent = "Код подтверждён ✔";
       msg.style.color = "green";
-
       setTimeout(() => {
-        sessionStorage.removeItem("userId"); // чистим после использования
+        sessionStorage.removeItem("userId");
+        localStorage.setItem("accessToken", data.access_token);
         window.location.href = "/getproducts";
       }, 800);
     } else {
       msg.textContent = data.error || "Неверный код";
       msg.style.color = "red";
-      btn.disabled = false;
     }
-
   } catch (err) {
     console.error(err);
     msg.textContent = "Ошибка соединения";
     msg.style.color = "red";
-    btn.disabled = false;
   }
 });
-
 </script>
 
 </body>
