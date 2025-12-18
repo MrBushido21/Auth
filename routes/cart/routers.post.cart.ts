@@ -9,7 +9,8 @@ const router = Router();
 router.post('/cart/add', checkAuth, async (req: Request<{}, {}, {product_id:number}>, res: Response) => {
     const { product_id } = req.body
     const user_id = chekUser(req)
-
+    console.log(user_id);
+    
     try {
         if (user_id) {
             const cart = new Cart(user_id, product_id, "", 1, 0)

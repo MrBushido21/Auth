@@ -15,7 +15,7 @@ const router = Router();
 
 router.post('/create-order', checkAuth, validation(orderSchema), async (req: Request<{}, {}, CreateOrderType>, res: Response) => { // limiter
     const { full_name, phone_number, call, department, city, email, comment } = req.body
-    const user_id = chekUser(req) 
+    const user_id = chekUser(req)  
    
     try {
         if (user_id) {

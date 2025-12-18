@@ -6,7 +6,7 @@ export const createOrder = async (user_id: number, full_name:string, phone_numbe
     comment:string | null, call:string, total_price: number, status:string, created_at:string): Promise<void> => {
     await sqlRun(`
         INSERT INTO orders (user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `, [user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
 }
 

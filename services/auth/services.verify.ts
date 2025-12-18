@@ -16,7 +16,7 @@ export const verifyService = {
       newError(isExpired, 400, "Code expired")
     
       try {
-        // await authRepository.deleteUserCode(record.id)
+        await authRepository.deleteUserCode(record.id)
         await authRepository.updateVerifyStatus(id, dateNow())
         console.log("code deleting");
         

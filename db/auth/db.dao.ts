@@ -125,6 +125,13 @@ export const deleteUserCode = async (id: number) => {
     await sqlRun(`DELETE FROM user_codes WHERE id = ?`, [id])
 }
 
+const cleanExpiredCodes = async (id: number) => {
+  await sqlRun(`DELETE FROM user_codes WHERE expires_at < CURRENT_TIMESTAMP`)
+}
+
+// запуск каждые 10 минут (600000 мс)
+setInterval(cleanExpiredCodes, 10 * 60 * 1000);
+
 //Update
 export const updateRefreshToken = async (id: number, refreshToken: string): Promise<void> => {
     await sqlRun(`

@@ -37,6 +37,19 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   transition: background 0.2s;
 }
+.cart-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 8px 14px;
+  background: white;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #2c7be5;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: background 0.2s;
+}
 
 .user-link:hover {
   background: #f2f6ff;
@@ -110,6 +123,7 @@
   <div class="header">
   <h1>Список товаров</h1>
   <a href="/user" class="user-link">👤 Кабинет</a>
+  <a href="/cart" class="cart-link">Корзина</a>
 </div>
 
   <!-- =========================================================== -->
@@ -140,12 +154,12 @@
     const limit = 5; // Сколько грузим за раз
     let isLoading = false; // Чтобы не спамили кликами
     let categoriesLoaded = false;
-
+    const token = localStorage.getItem("accessToken");
 
     function addToCart(productId) {
       fetch("/cart/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "authorization": token },
         body: JSON.stringify({ product_id: productId })
       })
         .then(r => r.json())
@@ -155,7 +169,7 @@
     function addToWish(productId) {
       fetch("/createwishlist", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE4MzY1OCwiZXhwIjoxNzY1MTg3MjU4fQ.CQG_y5wVxlQGtGMt_MOR-UKJl8jesfbab5xNBEHixYM" },
+        headers: { "Content-Type": "application/json", "authorization": token },
         body: JSON.stringify({ product_id: productId })
       })
         .then(r => r.json())
@@ -163,17 +177,6 @@
         .catch(err => alert("Ошибка: " + err));
     }
 
-
-    function editRating(productId, rating) {
-      fetch("/updat-rating", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_id: productId, rating })
-      })
-        .then(r => r.json())
-        .then(() => alert(r.message))
-        .catch(err => alert("Ошибка: " + err.message));
-    }
 
 
     // ===== Рендер карточек =====

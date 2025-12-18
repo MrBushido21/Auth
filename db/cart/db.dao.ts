@@ -9,11 +9,11 @@ export const createCart = async (user_id: number, price:number, created_at: stri
         VALUES (?, ?, ?, ?);
         `, [user_id, price || 0, created_at, updated_at])
 }
-export const createCartItem = async (cart_id: number, product_id: number, product_name:string, quantity: number, price: number, added_at: string):Promise<void> => {
+export const createCartItem = async (cart_id: number, product_id: number, product_name:string, product_img:string, quantity: number, price: number, added_at: string):Promise<void> => {
     const result:any = await sqlRun(`
-        INSERT INTO cart_items (cart_id, product_id, product_name, quantity, price, added_at)
-        VALUES (?, ?, ?, ?, ?, ?);
-        `, [cart_id, product_id, product_name, quantity, price, added_at])
+        INSERT INTO cart_items (cart_id, product_id, product_name, product_img, quantity, price, added_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
+        `, [cart_id, product_id, product_name, product_img, quantity, price, added_at])
 }
 
 //GetOne

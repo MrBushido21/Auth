@@ -11,6 +11,8 @@ export const userService = {
       email,
       password_hash: hashedPassword,
       status: "admin",
+      avatar:"",
+      public_id:"",
       created_at: dateNow(),
       updated_at: dateNow(),
       verifeid_at: "",

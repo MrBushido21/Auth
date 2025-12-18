@@ -123,12 +123,12 @@
 
         <div class="form-group">
             <label for="fullname">ПІБ</label>
-            <input type="text" value="Oleg" id="fullname" name="fullname" />
+            <input type="text" value="Oleg Lis" id="fullname" name="fullname" />
         </div>
 
         <div class="form-group">
             <label for="phone">Телефон</label>
-            <input type="text" value="068" id="phone" name="phone" />
+            <input type="text" value="380688888888" id="phone" name="phone" />
         </div>
 
         <div class="checkbox-group">
@@ -181,7 +181,8 @@
     </div>
 
     <script>
-        const token = ""
+        const token = localStorage.getItem("accessToken");
+
         async function loadCart() {
             const res = await fetch('/getcartitems', {
                 method: "GET",
@@ -204,37 +205,39 @@
         }
 
         function renderCart(items) {
-             container = document.getElementById("cart-container");
-            container.innerHTML = "";
+    const container = document.getElementById("cart-container");
+    container.innerHTML = "";
 
-            if (items.length === 0) {
-                container.innerHTML = "<p>Корзина пуста</p>";
-                return;
-            }
+    if (items.length === 0) {
+        container.innerHTML = "<p>Корзина пуста</p>";
+        return;
+    }
 
-            items.forEach(item => {
-                const div = document.createElement("div");
-                div.className = "cart-item";
+    items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.style.gap = "15px";
 
-                div.innerHTML = `
-        <p><strong>Назва товару:</strong> ${item.product_name}</p>
-        <p><strong>ID товара:</strong> ${item.product_id}</p>
-        <p><strong>Цена:</strong> ${item.price} грн</p>
-        <div class="qty-controls">
-          <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>
-          <span><stronconstg>${item.quantity}</strong></span>
-          <button class="qty-btn" onclick="increaseQty(${item.product_id})">+</button>
-        </div>
-        <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">
-          Удалить товар
-        </button>
+        div.innerHTML = `
+            <img src="${item.product_img}" alt="${item.product_name}" style="width:80px; height:80px; object-fit:cover; border-radius:6px;" />
+            <div>
+                <p><strong>Назва товару:</strong> ${item.product_name}</p>
+                <p><strong>ID товара:</strong> ${item.product_id}</p>
+                <p><strong>Ціна:</strong> ${item.price} грн</p>
+                <div class="qty-controls">
+                    <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>
+                    <span><strong>${item.quantity}</strong></span>
+                    <button class="qty-btn" onclick="increaseQty(${item.product_id})">+</button>
+                </div>
+                <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">Видалити товар</button>
+            </div>
+        `;
 
-        
-      `;
-
-                container.appendChild(div);
-            });
-        }
+        container.appendChild(div);
+    });
+}
 
         async function increaseQty(id) {
             await fetch(`/cart/quantity?id=${id}`, {
@@ -283,7 +286,7 @@
             try {
                 const res = await fetch('/create-order', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', "authorization": token },
                     body: JSON.stringify(data)
                 });
 

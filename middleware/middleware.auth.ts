@@ -20,7 +20,7 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction): void
     } catch (error) {
       console.error(error);
     }
-  }
+  } 
   
   let user_id = req.cookies.user_id
   
