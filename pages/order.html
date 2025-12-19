@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -181,23 +180,34 @@
     </div>
 
     <script>
-        const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("accessToken");
 
         async function loadCart() {
+            const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
             const res = await fetch('/getcartitems', {
-                method: "GET",
+                method: "POST",
                 credentials: "include",
                 headers: {
-                    "authorization": token,
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "authorization": token
                 },
+                body: JSON.stringify(cart)
             });
 
-            const data = await res.json(); // массив товаров
-            const totalPrcie = data.totalPrice
+            const data = await res.json();
+
+            // 🔴 ЕСЛИ К ОПЛАТЕ 0 — СРАЗУ УХОДИМ
+            if (data.totalPrice === 0) {
+                window.location.href = "/getproducts";
+                return;
+            }
+
             renderCart(data.cartItems);
-            addTotalPrice(totalPrcie);
+            addTotalPrice(data.totalPrice);
         }
+
+
 
         function addTotalPrice(totalPrice) {
             container = document.getElementById("doOplaty");
@@ -205,22 +215,22 @@
         }
 
         function renderCart(items) {
-    const container = document.getElementById("cart-container");
-    container.innerHTML = "";
+            const container = document.getElementById("cart-container");
+            container.innerHTML = "";
 
-    if (items.length === 0) {
-        container.innerHTML = "<p>Корзина пуста</p>";
-        return;
-    }
+            if (items.length === 0) {
+                container.innerHTML = "<p>Корзина пуста</p>";
+                return;
+            }
 
-    items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "cart-item";
-        div.style.display = "flex";
-        div.style.alignItems = "center";
-        div.style.gap = "15px";
+            items.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "cart-item";
+                div.style.display = "flex";
+                div.style.alignItems = "center";
+                div.style.gap = "15px";
 
-        div.innerHTML = `
+                div.innerHTML = `
             <img src="${item.product_img}" alt="${item.product_name}" style="width:80px; height:80px; object-fit:cover; border-radius:6px;" />
             <div>
                 <p><strong>Назва товару:</strong> ${item.product_name}</p>
@@ -235,42 +245,53 @@
             </div>
         `;
 
-        container.appendChild(div);
-    });
-}
-
-        async function increaseQty(id) {
-            await fetch(`/cart/quantity?id=${id}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": token },
-                body: JSON.stringify({ operator: "+" })
+                container.appendChild(div);
             });
+        }
+
+        function increaseQty(productId) {
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+            const item = cart.find(i => i.productId === productId);
+            if (item) {
+                item.qty += 1;
+            } else {
+                cart.push({ productId, qty: 1 });
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
             loadCart();
         }
 
-        async function decreaseQty(id) {
-            await fetch(`/cart/quantity?id=${id}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": token },
-                body: JSON.stringify({ operator: "-" })
-            });
+        function decreaseQty(productId) {
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+            const index = cart.findIndex(i => i.productId === productId);
+            if (index === -1) return;
+
+            cart[index].qty -= 1;
+
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+
+            localStorage.setItem("cart", JSON.parse(localStorage.getItem("cart") || "[]"));
             loadCart();
         }
 
 
-        async function deleteItem(id) {
-            if (!confirm("Удалить товар?")) return;
 
-            await fetch(`/deletecartitem?id=${id}`, {
-                method: "DELETE",
-                credentials: "include",
-                headers: { "Authorization": token },
-            });
+        function deleteItem(productId) {
+            if (!confirm("Видалити товар?")) return;
 
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            cart = cart.filter(i => i.productId !== productId);
+
+            localStorage.setItem("cart", JSON.stringify(cart));
             loadCart();
         }
+
         loadCart()
-        console.log('work');
 
         document.getElementById('submitOrder').addEventListener('click', async () => {
             const data = {
@@ -280,23 +301,37 @@
                 city: document.getElementById('cityInput').value,
                 department: document.getElementById('warehouseRef').value,
                 email: document.getElementById('email').value,
-                comment: document.getElementById('comment').value
+                comment: document.getElementById('comment').value,
+                localCart: JSON.parse(localStorage.getItem("cart") || "[]")
             };
 
             try {
                 const res = await fetch('/create-order', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', "authorization": token },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': token
+                    },
                     body: JSON.stringify(data)
                 });
 
                 const result = await res.json();
 
-                console.log('Order response:', result.message);
-                alert('Замовлення відправлено!');
+                if (res.ok) {
+                    // ✅ Успех — очищаем корзину
+                    localStorage.removeItem("cart");
+                    alert('Замовлення відправлено!');
+                    window.location.href = "/getproducts"; // Можно сразу редирект после успешного заказа
+                } else if (result.errors) {
+                    // ❌ Сервер вернул ошибки
+                    const messages = result.errors.map(e => e.message).join('\n');
+                    alert(messages);
+                } else {
+                    alert('Сталася помилка. Спробуйте ще раз.');
+                }
+
             } catch (err) {
-                console.error('Помилка запиту:', err);
-                alert('Сталася помилка, спробуйте ще раз');
+                alert("Помилка сервера. Спробуйте пізніше.");
             }
         });
         const cityInput = document.getElementById("cityInput");
@@ -358,11 +393,11 @@
 
         // ⛔ при ручном изменении города — блокируем отделения
         cityInput.addEventListener("input", () => {
-        warehouseInput.disabled = true;
-        warehouseInput.value = "";
-        warehouseRefInput.value = "";
+            warehouseInput.disabled = true;
+            warehouseInput.value = "";
+            warehouseRefInput.value = "";
         });
-        
+
         let warehouseTimeout = null;
 
         // когда выбран город — включаем поле отделений

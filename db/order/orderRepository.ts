@@ -6,6 +6,7 @@ export const orderRepository = {
     createOrderItem: order.createOrderItem,
     getOrders: order.getOrders,
     getOreder: order.getOreder,
+    getUserOreders: order.getUserOreders,
     getOrederItem: order.getOrederItem,
     getOrderItems: order.getOrderItems,
     updateStatus: order.updateStatus

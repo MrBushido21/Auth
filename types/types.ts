@@ -65,13 +65,20 @@ export type ProductType = {
     updated_at: string
 }
 
+// export type CartItem = {
+//     id: number
+//     cart_id: number
+//     product_id: number
+//     quantity: number
+//     price: number
+//     added_at: string
+// }
 export type CartItem = {
-    id: number
-    cart_id: number
-    product_id: number
-    quantity: number
+    product_id: number,
+    product_name: string,
+    product_img: string,
+    quantity: number, 
     price: number
-    added_at: string
 }
 
 export type OrderType = {

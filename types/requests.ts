@@ -28,7 +28,8 @@ export type CreateOrderType = {
     city: string;
     department:string
     email: string | null;
-    comment: string | null;    
+    comment: string | null;
+    localCart: any[]    
 }
 export type GetproductsDataType = {
     search:string

@@ -33,6 +33,7 @@ export const getOreder = async (order_id:number):Promise<OrderType> => {
         `, [order_id])
     return order
 }
+
 export const getOrederItem = async (order_id:number):Promise<OrderItemsType> => {
     const order_item:OrderItemsType = await sqlGet(`
         SELECT * FROM order_items WHERE order_id = ?
@@ -65,4 +66,11 @@ export const getOrders = async ():Promise<OrderType[]> => {
 export const getOrderItems = async ():Promise<OrderItemsType[]> => {
     const order_items:OrderItemsType[] = await sqlAll(`SELECT * FROM order_items`)
     return order_items
+}
+
+export const getUserOreders = async (user_id:number):Promise<OrderType[]> => {
+    const orders:OrderType[] = await sqlAll(`
+        SELECT * FROM orders WHERE user_id = ?
+        `, [user_id])
+    return orders
 }

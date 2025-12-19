@@ -139,31 +139,51 @@
     const perPage = 5;
     const token = localStorage.getItem("accessToken");
     async function fetchUser() {
-  try {
-    const res = await fetch('/getuser', {
-      method: "GET",
-      headers: {
-        "authorization": token
+      try {
+        const res = await fetch('/getuser', {
+          method: "GET",
+          headers: { "authorization": token }
+        });
+
+        if (!res.ok) {
+          throw new Error("Не удалось получить данные пользователя");
+        }
+
+        const data = await res.json();
+
+        // Если данных нет или email пустой — предложить авторизоваться
+        if (!data || !data.email) {
+          document.body.innerHTML = `
+        <div style="text-align:center; margin-top:50px;">
+          <h2>Вы не авторизованы</h2>
+          <p>Пожалуйста, <a href="/login">войдите в аккаунт</a>, чтобы просматривать страницу.</p>
+        </div>
+      `;
+          return;
+        }
+
+        // email
+        document.getElementById('user-email').textContent = data.email;
+
+        // аватар, если есть
+        if (data.avatar) {
+          document.getElementById('avatar').src = data.avatar + '?t=' + Date.now();
+        }
+
+        // заказы
+        orders = data.orders || [];
+        renderOrders(orders);
+
+      } catch (err) {
+        console.error('Ошибка при получении данных пользователя', err);
+        document.body.innerHTML = `
+      <div style="text-align:center; margin-top:50px;">
+        <h2>Вы не авторизованы</h2>
+        <p>Пожалуйста, <a href="/login">войдите в аккаунт</a>, чтобы просматривать страницу.</p>
+      </div>
+    `;
       }
-    });
-    const data = await res.json();
-
-    // email
-    document.getElementById('user-email').textContent = data.email;
-
-    // аватар, если есть
-    if (data.avatar) {
-      document.getElementById('avatar').src = data.avatar + '?t=' + Date.now();
     }
-
-    // заказы
-    orders = data.orders || [];
-    renderOrders(orders);
-
-  } catch (err) {
-    console.error('Ошибка при получении данных пользователя', err);
-  }
-}
 
 
     function formatDate(dateStr) {
@@ -199,8 +219,8 @@
         loadMoreBtn.style.display = 'block';
       }
     }
-    
-//Смена емейла
+
+    //Смена емейла
     function changeEmail() {
       const email = prompt('Введите текущий email:');
       if (email) {
@@ -219,7 +239,7 @@
           });
       }
     }
-//===Смена пароля
+    //===Смена пароля
     function changePassword() {
       const email = prompt('Введите email:');
       if (email) {
@@ -239,7 +259,7 @@
       }
     }
 
-//==== Загурзка аватарки
+    //==== Загурзка аватарки
     async function uploadAvatar() {
       const input = document.getElementById('avatarInput');
       if (!input.files.length) {
@@ -275,7 +295,7 @@
       }
     }
 
-//========== Логаут
+    //========== Логаут
     function logout() {
       fetch('/logout', {
         method: 'POST',

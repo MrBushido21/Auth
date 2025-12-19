@@ -81,108 +81,153 @@
 <div id="cart-container"></div>
 <span id="total"></span>
 <div class="btn-order">
-  <a href="/order">Оформить заказ</a>
+  <a id="orderLink" href="/order">Оформить заказ</a>
 </div>
 
 <script>
- const token = localStorage.getItem("accessToken");
-async function loadCart() {
-    const res = await fetch('/getcartitems', {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "authorization": token,
-        "Content-Type": "application/json"
-      },
-    });
+/* ===============================
+   1. Синхронизация с сервером
+================================ */
+async function syncCart() {
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    const data = await res.json(); // массив товаров
-    
-    const items = data.cartItems; // массив товаров
-    const totalPrice = data.totalPrice;
+  const res = await fetch('/getcartitems', {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(cart)
+  });
 
-    const span = document.getElementById("total");
-    
-    span.innerText = `Общая сумма: ${totalPrice} грн`
-    renderCart(items);
+  const data = await res.json();
+
+  renderCart(data.cartItems);
+
+  document.getElementById("total").innerText =
+    `Общая сумма: ${data.totalPrice} грн`;
+
+  const orderLink = document.getElementById("orderLink");
+
+  // 🔴 ЕСЛИ КОРЗИНА ПУСТА
+  if (data.totalPrice === 0) {
+    orderLink.href = "/getproducts";
+    orderLink.textContent = "На страницу товаров";
+  } else {
+    // 🟢 если товары есть — обычное поведение
+    orderLink.href = "/order";
+    orderLink.textContent = "Оформить заказ";
   }
-  
-  function renderCart(items) {
-    const container = document.getElementById("cart-container");
-    container.innerHTML = "";
+}
 
-    if (items.length === 0) {
-      container.innerHTML = "<p>Корзина пуста</p>";
-      return;
-    }
 
-    items.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "cart-item";
+/* ===============================
+   2. Отрисовка корзины
+================================ */
+function renderCart(items) {
+  const container = document.getElementById("cart-container");
+  container.innerHTML = "";
 
-      div.innerHTML = `
-        <img src="${item.product_img}" alt="${item.product_name}" />
-        <div class="cart-item-info">
-          <p><strong>Название товара:</strong> ${item.product_name}</p>
-          <p><strong>Цена:</strong> ${item.price} грн</p>
-          <div class="qty-controls">
-            <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>
-            <span><strong>${item.quantity}</strong></span>
-            <button class="qty-btn" onclick="increaseQty(${item.product_id})">+</button>
-          </div>
-          <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">
-            Удалить товар
-          </button>
+  if (!items || items.length === 0) {
+    container.innerHTML = "<p>Корзина пуста</p>";
+    return;
+  }
+
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "cart-item";
+
+    div.innerHTML = `
+      <img src="${item.product_img}" alt="${item.product_name}">
+      <div class="cart-item-info">
+        <p><strong>Название товара:</strong> ${item.product_name}</p>
+        <p><strong>Цена:</strong> ${item.price} грн</p>
+
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="decreaseQty(${item.product_id})">-</button>
+          <span><strong>${item.quantity}</strong></span>
+          <button class="qty-btn" onclick="increaseQty(${item.product_id})">+</button>
         </div>
-      `;  
-      container.appendChild(div);
-    });
+
+        <button class="btn btn-delete" onclick="deleteItem(${item.product_id})">
+          Удалить товар
+        </button>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+/* ===============================
+   3. Кнопка +
+================================ */
+function increaseQty(productId) {
+  let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const item = cart.find(i => i.productId === productId);
+
+  if (!item) return;
+
+  if (item.qty + 1 > item.products_qty) {
+    alert("Столько товара нет в наличии!");
+    return;
   }
 
-  async function increaseQty(id) {
-    await fetch(`/cart/quantity?id=${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": token },
-      body: JSON.stringify({operator: "+"})
-    });
-    loadCart();
+  item.qty += 1;
+  localStorage.setItem("cart", JSON.stringify(cart));
+  syncCart();
+}
+
+
+
+/* ===============================
+   4. Кнопка -
+================================ */
+function decreaseQty(productId) {
+  let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+  const index = cart.findIndex(i => i.productId === productId);
+  if (index === -1) return;
+
+  cart[index].qty -= 1;
+
+  if (cart[index].qty <= 0) {
+    cart.splice(index, 1);
   }
 
-  async function decreaseQty(id) {
-    await fetch(`/cart/quantity?id=${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": token },
-      body: JSON.stringify({operator: "-"})
-    });
-    loadCart();
-  }
+  localStorage.setItem("cart", JSON.stringify(cart));
+  syncCart();
+}
 
-  async function deleteItem(id) {
-    if (!confirm("Удалить товар?")) return;
+/* ===============================
+   5. Удалить товар
+================================ */
+function deleteItem(productId) {
+  if (!confirm("Удалить товар?")) return;
 
-    await fetch(`/deletecartitem?id=${id}`, {
-      method: "DELETE",
-      credentials: "include",
-      headers: { "Authorization": token },
-    });
+  let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  cart = cart.filter(i => i.productId !== productId);
 
-    loadCart();
-  }
+  localStorage.setItem("cart", JSON.stringify(cart));
+  syncCart();
+}
 
-  async function clearCart() {
-    if (!confirm("Очистить корзину полностью?")) return;
+/* ===============================
+   6. Очистить корзину
+================================ */
+function clearCart() {
+  if (!confirm("Очистить корзину полностью?")) return;
 
-    await fetch('/clearcart', {
-      method: "DELETE",
-      credentials: "include",
-      headers: { "Authorization": token }
-    });
+  localStorage.removeItem("cart");
+  syncCart();
+}
 
-    loadCart();
-  }
-
-  loadCart();
+/* ===============================
+   7. Первая загрузка страницы
+================================ */
+syncCart();
 </script>
+
 
 </body>
 </html>

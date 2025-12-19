@@ -20,40 +20,41 @@
     }
 
     /* ===== Шапка с профилем ===== */
-.header {
-  position: relative;
-}
+    .header {
+      position: relative;
+    }
 
-.user-link {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 8px 14px;
-  background: white;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #2c7be5;
-  font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: background 0.2s;
-}
-.cart-link {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 8px 14px;
-  background: white;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #2c7be5;
-  font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  transition: background 0.2s;
-}
+    .user-link {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 8px 14px;
+      background: white;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #2c7be5;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transition: background 0.2s;
+    }
 
-.user-link:hover {
-  background: #f2f6ff;
-}
+    .cart-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 8px 14px;
+      background: white;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #2c7be5;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transition: background 0.2s;
+    }
+
+    .user-link:hover {
+      background: #f2f6ff;
+    }
 
 
     /* Контейнер поиска + сортировки */
@@ -121,10 +122,10 @@
 
 <body>
   <div class="header">
-  <h1>Список товаров</h1>
-  <a href="/user" class="user-link">👤 Кабинет</a>
-  <a href="/cart" class="cart-link">Корзина</a>
-</div>
+    <h1>Список товаров</h1>
+    <a href="/user" class="user-link">👤 Кабинет</a>
+    <a href="/cart" class="cart-link">Корзина</a>
+  </div>
 
   <!-- =========================================================== -->
 
@@ -134,7 +135,7 @@
   <!-- ========= Поиск + сортировка ========= -->
   <div id="controls">
     <input type="text" id="search" placeholder="Поиск товаров..." oninput="loadProducts()" />
-    
+
     <select id="category" onchange="loadProducts()">
       <option value="">Все категории</option>
     </select>
@@ -155,17 +156,34 @@
     let isLoading = false; // Чтобы не спамили кликами
     let categoriesLoaded = false;
     const token = localStorage.getItem("accessToken");
+    // localStorage.clear();
 
-    function addToCart(productId) {
-      fetch("/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "authorization": token },
-        body: JSON.stringify({ product_id: productId })
-      })
-        .then(r => r.json())
-        .then(() => alert("Товар добавлен в корзину!"))
-        .catch(err => alert("Ошибка: " + err));
+    function addToCart(productId, products_qty) {
+      
+      products_qty = Number(products_qty) || 0; // безопасно приводим к числу
+
+      let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const existing = cart.find(item => item.productId === productId);
+
+      if (existing) {
+        if (existing.qty + 1 > existing.products_qty) {
+          alert("Столько товара нет в наличии!");
+          return;
+        }
+        existing.qty += 1;
+      } else {
+        if (products_qty <= 0) {
+          alert("Товара нет в наличии!");
+          return;
+        }
+        cart.push({ productId, qty: 1, products_qty });
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert("Товар добавлен в корзину!");
     }
+
+
     function addToWish(productId) {
       fetch("/createwishlist", {
         method: "POST",
@@ -183,18 +201,23 @@
     function renderProducts(items) {
       const container = document.getElementById("products");
 
-      // Если это первая страница и товаров нет
       if (items.length === 0 && currentPage === 0) {
         container.innerHTML = '<p>Ничего не найдено</p>';
         document.getElementById("loadMore").style.display = "none";
         return;
       }
 
-      // Добавляем товары к существующим
       items.forEach(item => {
-    const card = document.createElement("div");
-    card.className = "product-card";
-    card.innerHTML = `
+        const card = document.createElement("div");
+        card.className = "product-card";
+
+        // Если товара нет в наличии
+        const outOfStock = item.quantity === 0; // или item.stock === 0
+        if (outOfStock) {
+          card.style.opacity = "0.5";
+        }
+
+        card.innerHTML = `
       <a href="/product?id=${item.id}" class="card-link">
         <img src="${item.image_url}" alt="${item.title}" style="width:100%; border-radius:8px; margin-bottom:10px;">
         <h3>${item.title}</h3>
@@ -202,18 +225,19 @@
       <p>${item.description}</p>
       ${item.sale ? `<p class="price">Скидка ${item.sale * 100}%</p>` : ""}
       <p class="price">${item.price} грн</p>
-      <button onclick="addToCart(${item.id})">Добавить в корзину</button>
+      ${outOfStock ?
+            `<p style="color:red; font-weight:bold;">Товара нет в наличии</p>` :
+            `<button onclick='addToCart(${item.id}, ${JSON.stringify(item.quantity)})'>Добавить в корзину</button>`
+          }
       <button style="margin: 10px 0;" onclick="addToWish(${item.id})">Добавить в избранное</button>
     `;
-    container.appendChild(card);
-  });
+        container.appendChild(card);
+      });
 
-      // Логика кнопки
+      // Кнопка "Загрузить еще"
       if (items.length === limit) {
-        // Если пришло ровно 5 — могут быть ещё товары
         document.getElementById("loadMore").style.display = "block";
       } else {
-        // Если пришло < 5 — товаров больше нет
         document.getElementById("loadMore").style.display = "none";
       }
     }
@@ -227,44 +251,44 @@
       const sort = document.getElementById("sort").value;
       const categoryId = document.getElementById("category").value;
 
-let query = "";
+      let query = "";
 
-if (categoryId) {
-  query = `category_id=${categoryId}`;
-} else {
-  query = `search=${encodeURIComponent(search)}`;
-}
+      if (categoryId) {
+        query = `category_id=${categoryId}`;
+      } else {
+        query = `search=${encodeURIComponent(search)}`;
+      }
 
-fetch(`/getproducts_data?${query}&sort=${sort}&page=${currentPage}&limit=${limit}`)
+      fetch(`/getproducts_data?${query}&sort=${sort}&page=${currentPage}&limit=${limit}`)
 
         .then(res => res.json())
         .then((items) => {
 
-                // ===== наполняем категории ОДИН РАЗ =====
-        if (!categoriesLoaded && items.length > 0) {
-          const select = document.getElementById("category");
-          const map = new Map();
+          // ===== наполняем категории ОДИН РАЗ =====
+          if (!categoriesLoaded && items.length > 0) {
+            const select = document.getElementById("category");
+            const map = new Map();
 
-          items.forEach(item => {
-            map.set(item.category_id, item.category);
-          });
+            items.forEach(item => {
+              map.set(item.category_id, item.category);
+            });
 
-          map.forEach((name, id) => {
-            const option = document.createElement("option");
-            option.value = id;       // ← category_id (для бека)
-            option.textContent = name; // ← category (для пользователя)
-            select.appendChild(option);
-          });
+            map.forEach((name, id) => {
+              const option = document.createElement("option");
+              option.value = id;       // ← category_id (для бека)
+              option.textContent = name; // ← category (для пользователя)
+              select.appendChild(option);
+            });
 
-          categoriesLoaded = true;
-        }
+            categoriesLoaded = true;
+          }
 
-        if (currentPage === 0) {
-          document.getElementById("products").innerHTML = "";
-        }
+          if (currentPage === 0) {
+            document.getElementById("products").innerHTML = "";
+          }
 
-        renderProducts(items);
-        isLoading = false;
+          renderProducts(items);
+          isLoading = false;
         })
         .catch(err => {
           document.getElementById("products").innerHTML = "Ошибка загрузки данных: " + err;
