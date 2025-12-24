@@ -14,15 +14,15 @@ router.get('/orders', async (req, res) => {
     }
 })
 router.get('/admin/full-order', async (req:Request<{}, {}, {}, {id:string}>, res) => {
-    const order_id = chekQueryId(req)
-
+    let order_id:string
+    if (typeof req.query.id === "string") {
+        order_id = req.query.id
+    } else {
+        return res.status(404).json({message: "uncorrect order_id"})
+    }
     try {
-        if (order_id && order_id !== 0) {
-            const result = await servicesCreateOrder.getFullOrders({order_id})
-            return res.status(200).json(result) 
-        } else {
-            return res.status(404).json({message: "uncorrect order_id"})
-        }
+        const result = await servicesCreateOrder.getFullOrders({order_id})
+        return res.status(200).json(result) 
         
     } catch (error:any) {
         return res.status(500).json({error: error.message})

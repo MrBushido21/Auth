@@ -2,15 +2,15 @@ import type { CartItem, OrderItemsType, OrderType } from "../../types/types.js"
 import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
-export const createOrder = async (invoiceId:string, user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
+export const createOrder = async (order_id:string, user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
     comment:string | null, call:string, total_price: number, status:string, created_at:string): Promise<void> => {
     await sqlRun(`
-        INSERT INTO orders (invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
+        INSERT INTO orders (order_id, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        `, [invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
+        `, [order_id, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
 }
 
-export const createOrderItem = async (order_id:number, cartItems: CartItem[]) => {
+export const createOrderItem = async (order_id:string, cartItems: CartItem[]) => {
     cartItems.map(async (item) => {
         await sqlRun(`
             INSERT INTO order_items (order_id, product_id, quantity, price)
@@ -22,19 +22,19 @@ export const createOrderItem = async (order_id:number, cartItems: CartItem[]) =>
 //Get one
 export const getOrederId = async (user_id:number):Promise<OrderType> => {
     const order_id = await sqlGet(`
-        SELECT id FROM orders WHERE user_id = ?
+        SELECT order_id FROM orders WHERE user_id = ?
         ORDER BY created_at DESC
         `, [user_id])
     return order_id
 }
-export const getOreder = async (order_id:number):Promise<OrderType> => {
+export const getOreder = async (order_id:string):Promise<OrderType> => {
     const order:OrderType = await sqlGet(`
-        SELECT * FROM orders WHERE id = ?
+        SELECT * FROM orders WHERE order_id = ?
         `, [order_id])
     return order
 }
 
-export const getOrederItem = async (order_id:number):Promise<OrderItemsType> => {
+export const getOrederItem = async (order_id:string):Promise<OrderItemsType> => {
     const order_item:OrderItemsType = await sqlGet(`
         SELECT * FROM order_items WHERE order_id = ?
         `, [order_id])
@@ -51,10 +51,10 @@ export const deleteOrder = async () => {
 
 //update
 
-export const updateStatus = async (invoiceId:string, status:string) => {
+export const updateStatus = async (order_id:string, status:string) => {
     await sqlRun(`
-        UPDATE orders SET status = ? WHERE invoiceId = ?
-        `, [status, invoiceId])
+        UPDATE orders SET status = ? WHERE order_id = ?
+        `, [status, order_id])
 }
 
 //Get All

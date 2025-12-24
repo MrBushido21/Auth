@@ -64,7 +64,7 @@ export type CartItem = {
     price: number;
 };
 export type OrderType = {
-    id: number;
+    order_id: string;
     user_id: number;
     full_name: string;
     phone_number: string;
@@ -78,7 +78,7 @@ export type OrderType = {
 };
 export type OrderItemsType = {
     id: number;
-    order_id: number;
+    order_id: string;
     product_id: number;
     quantity: number;
     price: number;

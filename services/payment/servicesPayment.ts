@@ -39,13 +39,13 @@ export const ServicesPayment = {
         }
     },
 
-    async savePayment({invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo}:
-        {invoiceId:number, status:string, payMethod:string, amount:number, ccy:number, 
+    async savePayment({order_id, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo}:
+        {order_id:number, status:string, payMethod:string, amount:number, ccy:number, 
             finalAmount:number, modifiedDate:string, paymentInfo:any}
     ) {
     
    try {
-     await repositoryPayment.createPayment(1, invoiceId, status, payMethod, amount, 
+     await repositoryPayment.createPayment(order_id, status, payMethod, amount, 
     ccy, finalAmount, modifiedDate, paymentInfo.tranId, paymentInfo.rrn, paymentInfo.fee, dateNow())
    } catch (error) {
     console.error(error); 

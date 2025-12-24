@@ -4,6 +4,7 @@ import { servicesCreateOrder } from "../../services/orders/services.createOrder.
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import { chekUser } from "../../utils/utils.js";
 import Cart from "../../services/cart/services.cartAdd.js";
+import { checkBank } from "../../middleware/middleware.checkBank.js";
 const router = Router();
 
 
@@ -25,8 +26,10 @@ router.post("/api/payment", checkAuth, async (req, res) => {
 
             
             const {invoiceId, pageUrl} = await ServicesPayment.pay({amount})
-            await servicesCreateOrder.createOrder({invoiceId, user_id, full_name, phone_number, city, department, 
+            const order_id = invoiceId
+            await servicesCreateOrder.createOrder({order_id, user_id, full_name, phone_number, city, department, 
               email, comment, call, localCart})
+            await servicesCreateOrder.createOrderItem({user_id, localCart})
             return res.status(200).json(pageUrl)
         }
     } catch (error:any) {
@@ -36,16 +39,18 @@ router.post("/api/payment", checkAuth, async (req, res) => {
 });
 
 
+const secret = process.env.PAYMENT_SECRET_KEY as string
 
-router.post("/payment/callback", async (req, res) => {
+router.post("/payment/callback", checkBank(secret), async (req:any, res:any) => {
   const {invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo} = req.body
 
   if (status === "success") {
    try {
-     await ServicesPayment.savePayment({invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, 
+    const order_id = invoiceId
+     await ServicesPayment.savePayment({order_id, status, payMethod, amount, ccy, finalAmount, modifiedDate, 
     paymentInfo})
     const order_status = "paid"
-    await servicesCreateOrder.updateStatus({invoiceId, order_status})
+    await servicesCreateOrder.updateStatus({order_id, order_status})
    } catch (error) {
     console.error(error);
    }

@@ -337,11 +337,12 @@
                 phone_number: document.getElementById('phone').value,
                 call: document.getElementById('no_call').checked ? "yes" : "no",
                 city: document.getElementById('cityInput').value,
-                department: document.getElementById('warehouseRef').value,
+                department: document.getElementById('warehouseInput').value,
                 email: document.getElementById('email').value,
                 comment: document.getElementById('comment').value,
                 localCart: JSON.parse(localStorage.getItem("cart") || "[]")
             };
+            
             if (paymentMethod === "online") {
                 try {
                 const res = await fetch('/api/payment', {
@@ -371,7 +372,35 @@
                 alert("Помилка сервера. Спробуйте пізніше.");
                 }   
             } else {
+                data.call = "yes"
+                try {
+                const res = await fetch('/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': token
+                    },
+                    body: JSON.stringify(data)
+                });
 
+                const result = await res.json();
+
+                if (res.ok) {
+                    // ✅ Успех — очищаем корзину
+                    localStorage.removeItem("cart");
+                    alert('Замовлення сформоване!');
+                    window.location.href = "/getproducts"; // Можно сразу редирект после успешного заказа
+                } else if (result.errors) {
+                    // ❌ Сервер вернул ошибки
+                    const messages = result.errors.map(e => e.message).join('\n');
+                    alert(messages);
+                } else {
+                    alert('Сталася помилка. Спробуйте ще раз.');
+                }
+
+            } catch (err) {
+                alert("Помилка сервера. Спробуйте пізніше.");
+            }
             }
             
         });
