@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -113,6 +114,28 @@
             color: white;
             width: 100%;
         }
+        .radio-group {
+    display: flex;
+    gap: 20px; /* Расстояние между радио кнопками */
+    align-items: center;
+    margin-top: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #000; /* Черный цвет кружка, если нужно */
+    cursor: pointer;
+}
+
     </style>
 </head>
 
@@ -175,12 +198,26 @@
             <textarea id="comment" name="comment" rows="4"></textarea>
         </div>
         <div id="cart-container"></div>
+        <div class="form-group">
+            <label>Спосіб оплати</label>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="paymentMethod" value="online" checked />
+                    Онлайн оплата
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="paymentMethod" value="cod" />
+                    Накладений платіж
+                </label>
+            </div>
+        </div>
+
         <div style="font-weight: 700; font-size: 20px;" id="doOplaty"></div>
         <button id="submitOrder">Оформити замовлення</button>
     </div>
 
     <script>
-    const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("accessToken");
 
         async function loadCart() {
             const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -294,6 +331,7 @@
         loadCart()
 
         document.getElementById('submitOrder').addEventListener('click', async () => {
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             const data = {
                 full_name: document.getElementById('fullname').value,
                 phone_number: document.getElementById('phone').value,
@@ -304,9 +342,9 @@
                 comment: document.getElementById('comment').value,
                 localCart: JSON.parse(localStorage.getItem("cart") || "[]")
             };
-
-            try {
-                const res = await fetch('/create-order', {
+            if (paymentMethod === "online") {
+                try {
+                const res = await fetch('/api/payment', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -315,13 +353,12 @@
                     body: JSON.stringify(data)
                 });
 
-                const result = await res.json();
+                const pageUrl = await res.json();
 
                 if (res.ok) {
-                    // ✅ Успех — очищаем корзину
-                    localStorage.removeItem("cart");
-                    alert('Замовлення відправлено!');
-                    window.location.href = "/getproducts"; // Можно сразу редирект после успешного заказа
+                    console.log(pageUrl);
+                    
+                    window.location.href = pageUrl;
                 } else if (result.errors) {
                     // ❌ Сервер вернул ошибки
                     const messages = result.errors.map(e => e.message).join('\n');
@@ -332,7 +369,11 @@
 
             } catch (err) {
                 alert("Помилка сервера. Спробуйте пізніше.");
+                }   
+            } else {
+
             }
+            
         });
         const cityInput = document.getElementById("cityInput");
         const cityList = document.getElementById("cityList");

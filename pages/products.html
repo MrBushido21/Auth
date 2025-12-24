@@ -124,7 +124,11 @@
   <div class="header">
     <h1>Список товаров</h1>
     <a href="/user" class="user-link">👤 Кабинет</a>
-    <a href="/cart" class="cart-link">Корзина</a>
+    <a href="/cart" class="cart-link">
+      Корзина <span id="cart-count"
+        style="background:red; color:white; border-radius:50%; padding:2px 6px; font-size:12px; margin-left:5px;">0</span>
+    </a>
+
   </div>
 
   <!-- =========================================================== -->
@@ -158,9 +162,15 @@
     const token = localStorage.getItem("accessToken");
     // localStorage.clear();
 
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const totalQty = cart.length
+      document.getElementById("cart-count").textContent = totalQty;
+    }
+
+    // Вызывать после добавления в корзину
     function addToCart(productId, products_qty) {
-      
-      products_qty = Number(products_qty) || 0; // безопасно приводим к числу
+      products_qty = Number(products_qty) || 0;
 
       let cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const existing = cart.find(item => item.productId === productId);
@@ -180,9 +190,9 @@
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartCount();
       alert("Товар добавлен в корзину!");
     }
-
 
     function addToWish(productId) {
       fetch("/createwishlist", {
@@ -308,7 +318,10 @@
       fetchProducts();
     }
     // ===== Старт =====
-    window.onload = loadProducts;
+    window.onload = () => {
+  loadProducts();
+  updateCartCount();
+};
   </script>
 
 

@@ -52,5 +52,11 @@ router.get("/otzyvy", async (req, res) => {
 router.get("/wishlist", async (req, res) => {
     res.sendFile("wishlist.html", { root: "./pages" });
 });
+router.get("/peyment/succes", async (req, res) => {
+    res.sendFile("payment.html", { root: "./pages" });
+});
+router.get("/payment/callback", async (req, res) => {
+    res.sendFile("payment.html", { root: "./pages" });
+});
 export default router;
 //# sourceMappingURL=routes.get.html.js.map

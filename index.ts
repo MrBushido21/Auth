@@ -9,6 +9,7 @@ import cartPostRouter from "./routes/cart/routers.post.cart.js"
 import orderPostRouter from "./routes/orders/routers.post.orders.js"
 import orderGetRouter from "./routes/orders/routers.get.orders.js"
 import npGetRouter from "./routes/orders/routers.get.novaposhta.js"
+import paymentPostRouter from "./routes/orders/routers.post.payment.js"
 import userGetRouter from "./routes/user/router.get.user.js"
 import userPostRouter from "./routes/user/router.post.user.js"
 import rewieGetRouter from "./routes/rewie/routers.get.rewie.js"
@@ -25,6 +26,7 @@ import { deleteOrder } from "./db/order/db.dao.js";
 import { createTableRewies } from "./db/rewies/db.createtable.js";
 import { updateRating } from "./db/rewies/db.dao.js";
 import { createTableWishlist } from "./db/wishlist/db.createTebale.js";
+import { CreatePaymentTable } from "./db/payment/db.createTable.js";
 
 
 const app = express();
@@ -35,6 +37,7 @@ await createTableUsers()
 await createTables()
 await createTableRewies()
 await createTableWishlist()
+await CreatePaymentTable()
 
 const jsonBodyModdleweare = express.json()
 app.use(jsonBodyModdleweare)
@@ -48,6 +51,7 @@ app.use('/', cartPostRouter)
 app.use('/', orderPostRouter)
 app.use('/', orderGetRouter)
 app.use('/', npGetRouter)
+app.use('/', paymentPostRouter)
 app.use('/', userGetRouter)
 app.use('/', userPostRouter)
 app.use('/', rewieGetRouter)

@@ -2,12 +2,12 @@ import type { CartItem, OrderItemsType, OrderType } from "../../types/types.js"
 import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
-export const createOrder = async (user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
+export const createOrder = async (invoiceId:string, user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
     comment:string | null, call:string, total_price: number, status:string, created_at:string): Promise<void> => {
     await sqlRun(`
-        INSERT INTO orders (user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        `, [user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
+        INSERT INTO orders (invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `, [invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
 }
 
 export const createOrderItem = async (order_id:number, cartItems: CartItem[]) => {
@@ -51,10 +51,10 @@ export const deleteOrder = async () => {
 
 //update
 
-export const updateStatus = async (id:number, status:string) => {
+export const updateStatus = async (invoiceId:string, status:string) => {
     await sqlRun(`
-        UPDATE orders SET status = ? WHERE id = ?
-        `, [status, id])
+        UPDATE orders SET status = ? WHERE invoiceId = ?
+        `, [status, invoiceId])
 }
 
 //Get All

@@ -3,12 +3,12 @@ import { dateNow } from "../../utils/utils.js"
 import Cart from "../cart/services.cartAdd.js"
 
 export const servicesCreateOrder = {
-    async createOrder({user_id, full_name, phone_number, city, department, email, comment, call, localCart}: 
-        {user_id: number, full_name:string, phone_number: number, city:string, department:string, email:string | null, comment:string | null, call:string, localCart:any[]}) {
+    async createOrder({invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, localCart}: 
+        {invoiceId:string, user_id: number, full_name:string, phone_number: number, city:string, department:string, email:string | null, comment:string | null, call:string, localCart:any[]}) {
            try {
             const cart = new Cart(localCart)
             const total_price = await cart.getTotalCartPrice()
-            await orderRepository.createOrder(user_id, full_name, String(phone_number), city, department, email, comment, call, total_price, "paid", dateNow())          
+            await orderRepository.createOrder(invoiceId, user_id, full_name, String(phone_number), city, department, email, comment, call, total_price, "in procces", dateNow())          
            } catch (error) {
             console.error(error);            
            }
@@ -47,7 +47,7 @@ export const servicesCreateOrder = {
         return response
     },
 
-    async updateStatus({order_id, status}: {order_id:number, status:string}) {
-      await orderRepository.updateStatus(+order_id, status)   
+    async updateStatus({invoiceId, order_status}: {invoiceId:string, order_status:string}) {
+      await orderRepository.updateStatus(invoiceId, order_status)   
     } 
 }
