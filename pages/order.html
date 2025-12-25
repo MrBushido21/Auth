@@ -227,7 +227,7 @@
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
-                    "authorization": token
+                    "authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify(cart)
             });
@@ -349,7 +349,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'authorization': token
+                        'authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(data)
                 });
@@ -378,7 +378,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'authorization': token
+                        'authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(data)
                 });

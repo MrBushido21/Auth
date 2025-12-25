@@ -99,7 +99,7 @@ async function createProduct() {
   const res = await fetch("http://localhost:3000/createproduct", {
     method: "POST",
     headers: {
-      authorization: "",
+      authorization: "", //`Bearer ${token}`
     },
     body: formData, // ⬅️ ВАЖНО
   });

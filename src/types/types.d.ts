@@ -98,4 +98,5 @@ export type wishListType = {
     user_id: number;
     product_id: number;
 };
+export type target_idType = 123 | 313 | 322 | 221 | 413 | 435 | 533 | 646 | 849 | 535 | 532 | 654 | 989 | 523 | 632 | 732 | 832 | 283;
 //# sourceMappingURL=types.d.ts.map

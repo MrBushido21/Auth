@@ -197,7 +197,7 @@
     function addToWish(productId) {
       fetch("/createwishlist", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "authorization": token },
+        headers: { "Content-Type": "application/json", "authorization": `Bearer ${token}` },
         body: JSON.stringify({ product_id: productId })
       })
         .then(r => r.json())

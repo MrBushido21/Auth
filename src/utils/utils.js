@@ -1,9 +1,21 @@
 import bcrypt from "bcryptjs";
 import jwt, {} from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import { error } from "console";
-import { getUserForId } from "../db/auth/db.dao.js";
 import rateLimit from "express-rate-limit";
+import { orderRepository } from "../db/order/orderRepository.js";
+import fs from "fs";
+import path from "path";
+export const chekOrderStatus = async (invoiceId) => {
+    try {
+        const order = await orderRepository.getOreder(invoiceId);
+        if (order.status === "paid") {
+            return;
+        }
+    }
+    catch (error) {
+        console.error(error);
+    }
+};
 export const generateCode = () => {
     return Math.floor(100000 + Math.random() * 900000);
 };
@@ -96,7 +108,7 @@ export const decodedRefreshToken = (token) => {
     }
 };
 //Отправка письма
-export const sendlerEmailCode = (email, code) => {
+export const sendlerEmailCode = (email, code, subject) => {
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -107,7 +119,7 @@ export const sendlerEmailCode = (email, code) => {
     const mailOptions = {
         from: 'Authly',
         to: email,
-        subject: "Confirm your email",
+        subject: subject ? subject : "Confirm your email",
         text: code,
     };
     transporter.sendMail(mailOptions, (error, info) => {
@@ -148,5 +160,27 @@ export const chekQueryId = (req) => {
         return 0;
     }
     return order_id;
+};
+// Удаляю фото после загрузки
+export const removeLocalFile = (filePath) => {
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            console.error("Error deleting file:", err);
+        }
+        else {
+            console.log("File deleted:", filePath);
+        }
+    });
+};
+//Создаине логов
+export const createLog = (user_id, action, target_id, target_type, description) => {
+    const params = {
+        user_id,
+        action,
+        target_id,
+        target_type,
+        description
+    };
+    return params;
 };
 //# sourceMappingURL=utils.js.map

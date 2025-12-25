@@ -5,6 +5,7 @@ import authRouter from "./routes/auth/routes.post.auth.js";
 import productsPostRouter from "./routes/products/routers.post.products.js";
 import productsGetRouter from "./routes/products/routers.get.products.js";
 import htmlRouter from "./routes/routes.get.html.js";
+import logsRouter from "./routes/routes.get.logs.js";
 import cartPostRouter from "./routes/cart/routers.post.cart.js";
 import orderPostRouter from "./routes/orders/routers.post.orders.js";
 import orderGetRouter from "./routes/orders/routers.get.orders.js";
@@ -24,11 +25,19 @@ import { dateExpire, sendlerEmailCode } from "./utils/utils.js";
 import { createTables } from "./db/products/db.createTable.js";
 import { deleteOrder } from "./db/order/db.dao.js";
 import { createTableRewies } from "./db/rewies/db.createtable.js";
-import { updateRating } from "./db/rewies/db.dao.js";
 import { createTableWishlist } from "./db/wishlist/db.createTebale.js";
 import { CreatePaymentTable } from "./db/payment/db.createTable.js";
+import { errorHandler } from "./cfg/logs/handlerExpress.js";
+import morgan from "morgan";
+import { log, logError } from "./cfg/logs/logger.js";
+import { logsCfg } from "./cfg/logs/appLogs.js";
 const app = express();
 const port = process.env.PORT || 3000;
+process.on("unhandledRejection", (reason) => logError(reason));
+process.on("uncaughtException", (err) => {
+    logError(err);
+    process.exit(1);
+});
 const run = async () => {
     await createTableUsers();
     await createTables();
@@ -38,7 +47,9 @@ const run = async () => {
     const jsonBodyModdleweare = express.json();
     app.use(jsonBodyModdleweare);
     app.use(cookieParser());
+    logsCfg(app); // Логи сеервер
     app.use("/", htmlRouter);
+    app.use("/", logsRouter);
     app.use('/', authRouter);
     app.use('/', productsPostRouter);
     app.use('/', productsGetRouter);
@@ -54,6 +65,7 @@ const run = async () => {
     app.use('/', wishlistGetRouter);
     app.use('/', wishlistPostRouter);
     app.use('/', wishlistDeleteRouter);
+    app.use(errorHandler); // В конце всех роутов
     app.get('/', async (req, res) => {
         // deleteAll()  
         // deleteOrder()

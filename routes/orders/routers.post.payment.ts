@@ -2,9 +2,10 @@ import { Router } from "express";
 import { ServicesPayment } from "../../services/payment/servicesPayment.js";
 import { servicesCreateOrder } from "../../services/orders/services.createOrder.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
-import { chekUser } from "../../utils/utils.js";
+import { chekOrderStatus, chekUser } from "../../utils/utils.js";
 import Cart from "../../services/cart/services.cartAdd.js";
 import { checkBank } from "../../middleware/middleware.checkBank.js";
+import { orderRepository } from "../../db/order/orderRepository.js";
 const router = Router();
 
 
@@ -43,17 +44,23 @@ const secret = process.env.PAYMENT_SECRET_KEY as string
 
 router.post("/payment/callback", checkBank(secret), async (req:any, res:any) => {
   const {invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo} = req.body
-
+  const force = false
   if (status === "success") {
    try {
     const order_id = invoiceId
+    chekOrderStatus(order_id)
      await ServicesPayment.savePayment({order_id, status, payMethod, amount, ccy, finalAmount, modifiedDate, 
     paymentInfo})
     const order_status = "paid"
-    await servicesCreateOrder.updateStatus({order_id, order_status})
+    await servicesCreateOrder.updateStatus({order_id, order_status, force})
    } catch (error) {
     console.error(error);
    }
+  } else if (status === "failed" || status === "expired") {
+    const order_id = invoiceId
+    chekOrderStatus(order_id)
+    const order_status = "payment_failed"
+    await servicesCreateOrder.updateStatus({order_id, order_status, force})
   }
 res.sendStatus(200);
 });

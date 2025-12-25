@@ -1,7 +1,7 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
-import type { UsersType } from "../../types/types.js";
-import { getCodeForId, getUserForId, updateRefreshToken} from "../../db/auth/db.dao.js";
-import { createToken, dateExpire, decodedAccsesToken, generateCode, limiter, options, sendlerEmailCode, } from "../../utils/utils.js";
+import type { target_idType, UsersType } from "../../types/types.js";
+import { getCodeForId, getUserForEmail, getUserForId, updateRefreshToken} from "../../db/auth/db.dao.js";
+import { createLog, createToken, dateExpire, decodedAccsesToken, generateCode, limiter, options, sendlerEmailCode, } from "../../utils/utils.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import { registerShemas } from "../../shemas/validation.js";
 import { validation } from "../../middleware/middleware.validation.js";
@@ -14,6 +14,7 @@ import { resetpasswordService } from "../../services/auth/services.resetpassword
 import { changepasswordService } from "../../services/auth/services.changepassword.js";
 import type { AuthType, ChangepasswordoremailType, ResetType, VerifyType } from "../../types/requests.js";
 import { error } from "console";
+import { servicesLogs } from "../../services/logs/servicesLogs.js";
 
 
 const router = Router();
@@ -24,7 +25,10 @@ router.post("/registration", async (req: Request<{}, {}, AuthType>, res: Respons
 
  try {
   const user = await userService.register({email, password_hash})
-  res.status(200).json({ message: {id: user.id, email: user.email} })
+
+  const params = createLog(user.id, "Зарегестрировались", 632, "Регистрация", "Пользователь зарегестрирован")
+  await servicesLogs.createLog(params)
+  return res.status(200).json({ message: {id: user.id, email: user.email} })
  } catch (error: any) {
   if (error.message === "Email taken") {
     return res.status(409).json({error: "Email alredy exists"})
@@ -42,6 +46,8 @@ router.post('/verify', limiter, async (req: Request<{}, {}, VerifyType>, res: Re
   //Проблема в sql запросе
  try {
   const [accsesToken, refreshToken] = await verifyService.veify({ id, verifeid_code })
+  const params = createLog(id, "Верефицирован", 732, "Верефикация", "Пользователь Верефицирован")
+  await servicesLogs.createLog(params)
   res.cookie("refresh_token", refreshToken, options);
   return res.status(200).json({access_token: accsesToken})
  } catch (error:any) {
@@ -64,7 +70,8 @@ router.post('/verify/new', async (req: Request<{}, {}, {id:number, email:string}
   await authRepository.updateVerifyCode(record.id, verifeid_code, dateExpire(120000))
 
  sendlerEmailCode(email, verifeid_code)
-
+  const params = createLog(id, "Запрос на повторный код", 832, "Повторить код", "Пользователь сделал запрос на повторный код")
+  await servicesLogs.createLog(params)
   return res.status(200).json({message: "ok"})
 })
 
@@ -76,6 +83,9 @@ router.post("/login", limiter, async (req: Request<{}, {}, AuthType, {}>, res: R
     const [accsesToken, refreshToken] = await loginService.login({ email, password_hash })
     res.cookie("refresh_token", refreshToken, options);
     res.cookie("cart_id", 40567, options);
+    const user_id = (await getUserForEmail(email)).id
+    const params = createLog(user_id, "Вход в кабинет", 283, "Вошел в кабинет", "Пользователь Вошел в кабинет")
+    await servicesLogs.createLog(params)
     return res.status(200).json({
       access_token: accsesToken,
     })

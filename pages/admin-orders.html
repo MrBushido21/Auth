@@ -23,7 +23,7 @@
   <script>
     async function fetchOrders() {
       try {
-        const response = await fetch('/orders'); // эндпоинт для получения заказов ======================= TOKEN
+        const response = await fetch('/orders'); // эндпоинт для получения заказов ======================= TOKEN `Bearer ${token}`
         if (!response.ok) throw new Error('Ошибка при получении заказов');
 
         const orders = await response.json();

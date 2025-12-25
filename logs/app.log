@@ -1,0 +1,161 @@
+[2025-12-25T14:32:58.172Z] INFO
+GET /cart 304 5.553 ms
+--------------------------------------------------
+[2025-12-25T14:32:58.246Z] INFO
+POST /getcartitems 200 6.135 ms
+--------------------------------------------------
+[2025-12-25T14:32:58.265Z] INFO
+GET /null 404 2.196 ms
+--------------------------------------------------
+[25.12.2025 16:35:06] INFO
+GET /cart 304 8.715 ms
+--------------------------------------------------
+[25.12.2025 16:35:07] INFO
+POST /getcartitems 200 5.537 ms
+--------------------------------------------------
+[25.12.2025 16:35:07] INFO
+GET /null 404 2.609 ms
+--------------------------------------------------
+[25.12.2025 16:35:19] INFO
+GET /null 404 1.668 ms
+--------------------------------------------------
+[25.12.2025 16:35:20] INFO
+GET /cart 304 1.128 ms
+--------------------------------------------------
+[25.12.2025 16:35:20] INFO
+POST /getcartitems 200 6.047 ms
+--------------------------------------------------
+[25.12.2025 16:35:20] INFO
+GET /null 404 1.034 ms
+--------------------------------------------------
+[25.12.2025 16:39:14] INFO
+GET /cart 304 7.766 ms
+--------------------------------------------------
+[25.12.2025 16:39:14] INFO
+POST /getcartitems 200 6.250 ms
+--------------------------------------------------
+[25.12.2025 16:39:14] INFO
+GET /null 404 4.499 ms
+--------------------------------------------------
+[25.12.2025 16:39:40] ERROR
+TypeError: tokens.localtime is not a function
+    at eval (eval at compile (D:\projects\Auth\node_modules\morgan\index.js:411:10), <anonymous>:5:25)
+    at Array.logRequest (D:\projects\Auth\node_modules\morgan\index.js:122:18)
+    at listener (D:\projects\Auth\node_modules\morgan\node_modules\on-finished\index.js:169:15)
+    at onFinish (D:\projects\Auth\node_modules\morgan\node_modules\on-finished\index.js:100:5)
+    at callback (D:\projects\Auth\node_modules\ee-first\index.js:55:10)
+    at ServerResponse.onevent (D:\projects\Auth\node_modules\ee-first\index.js:93:5)
+    at ServerResponse.emit (node:events:520:35)
+    at onFinish (node:_http_outgoing:1026:10)
+    at afterWrite (node:internal/streams/writable:708:5)
+    at afterWriteTick (node:internal/streams/writable:694:10)
+--------------------------------------------------
+[25.12.2025 16:40:05] ERROR
+TypeError: tokens.localtime is not a function
+    at eval (eval at compile (D:\projects\Auth\node_modules\morgan\index.js:411:10), <anonymous>:5:25)
+    at Array.logRequest (D:\projects\Auth\node_modules\morgan\index.js:122:18)
+    at listener (D:\projects\Auth\node_modules\morgan\node_modules\on-finished\index.js:169:15)
+    at onFinish (D:\projects\Auth\node_modules\morgan\node_modules\on-finished\index.js:100:5)
+    at callback (D:\projects\Auth\node_modules\ee-first\index.js:55:10)
+    at ServerResponse.onevent (D:\projects\Auth\node_modules\ee-first\index.js:93:5)
+    at ServerResponse.emit (node:events:520:35)
+    at onFinish (node:_http_outgoing:1026:10)
+    at afterWrite (node:internal/streams/writable:708:5)
+    at afterWriteTick (node:internal/streams/writable:694:10)
+--------------------------------------------------
+[25.12.2025 16:41:16] INFO
+25.12.2025 16:41:16 GET /cart 304 6.265 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:41:16] INFO
+25.12.2025 16:41:16 POST /getcartitems 200 6.627 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:41:16] INFO
+25.12.2025 16:41:16 GET /null 404 2.510 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:43:22] INFO
+25.12.2025 16:43:22 GET /cart 304 13.441 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:43:22] INFO
+25.12.2025 16:43:22 POST /getcartitems 200 5.067 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:43:22] INFO
+25.12.2025 16:43:22 GET /null 404 3.391 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:43:31] INFO
+25.12.2025 16:43:31 GET /null 404 2.117 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:43:32] INFO
+25.12.2025 16:43:32 GET /cart 304 1.461 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:43:33] INFO
+25.12.2025 16:43:33 POST /getcartitems 200 5.628 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:43:33] INFO
+25.12.2025 16:43:33 GET /null 404 1.479 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:43:43] INFO
+25.12.2025 16:43:43 GET /cart 304 0.697 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:43:43] INFO
+25.12.2025 16:43:43 POST /getcartitems 200 2.233 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:43:43] INFO
+25.12.2025 16:43:43 GET /null 404 0.894 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:44:24] INFO
+25.12.2025 16:44:24 GET /null 404 11.394 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:44:26] INFO
+25.12.2025 16:44:26 GET /cart 304 3.423 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:44:26] INFO
+25.12.2025 16:44:26 POST /getcartitems 200 6.311 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:44:26] INFO
+25.12.2025 16:44:26 GET /null 404 1.043 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:44:26] INFO
+25.12.2025 16:44:26 GET /order 304 1.367 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:44:27] INFO
+25.12.2025 16:44:27 POST /getcartitems 200 1.767 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:44:27] INFO
+25.12.2025 16:44:27 GET /null 404 0.634 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:44:29] INFO
+25.12.2025 16:44:29 POST /api/payment 200 579.945 ms body={"full_name":"Oleg Lis","phone_number":"380688888888","call":"yes","city":"","department":"","email":"","comment":"","localCart":[{"productId":3,"qty":1,"products_qty":7}]} query={}
+--------------------------------------------------
+[25.12.2025 16:44:29] ERROR
+Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: order_items.product_img
+--------------------------------------------------
+[25.12.2025 16:46:21] INFO
+25.12.2025 16:46:21 GET /getproducts 304 22.109 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:46:22] INFO
+25.12.2025 16:46:22 GET /getproducts_data?search=&sort=asc&page=0&limit=5 304 5.294 ms body={} query={"search":"","sort":"asc","page":"0","limit":"5"}
+--------------------------------------------------
+[25.12.2025 16:46:22] INFO
+25.12.2025 16:46:22 GET /null 404 3.263 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:46:23] INFO
+25.12.2025 16:46:23 GET /cart 304 0.971 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:46:23] INFO
+25.12.2025 16:46:23 POST /getcartitems 200 7.880 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:46:23] INFO
+25.12.2025 16:46:23 GET /null 404 2.126 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:46:24] INFO
+25.12.2025 16:46:24 GET /order 304 0.971 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:46:24] INFO
+25.12.2025 16:46:24 POST /getcartitems 200 12.940 ms body=[{"productId":3,"qty":1,"products_qty":7}] query={}
+--------------------------------------------------
+[25.12.2025 16:46:24] INFO
+25.12.2025 16:46:24 GET /null 404 2.423 ms body={} query={}
+--------------------------------------------------
+[25.12.2025 16:46:26] INFO
+25.12.2025 16:46:26 POST /api/payment 200 471.024 ms body={"full_name":"Oleg Lis","phone_number":"380688888888","call":"yes","city":"","department":"","email":"","comment":"","localCart":[{"productId":3,"qty":1,"products_qty":7}]} query={}
+--------------------------------------------------

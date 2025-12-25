@@ -3,6 +3,7 @@ import { checkAuth } from "../../middleware/middleware.auth.js";
 import { servicesRewie } from "../../services/rewie/services.rewie.js";
 import Admin from "../../services/admin/services.admin.js";
 import type { CreaterewieType } from "../../types/requests.js";
+import { number } from "zod";
 
 const router = Router()
       
@@ -33,6 +34,9 @@ router.post('/createrewie', checkAuth, async (req:Request<{}, {}, CreaterewieTyp
         quantity: 0,
         rating: rating,
         qntrewies: 0,
+        public_id:"", 
+        category:"", 
+        sale:0,
         created_at: "",
         updated_at: ""
     }

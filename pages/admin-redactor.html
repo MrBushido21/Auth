@@ -89,7 +89,7 @@
       fetch("/cart/add", {
         method: "POST",
         headers: { "Content-Type": "application/json", 
-        "authorization": ""
+        "authorization": "" // `Bearer ${token}`
        },
         body: JSON.stringify({ product_id: productId, quantity: 1})
         

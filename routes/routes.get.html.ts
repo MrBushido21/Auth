@@ -17,8 +17,14 @@ router.get("/admin/orders", (req: Request, res: Response) => {
 router.get("/admin/fullorder", (req: Request, res: Response) => {
     res.sendFile("admin-fullorder.html", { root: "./pages" });
 });
+router.get("/fullorder", (req: Request, res: Response) => {
+    res.sendFile("user-fullorder.html", { root: "./pages" });
+});
 router.get("/admin/redactor", (req: Request, res: Response) => {
     res.sendFile("admin-redactor.html", { root: "./pages" });
+});
+router.get("/admin/logs", (req: Request, res: Response) => {
+    res.sendFile("admin-logs.html", { root: "./pages" });
 });
 router.get("/books", (req: Request, res: Response) => {
     res.sendFile("book.html", { root: "./pages" });

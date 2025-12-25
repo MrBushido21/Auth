@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,40 +13,48 @@
       padding: 20px;
       background: #f7f7f7;
     }
+
     h1 {
       text-align: center;
       margin-bottom: 30px;
     }
+
     .card {
       background: white;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
       margin-bottom: 25px;
     }
+
     .row {
       display: flex;
       justify-content: space-between;
       padding: 6px 0;
       border-bottom: 1px solid #eee;
     }
+
     .row:last-child {
       border-bottom: none;
     }
+
     .label {
       font-weight: bold;
     }
+
     .back-link {
       display: inline-block;
       margin-bottom: 20px;
       text-decoration: none;
       color: #007bff;
     }
+
     .back-link:hover {
       text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
 
   <a href="/admin/orders" class="back-link">← Назад к заказам</a>
@@ -64,7 +73,7 @@
       }
 
       try {
-        const response = await fetch(`/admin/full-order?id=${id}`);
+        const response = await fetch(`/admin/full-order?id=${id}`); //`Bearer ${token}`
         if (!response.ok) throw new Error("Ошибка получения данных");
 
         const data = await response.json();
@@ -100,11 +109,19 @@
           </div>
 
           <div class="card">
-            <h2>Товар в заказе</h2>
-            <div class="row"><span class="label">ID товара:</span> <span>${order_item.product_id}</span></div>
-            <div class="row"><span class="label">Количество:</span> <span>${order_item.quantity}</span></div>
-            <div class="row"><span class="label">Цена:</span> <span>${order_item.price} грн</span></div>
-          </div>
+  <h2>Товары в заказе</h2>
+  <div class="row">
+    <span class="label">Название:</span>
+    <span>${order_item.product_name}</span>
+  </div>
+  <div class="row">
+    <span class="label">Фото:</span>
+    <span><img src="${order_item.product_img}" alt="${order_item.product_name}" style="max-width:100px; border-radius:5px;"></span>
+  </div>
+  <div class="row"><span class="label">ID товара:</span> <span>${order_item.product_id}</span></div>
+  <div class="row"><span class="label">Количество:</span> <span>${order_item.quantity}</span></div>
+  <div class="row"><span class="label">Цена:</span> <span>${order_item.price} грн</span></div>
+</div>
         `;
       } catch (err) {
         document.getElementById("orderContainer").innerHTML =
@@ -117,4 +134,5 @@
   </script>
 
 </body>
+
 </html>

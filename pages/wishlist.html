@@ -125,7 +125,7 @@
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
-                    "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE4MzY1OCwiZXhwIjoxNzY1MTg3MjU4fQ.CQG_y5wVxlQGtGMt_MOR-UKJl8jesfbab5xNBEHixYM"
+                    "authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({ product_id: productId })
             })
@@ -191,7 +191,7 @@
                 document.getElementById("products").innerHTML = "Загрузка...";
             }
             fetch(`/getwishlist`, {
-                headers: { "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NTE4MzY1OCwiZXhwIjoxNzY1MTg3MjU4fQ.CQG_y5wVxlQGtGMt_MOR-UKJl8jesfbab5xNBEHixYM" },
+                headers: { "authorization": `Bearer ${token}` },
             })
                 .then(res => res.json())
                 .then((items) => {

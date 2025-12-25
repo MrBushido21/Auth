@@ -6,7 +6,7 @@ import { generateCode, options } from "../utils/utils.js"
 
 //проверка атентификации по токену
 export const checkAuth = (req: Request, res: Response, next: NextFunction): void | Response => {
-  const token = req.headers.authorization
+  const token = req.headers.authorization?.split(" ")[1]
   
   if (token) {
     try {  

@@ -47,9 +47,9 @@ export const servicesCreateOrder = {
         return response
     },
 
-    async updateStatus({order_id, order_status}: {order_id:string, order_status:string}) {
+    async updateStatus({order_id, order_status, force}: {order_id:string, order_status:string, force:boolean}) {
       try {
-        await orderRepository.updateStatus(order_id, order_status)
+        await orderRepository.updateStatus(order_id, order_status, force)
       } catch (error) {
         console.error(error);
         

@@ -111,3 +111,23 @@ export type wishListType = {
     user_id: number
     product_id:number    
 }
+
+// create_order	Создан заказ 123 
+// update_order_status	Изменён статус заказа 313
+// cancel_order	Отменён заказ 322
+// create_product	Добавлен товар 221
+// update_product	Изменён товар 413 
+// delete_product	Удалён товар 435
+// add_to_cart	Пользователь добавил товар в корзину 533
+// remove_from_cart	Пользователь удалил товар из корзины 646
+// login	Пользователь или админ вошёл 849
+// logout	Пользователь или админ вышел 535
+// update_user	Изменён профиль пользователя 532 
+// delete_user	Удалён пользователь 654
+// approve_review	Одобрен отзыв на товар 989
+// update_setting	Изменены настройки магазина 523
+// registration регитсрация 632
+// verify верификация 732
+// verify/new запрос на новый код 832
+
+export type target_idType = 123 | 313 | 322 | 221 | 413 | 435 | 533 | 646 | 849 | 535 | 532 | 654 | 989 | 523 | 632 | 732 | 832 | 283

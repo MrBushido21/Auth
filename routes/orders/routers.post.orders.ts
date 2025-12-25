@@ -30,8 +30,9 @@ const router = Router();
             const order_id = generateCode().toString() 
             await servicesCreateOrder.createOrder({order_id, user_id, full_name, phone_number, city, department, email, comment, call, localCart})
             await servicesCreateOrder.createOrderItem({user_id, localCart})
-            const order_status = "pri otrimany"
-            await servicesCreateOrder.updateStatus({order_id, order_status})
+            const order_status = "pri_otrimany"
+            const force = true
+            await servicesCreateOrder.updateStatus({order_id, order_status, force})
             return res.status(200).json({message: "order has created"})
         }
     } catch (error:any) {
@@ -48,7 +49,7 @@ router.patch('/order/update-status', checkAuth, async (req: Request<{}, {}, {sta
     }
 
     try {
-        await servicesCreateOrder.updateStatus({order_id, order_status})
+        await servicesCreateOrder.updateStatus({order_id, order_status, force: true})
         return res.status(200).json({message: "status was updated"})
         
     } catch (error:any) {
