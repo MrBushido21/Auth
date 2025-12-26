@@ -49,9 +49,14 @@ await createTableRewies()
 await createTableWishlist()
 await CreatePaymentTable()
 
-const jsonBodyModdleweare = express.json()
-app.use(jsonBodyModdleweare)
-app.use(cookieParser());
+app.use(express.json({
+  verify: (req: any, res, buf) => {
+    req.rawBody = buf
+  }
+}))
+
+app.use(cookieParser())
+
 
 logsCfg(app) // Логи сеервер
 

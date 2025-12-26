@@ -7,6 +7,9 @@ router.get("/login", (req, res) => {
 router.get("/verify", (req, res) => {
     res.sendFile("verify.html", { root: "./pages" });
 });
+router.get("/resetpage", (req, res) => {
+    res.sendFile("reset.html", { root: "./pages" });
+});
 router.get("/admin/createitems", (req, res) => {
     res.sendFile("admin-createitems.html", { root: "./pages" });
 });

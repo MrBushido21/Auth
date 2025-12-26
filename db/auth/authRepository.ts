@@ -11,7 +11,6 @@ export const authRepository = {
     getTokenForId: auth.getTokenForId,
     getResetTokenForKey: auth.getResetTokenForKey,
     getUserForEmail: auth.getUserForEmail,
-    getUserForToken: auth.getUserForToken,
     getUsers: auth.getUsers,
     deleteUser: auth.deleteUser,
     deleteAll: auth.deleteAll,

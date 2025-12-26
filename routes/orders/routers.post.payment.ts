@@ -2,9 +2,9 @@ import { Router } from "express";
 import { ServicesPayment } from "../../services/payment/servicesPayment.js";
 import { servicesCreateOrder } from "../../services/orders/services.createOrder.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
-import { chekOrderStatus, chekUser } from "../../utils/utils.js";
+import { chekOrderStatus, chekUser, generateCode } from "../../utils/utils.js";
 import Cart from "../../services/cart/services.cartAdd.js";
-import { checkBank } from "../../middleware/middleware.checkBank.js";
+import { verifyBankSign } from "../../middleware/middleware.verifyBankSign.js";
 import { orderRepository } from "../../db/order/orderRepository.js";
 const router = Router();
 
@@ -24,12 +24,11 @@ router.post("/api/payment", checkAuth, async (req, res) => {
             }
             
             const amount = total_price * 100
-
-            
-            const {invoiceId, pageUrl} = await ServicesPayment.pay({amount})
-            const order_id = invoiceId
-            await servicesCreateOrder.createOrder({order_id, user_id, full_name, phone_number, city, department, 
+            let order_id = generateCode()
+            await servicesCreateOrder.createOrder({order_id, invoiceId: "", user_id, full_name, phone_number, city, department, 
               email, comment, call, localCart})
+            const {invoiceId, pageUrl} = await ServicesPayment.pay({amount, order_id})
+            await servicesCreateOrder.updateInvoiceId({order_id, invoiceId})
             await servicesCreateOrder.createOrderItem({user_id, localCart})
             return res.status(200).json(pageUrl)
         }
@@ -42,29 +41,49 @@ router.post("/api/payment", checkAuth, async (req, res) => {
 
 const secret = process.env.PAYMENT_SECRET_KEY as string
 
-router.post("/payment/callback", checkBank(secret), async (req:any, res:any) => {
+router.post("/payment/callback", verifyBankSign, async (req:any, res:any) => {
+  
   const {invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo} = req.body
   const force = false
   if (status === "success") {
    try {
-    const order_id = invoiceId
-    chekOrderStatus(order_id)
-     await ServicesPayment.savePayment({order_id, status, payMethod, amount, ccy, finalAmount, modifiedDate, 
+    chekOrderStatus(invoiceId)
+     await ServicesPayment.savePayment({invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, 
     paymentInfo})
     const order_status = "paid"
-    await servicesCreateOrder.updateStatus({order_id, order_status, force})
-   } catch (error) {
+    await servicesCreateOrder.updateStatus({invoiceId, order_status, force})
+   } catch (error:any) {
     console.error(error);
+    return res.status(error.status || 500).json({error: error.message})   
    }
   } else if (status === "failed" || status === "expired") {
-    const order_id = invoiceId
-    chekOrderStatus(order_id)
+    chekOrderStatus(invoiceId)
     const order_status = "payment_failed"
-    await servicesCreateOrder.updateStatus({order_id, order_status, force})
+    try {
+      //не меняет статус
+      await servicesCreateOrder.updateStatus({invoiceId, order_status, force})
+    } catch (error:any) {
+      console.error(error);
+      return res.status(error.status || 500).json({error: error.message})      
+    }
   }
 res.sendStatus(200);
 });
 
+router.get("/payment/status_check", async (req, res) => {
+ try {
+   const order_status = (await orderRepository.getOreder(req.query.order_id as string)).status
+   
+  if (order_status === "paid") {
+    return res.status(200).json({status: "yes"})
+  } else {
+    return res.status(200).json({status: "not paid"})
+  }
+ } catch (error) {
+  console.error(error);
+  return res.status(500).json({error: "Server error"}); 
+ }
+})
 
 
 export default router;

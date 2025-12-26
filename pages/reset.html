@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Сброс данных</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .reset-box {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      width: 360px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .types {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+  <div class="reset-box">
+    <h2>Сброс данных</h2>
+
+    <input type="email" id="email" placeholder="Введите email">
+
+    <div class="types">
+      <label>
+        <input type="radio" name="type" value="password" checked>
+        Сброс пароля
+      </label>
+      <label>
+        <input type="radio" name="type" value="email">
+        Смена email
+      </label>
+    </div>
+
+    <button onclick="sendReset()">Отправить</button>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    async function sendReset() {
+      const email = document.getElementById('email').value;
+      const type = document.querySelector('input[name="type"]:checked').value;
+      const messageBox = document.getElementById('message');
+
+      messageBox.textContent = '';
+      messageBox.className = 'message';
+
+      if (!email) {
+        messageBox.textContent = 'Введите email';
+        messageBox.classList.add('error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, type })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          messageBox.textContent = data.message || 'Ошибка запроса';
+          messageBox.classList.add('error');
+          return;
+        }
+
+        messageBox.textContent =
+          data.message || 'Письмо отправлено. Проверьте почту.';
+        messageBox.classList.add('success');
+
+      } catch (err) {
+        messageBox.textContent = 'Ошибка сервера';
+        messageBox.classList.add('error');
+        console.error(err);
+      }
+    }
+  </script>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-import type { ProductType } from "./types.js"
+import type { OrderFilter, ProductType } from "./types.js"
 
 export type AuthType = {
     email:string
@@ -36,6 +36,10 @@ export type GetproductsDataType = {
     sort:"asc" | "desc"  
     page:string  
     category_id:string
+    filter: OrderFilter
+    in_stock?: boolean | undefined
+    rating?: boolean | undefined
+    sale?: boolean | undefined
 }
 export type CreateProductType = {
     data: ProductType 

@@ -8,6 +8,9 @@ router.get("/login", (req: Request, res: Response) => {
 router.get("/verify", (req: Request, res: Response) => {
     res.sendFile("verify.html", { root: "./pages" });
 });
+router.get("/resetpage", (req: Request, res: Response) => {
+    res.sendFile("reset.html", { root: "./pages" });
+});
 router.get("/admin/createitems", (req: Request, res: Response) => {
     res.sendFile("admin-createitems.html", { root: "./pages" });
 });

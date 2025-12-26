@@ -1,7 +1,6 @@
 import type { NextFunction, Request, Response} from "express"
 import jwt from "jsonwebtoken"
 import type { PayloadType } from "../types/types.js"
-import { generateCode, options } from "../utils/utils.js"
 import { authRepository } from "../db/auth/authRepository.js"
 
 

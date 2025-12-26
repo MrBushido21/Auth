@@ -38,7 +38,7 @@ export const updateUsers = async (user: UsersType): Promise<void> => {
     const { id, password_hash, email } = user
 
     await sqlRun(`
-            UPDATE users SET email = ? password_hash = ? 
+            UPDATE users SET email = ?, password_hash = ?
             WHERE id = ?             
         `, [email, password_hash, id])
 }
@@ -85,18 +85,6 @@ export const getUserForEmail = async (email: string): Promise<UsersType> => {
        `,
         [email]
     );
-    return user
-}
-export const getUserForToken = async (token: string): Promise<UsersType> => {
-    const user: UsersType = await sqlGet(`
-           SELECT * FROM users
-           WHERE refresh_token = ?
-       `,
-        [token]
-    );
-    if (!isUser(user)) {
-        console.log(`Unknow format of data in 'getUserForEmail', Data: ${user}`);
-    }
     return user
 }
 

@@ -27,12 +27,12 @@ const router = Router();
             }
             const cart_items = await cart.getCartItems()              
             await servicesUpdateQuantityProduct.updateQuantityProduct({cart_items})
-            const order_id = generateCode().toString() 
-            await servicesCreateOrder.createOrder({order_id, user_id, full_name, phone_number, city, department, email, comment, call, localCart})
+            const order_id = generateCode() 
+            await servicesCreateOrder.createOrder({order_id, invoiceId:"", user_id, full_name, phone_number, city, department, email, comment, call, localCart})
             await servicesCreateOrder.createOrderItem({user_id, localCart})
             const order_status = "pri_otrimany"
             const force = true
-            await servicesCreateOrder.updateStatus({order_id, order_status, force})
+            await servicesCreateOrder.updateStatus({order_id, invoiceId: "", order_status, force})
             return res.status(200).json({message: "order has created"})
         }
     } catch (error:any) {
@@ -41,15 +41,15 @@ const router = Router();
 })
 router.patch('/order/update-status', checkAuth, async (req: Request<{}, {}, {status:string}>, res: Response) => { // limiter
     const order_status = req.body.status
-    let order_id:string
-    if (typeof req.query.id === 'string') {
+    let order_id:number
+    if (typeof req.query.id === 'number') {
         order_id = req.query.id;
     } else {
         return res.status(400).json({message: "uncorrect order_id"})
     }
 
     try {
-        await servicesCreateOrder.updateStatus({order_id, order_status, force: true})
+        await servicesCreateOrder.updateStatus({order_id, invoiceId: "", order_status, force: true})
         return res.status(200).json({message: "status was updated"})
         
     } catch (error:any) {

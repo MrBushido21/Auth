@@ -9,8 +9,13 @@ import { chekQueryId } from "../../utils/utils.js";
 const router = Router()
 
 router.get('/getproducts_data', async (req:Request<{}, {}, {}, GetproductsDataType>, res) => { //checkAdmin,
+
     const raw = req.query.search
     const sort = req.query.sort
+    const in_stock = req.query.in_stock 
+    const filter = req.query.filter
+    const sale = req.query.sale
+
     let category_id = 0
     let page = 0
     let search: string
@@ -30,7 +35,7 @@ router.get('/getproducts_data', async (req:Request<{}, {}, {}, GetproductsDataTy
     }
 
     try {
-        const data = await servicesGetProducts.getProducts({search, sort, page, category_id})
+        const data = await servicesGetProducts.getProducts({search, sort, page, category_id, in_stock, sale, filter})
         return res.status(200).json(data)
     } catch (error:any) {
         return res.status(error.status || 500).json({message: error.message})

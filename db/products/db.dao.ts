@@ -1,4 +1,4 @@
-import type { ProductType } from "../../types/types.js"
+import type { OrderFilter, ProductType, SortDirection } from "../../types/types.js"
 import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 //Create
@@ -31,27 +31,74 @@ export const getProductWithCartId = async (id:number):Promise<ProductType> => {
 
 
 //GetAll
-export const getAllProducts = async (search:string, sort:string, category_id:number): Promise<ProductType[]> => {  
-   if (category_id) {
-    return await sqlAll(
-      `
-      SELECT * FROM products
-      WHERE category_id = ?
-      ORDER BY price ${sort}
-      `,
-      [category_id]
-    );
+export const getAllProducts = async (
+   search: string,
+  sort: "asc" | "desc",
+  category_id?: number,
+  in_stock?: boolean,
+  sale?: boolean,
+  filter?: OrderFilter
+): Promise<ProductType[]> => {
+
+  let orderBy = "price"
+
+  switch (filter) {
+    case "rating":
+      orderBy = "rating"
+      break
+    case "created":
+      orderBy = "created_at"
+      break
+    case "price":
+    default:
+      orderBy = "price"
   }
 
-  return await sqlAll(
-    `
+  const direction = sort === "desc" ? "DESC" : "ASC"
+
+  let sql = `
     SELECT * FROM products
-    WHERE title LIKE ? OR id = ?
-    ORDER BY price ${sort}
-    `,
-    [`%${search}%`, search]
-  );
+    WHERE 1 = 1
+  `
+  const params: any[] = []
+    // 🔍 ПОИСК — главный фильтр
+  if (search) {
+    sql += `
+      AND (
+        title LIKE ?
+        OR description LIKE ?
+      )
+    `
+    const q = `%${search}%`
+    params.push(q, q)
+  }
+
+  if (category_id) {
+    sql += ` AND category_id = ?`
+    params.push(category_id)
+  }
+
+
+  // 📦 ЧЕКБОКС: в наличии
+  if (in_stock) {
+    sql += ` AND quantity > 0`
+  }
+
+  // 🔥 ЧЕКБОКС: распродажа
+  if (sale) {
+    sql += ` AND sale > 0`
+  }
+
+  // ✅ ФИЛЬТР "ЕСТЬ В НАЛИЧИИ"
+  if (in_stock === true) {
+    sql += ` AND quantity > 0`
+  }
+
+  sql += ` ORDER BY ${orderBy} ${direction}`
+
+  return await sqlAll(sql, params)
 }
+
 
 
 //Update

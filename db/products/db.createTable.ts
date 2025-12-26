@@ -2,6 +2,7 @@ import { sqlRun } from "../db.constructor.js"
 export const createTables = async ():Promise<void> => {
    // await sqlRun(`DROP TABLE orders`)
    // await sqlRun(`DROP TABLE order_items`)
+   // await sqlRun(`DROP TABLE payments`)
    // await sqlRun(`DROP TABLE users`)
     await sqlRun(`
         CREATE TABLE IF NOT EXISTS products (
@@ -25,6 +26,7 @@ export const createTables = async ():Promise<void> => {
      await sqlRun(`
         CREATE TABLE IF NOT EXISTS orders (
         order_id TEXT NOT NULL,
+        invoiceId TEXT,
         user_id NUMBER NOT NULL,
         full_name TEXT NOT NULL,
         phone_number TEXT NOT NULL,

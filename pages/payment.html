@@ -3,9 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Payment Status</title>
 </head>
 <body>
-    Payment
+<script>
+    async function checkPaymentStatus() {
+        try {
+            // Получаем order_id из query-параметра
+            const params = new URLSearchParams(window.location.search);
+            const order_id = params.get('id');
+
+            if (!order_id) {
+                console.error('Order ID не найден в URL');
+                window.location.href = '/getproducts';
+                return;
+            }
+
+            // Отправляем запрос на сервер с order_id
+            const response = await fetch(`/payment/status_check?order_id=${order_id}`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                console.error('Ошибка при проверке оплаты');
+                window.location.href = '/getproducts';
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.status === 'yes') {
+                // Очистка корзины (например, localStorage)
+                localStorage.removeItem('cart');
+
+                // Редирект на страницу продуктов
+                window.location.href = '/getproducts';
+            } else {
+                // Оплата не прошла — редирект
+                window.location.href = '/getproducts';
+            }
+
+        } catch (err) {
+            console.error('Ошибка сети:', err);
+            window.location.href = '/getproducts';
+        }
+    }
+
+    checkPaymentStatus();
+</script>
 </body>
 </html>

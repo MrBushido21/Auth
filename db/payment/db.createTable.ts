@@ -4,7 +4,7 @@ export const CreatePaymentTable = async() => {
     await sqlRun(`
         CREATE TABLE IF NOT EXISTS payments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        order_id NUMBER NOT NULL,
+        invoiceId NUMBER NOT NULL,
         status TEXT NOT NULL,
         amount NUMBER NOT NULL,
         final_amount NUMBER NOT NULL,

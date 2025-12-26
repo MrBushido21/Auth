@@ -44,8 +44,11 @@ const run = async () => {
     await createTableRewies();
     await createTableWishlist();
     await CreatePaymentTable();
-    const jsonBodyModdleweare = express.json();
-    app.use(jsonBodyModdleweare);
+    app.use(express.json({
+        verify: (req, res, buf) => {
+            req.rawBody = buf;
+        }
+    }));
     app.use(cookieParser());
     logsCfg(app); // Логи сеервер
     app.use("/", htmlRouter);

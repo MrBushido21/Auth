@@ -1,11 +1,14 @@
 import { getProduct } from "../../db/products/db.dao.js"
 import { productsRepository } from "../../db/products/productsRepository.js"
+import type { OrderFilter, SortDirection } from "../../types/types.js"
 import { newError } from "../../utils/utils.js"
 
 export const servicesGetProducts = {
-    async getProducts({ search, sort, page, category_id }: { search: string, sort: "asc" | "desc", page:number, category_id:number }) {
-        sort === "asc" ? "ASC" : "DESC"
-        let data = await productsRepository.getAllProducts(search, sort, category_id)
+    async getProducts({ search, sort, page, category_id, in_stock, sale, filter }: 
+        { search: string, sort:SortDirection, page:number, category_id:number, in_stock?: boolean | undefined, 
+        sale?: boolean | undefined, filter?: OrderFilter }) {
+        
+        let data = await productsRepository.getAllProducts(search, sort, category_id, in_stock, sale, filter)
         newError(data, 500, "Somthing wrong")
 
         let newData = []

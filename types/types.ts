@@ -1,5 +1,8 @@
 import type { Request } from "express"
 
+export type OrderFilter = "price" | "rating" | "created"
+export type SortDirection = "asc" | "desc"
+
 export type UsersType = {
     id: number
     email: string

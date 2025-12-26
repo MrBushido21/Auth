@@ -5,12 +5,12 @@ import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 
 //Create
-export const createOrder = async (order_id:string, user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
+export const createOrder = async (order_id:number, invoiceId:string, user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
     comment:string | null, call:string, total_price: number, status:string, created_at:string): Promise<void> => {
     await sqlRun(`
-        INSERT INTO orders (order_id, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        `, [order_id, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
+        INSERT INTO orders (order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `, [order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
 }
 
 export const createOrderItem = async (order_id:string, cartItems: CartItem[]) => {
@@ -55,13 +55,19 @@ export const deleteOrder = async () => {
 
 //update
 
-export const updateStatus = async (order_id:string, status:string, force:boolean) => {
+export const updateInvoiceId = async (order_id:number, invoiceId:string) => {
+    await sqlRun(`
+        UPDATE orders SET invoiceId = ? WHERE order_id = ?
+        `, [invoiceId, order_id])
+}
+
+export const updateStatus = async (order_id:number | undefined, invoiceId:string | undefined, status:string, force:boolean) => {
 await sqlRun("BEGIN IMMEDIATE TRANSACTION");
 
   try {
     const order = await sqlGet(
-      "SELECT * FROM orders WHERE order_id = ?",
-      [order_id]
+      "SELECT * FROM orders WHERE invoiceId = ? OR order_id = ?",
+      [invoiceId, order_id]
     );
 
     if (!order) throw new Error("Order not found");
@@ -73,8 +79,8 @@ await sqlRun("BEGIN IMMEDIATE TRANSACTION");
     }
 
     await sqlRun(
-      "UPDATE orders SET status = ? WHERE order_id = ?",
-      [status, order_id]
+      "UPDATE orders SET status = ? WHERE invoiceId = ? OR order_id = ?",
+      [status, invoiceId, order_id]
     );
 
     await sqlRun("COMMIT");

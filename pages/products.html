@@ -138,17 +138,28 @@
   <!-- =========================================================== -->
   <!-- ========= Поиск + сортировка ========= -->
   <div id="controls">
-    <input type="text" id="search" placeholder="Поиск товаров..." oninput="loadProducts()" />
+  <input type="text" id="search" placeholder="Поиск товаров..." oninput="loadProducts()" />
 
-    <select id="category" onchange="loadProducts()">
-      <option value="">Все категории</option>
-    </select>
+  <select id="category" onchange="loadProducts()">
+    <option value="">Все категории</option>
+  </select>
 
-    <select id="sort" onchange="loadProducts()">
-      <option value="asc">Цена: от дешевого</option>
-      <option value="desc">Цена: от дорогого</option>
-    </select>
-  </div>
+ <select id="filter" onchange="loadProducts()">
+  <option value="price">Цена</option>
+  <option value="rating">Рейтинг</option>
+  <option value="created">Новизна</option>
+</select>
+<button id="toggleSort" onclick="toggleSort()">Сортировать: по возрастанию</button>
+
+
+  <label>
+    <input type="checkbox" id="filter-in-stock" onchange="fetchProducts()" /> В наличии
+  </label>
+  <label>
+    <input type="checkbox" id="filter-sale" onchange="fetchProducts()" /> Скидка
+  </label>
+</div>
+
 
   <div id="products">Загрузка...</div>
   <button id="loadMore" onclick="loadMore()" style="display: none; margin: 20px auto; display: block;">заугрузить
@@ -251,60 +262,75 @@
         document.getElementById("loadMore").style.display = "none";
       }
     }
+let currentSort = "desc"; // по умолчанию
+
+function toggleSort() {
+  const btn = document.getElementById("toggleSort");
+  if (currentSort === "asc") {
+    currentSort = "desc";
+    btn.textContent = "Сортировать: по убыванию";
+  } else {
+    currentSort = "asc";
+    btn.textContent = "Сортировать: по возрастанию";
+  }
+  loadProducts(); // перезагрузка товаров
+}
 
     // ===== Универсальная загрузка =====
-    function fetchProducts() {
-      if (isLoading) return;
-      isLoading = true;
+   function fetchProducts() {
+  if (isLoading) return;
+  isLoading = true;
 
-      const search = document.getElementById("search").value;
-      const sort = document.getElementById("sort").value;
-      const categoryId = document.getElementById("category").value;
+  const search = document.getElementById("search").value;
+  const categoryId = document.getElementById("category").value;
+  const filter = document.getElementById("filter").value; // price | rating | created
+  const inStock = document.getElementById("filter-in-stock").checked;
+  const sale = document.getElementById("filter-sale").checked;
 
-      let query = "";
+  // Если выбран фильтр по новизне, сортируем всегда по убыванию
+  let sortValue = currentSort;
 
-      if (categoryId) {
-        query = `category_id=${categoryId}`;
-      } else {
-        query = `search=${encodeURIComponent(search)}`;
+  const params = new URLSearchParams();
+  if (search) params.append("search", search);
+  if (categoryId) params.append("category_id", categoryId);
+  if (filter) params.append("filter", filter);
+  if (inStock) params.append("in_stock", "1");
+  if (sale) params.append("sale", "1");
+
+  params.append("sort", sortValue); // передаем актуальное asc/desc
+  params.append("page", currentPage);
+  params.append("limit", limit);
+
+  fetch(`/getproducts_data?${params.toString()}`)
+    .then(res => res.json())
+    .then(items => {
+      const container = document.getElementById("products");
+
+      if (!categoriesLoaded && items.length > 0) {
+        const select = document.getElementById("category");
+        const map = new Map();
+        items.forEach(item => map.set(item.category_id, item.category));
+        map.forEach((name, id) => {
+          const option = document.createElement("option");
+          option.value = id;
+          option.textContent = name;
+          select.appendChild(option);
+        });
+        categoriesLoaded = true;
       }
 
-      fetch(`/getproducts_data?${query}&sort=${sort}&page=${currentPage}&limit=${limit}`)
+      if (currentPage === 0) {
+        container.innerHTML = "";
+      }
 
-        .then(res => res.json())
-        .then((items) => {
-
-          // ===== наполняем категории ОДИН РАЗ =====
-          if (!categoriesLoaded && items.length > 0) {
-            const select = document.getElementById("category");
-            const map = new Map();
-
-            items.forEach(item => {
-              map.set(item.category_id, item.category);
-            });
-
-            map.forEach((name, id) => {
-              const option = document.createElement("option");
-              option.value = id;       // ← category_id (для бека)
-              option.textContent = name; // ← category (для пользователя)
-              select.appendChild(option);
-            });
-
-            categoriesLoaded = true;
-          }
-
-          if (currentPage === 0) {
-            document.getElementById("products").innerHTML = "";
-          }
-
-          renderProducts(items);
-          isLoading = false;
-        })
-        .catch(err => {
-          document.getElementById("products").innerHTML = "Ошибка загрузки данных: " + err;
-          isLoading = false;
-        });
-    }
+      renderProducts(items);
+      isLoading = false;
+    })
+    .catch(err => {
+      document.getElementById("products").innerHTML = "Ошибка загрузки данных: " + err;
+      isLoading = false;
+    });
+}
 
     // ===== Первая загрузка или поиск — сбрасываем страницу =====
     function loadProducts() {

@@ -2,7 +2,7 @@ import { repositoryPayment } from "../../db/payment/db.repository.js";
 import { dateNow } from "../../utils/utils.js";
 
 export const ServicesPayment = {
-    async pay({amount}: {amount:number}) {
+    async pay({amount, order_id}: {amount:number, order_id:number}) {
         const PAYMENT_SECRET_KEY = process.env.PAYMENT_SECRET_KEY as string;
         console.log();
         
@@ -13,8 +13,8 @@ export const ServicesPayment = {
                 "destination": "Оплата за товари у інтенет магазині",
                 "comment": "Оплата за товари у інтенет магазині",
             },
-            "redirectUrl": "https://vivian-semipictorial-abiogenetically.ngrok-free.dev/getproducts",
-            "successUrl": "https://vivian-semipictorial-abiogenetically.ngrok-free.dev/peyment/succes",
+            "redirectUrl": `https://vivian-semipictorial-abiogenetically.ngrok-free.dev/peyment/succes?id=${order_id}`,
+            "successUrl": `https://vivian-semipictorial-abiogenetically.ngrok-free.dev/peyment/succes${order_id}`,
             "failUrl": "https://vivian-semipictorial-abiogenetically.ngrok-free.dev/payment/fail",
             "webHookUrl": "https://vivian-semipictorial-abiogenetically.ngrok-free.dev/payment/callback",
         }
@@ -39,13 +39,13 @@ export const ServicesPayment = {
         }
     },
 
-    async savePayment({order_id, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo}:
-        {order_id:number, status:string, payMethod:string, amount:number, ccy:number, 
+    async savePayment({invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo}:
+        {invoiceId:string, status:string, payMethod:string, amount:number, ccy:number, 
             finalAmount:number, modifiedDate:string, paymentInfo:any}
     ) {
     
    try {
-     await repositoryPayment.createPayment(order_id, status, payMethod, amount, 
+     await repositoryPayment.createPayment(invoiceId, status, payMethod, amount, 
     ccy, finalAmount, modifiedDate, paymentInfo.tranId, paymentInfo.rrn, paymentInfo.fee, dateNow())
    } catch (error) {
     console.error(error); 

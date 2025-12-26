@@ -103,6 +103,20 @@
     .load-more:hover {
       background: #1e7e34;
     }
+
+    .btn-link {
+  padding: 5px 10px;
+  border-radius: 5px;
+  background: #007bff;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.btn-link:hover {
+  background: #0056b3;
+}
+
   </style>
 </head>
 
@@ -115,17 +129,18 @@
       <button onclick="uploadAvatar()">Сменить аватар</button>
     </div>
   </div>
-
-  <div class="user-info">
-    <div>
-      Email: <span id="user-email"></span>
-      <button onclick="changeEmail()">Сменить Email</button>
-    </div>
-    <div class="buttons">
-      <button onclick="changePassword()">Сменить пароль</button>
-      <button onclick="logout()">Выйти</button>
-    </div>
+//
+<div class="user-info">
+  <div>
+    Email: <span id="user-email"></span>
+    <a href="/resetpage" class="btn-link">Сменить Email</a>
   </div>
+
+  <div class="buttons">
+    <a href="/resetpage" class="btn-link">Сменить пароль</a>
+    <button onclick="logout()">Выйти</button>
+  </div>
+</div>
 
   <div class="orders" id="orders-container">
     <h2>История заказов</h2>

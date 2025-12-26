@@ -6,6 +6,7 @@ declare global {
         interface Request {
             user?: string | PayloadType
             user_id?: number
+            rawBody?: Buffer;
         }
     }
 }
