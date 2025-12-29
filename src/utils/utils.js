@@ -24,6 +24,7 @@ export const dateNow = () => {
     return new Date().toISOString();
 };
 export const dateExpire = (time) => {
+    time = time * 1000 * 60;
     return (Date.now() + time).toString();
 };
 export const newError = (value, status, err) => {

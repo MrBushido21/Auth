@@ -5,12 +5,12 @@ import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
 
 //Create
-export const createOrder = async (order_id:number, invoiceId:string, user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
-    comment:string | null, call:string, total_price: number, status:string, created_at:string): Promise<void> => {
+export const createOrder = async (order_id:string, invoiceId:string, user_id: number, full_name:string, phone_number: string, city:string, department: string, email:string | null, 
+    comment:string | null, call:string, total_price: number, status:string, created_at:string, returning_time:string): Promise<void> => {
     await sqlRun(`
-        INSERT INTO orders (order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        `, [order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at])
+        INSERT INTO orders (order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at, returning_time)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `, [order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, total_price, status, created_at, returning_time])
 }
 
 export const createOrderItem = async (order_id:string, cartItems: CartItem[]) => {
@@ -38,30 +38,15 @@ export const getOreder = async (order_id:string):Promise<OrderType> => {
 }
 
 
-export const getOrederItem = async (order_id:string):Promise<OrderItemsType> => {
-    const order_item:OrderItemsType = await sqlGet(`
-        SELECT * FROM order_items WHERE order_id = ?
-        `, [order_id])
-        
-    return order_item
-}
-
-export const deleteOrder = async () => {
-    await sqlRun(`
-        DELETE FROM order_items WHERE id = 2
-        `)
-}
-
-
 //update
 
-export const updateInvoiceId = async (order_id:number, invoiceId:string) => {
+export const updateInvoiceId = async (order_id:string, invoiceId:string) => {
     await sqlRun(`
         UPDATE orders SET invoiceId = ? WHERE order_id = ?
         `, [invoiceId, order_id])
 }
 
-export const updateStatus = async (order_id:number | undefined, invoiceId:string | undefined, status:string, force:boolean) => {
+export const updateStatus = async (order_id:string | undefined, invoiceId:string | undefined, status:string, force:boolean) => {
 await sqlRun("BEGIN IMMEDIATE TRANSACTION");
 
   try {
@@ -102,11 +87,35 @@ export const getOrderItems = async ():Promise<OrderItemsType[]> => {
     return order_items
 }
 
+export const getOrederItems = async (order_id:string):Promise<OrderItemsType[]> => {
+    const order_items:OrderItemsType[] = await sqlAll(`
+        SELECT * FROM order_items WHERE order_id = ?
+        `, [order_id])
+        
+    return order_items
+}
+
 export const getUserOreders = async (user_id:number):Promise<OrderType[]> => {
     const orders:OrderType[] = await sqlAll(`
         SELECT * FROM orders WHERE user_id = ?
         `, [user_id])
     return orders
+}
+
+//Delete
+export const deleteOrder = async (order_id: string):Promise<number> => {
+  const result:any = await sqlRun(`
+    DELETE FROM orders
+    WHERE order_id = ?
+      AND returning_time > ?
+  `, [order_id, Date.now()]);
+
+  return result.changes; // <- количество удалённых строк
+}
+export const deleteOrderItems = async (order_id: string) => {
+    await sqlRun(`
+        DELETE FROM order_items WHERE order_id = ?
+        `, [order_id])
 }
 
 function checkStatus() {

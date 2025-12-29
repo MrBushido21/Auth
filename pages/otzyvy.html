@@ -252,7 +252,7 @@ meta.querySelector(".price").textContent = product.price + " ₴";
     }
 
     // токен должен быть у тебя в localStorage или где-то ещё
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluIiwiaWQiOjIwNDIsImlhdCI6MTc2NDkzNzMzOCwiZXhwIjoxNzY0OTQwOTM4fQ.1nwfCj919lC0awG57u_NV5DqlJnkE5gGBeN4-19m5ls"
+    const token = localStorage.getItem("accessToken");
 
     try {
       const res = await fetch("/createrewie", {
@@ -269,9 +269,9 @@ meta.querySelector(".price").textContent = product.price + " ₴";
           rating: rating
         })
       });
-
+      const resData = await res.json();
       if(!res.ok){
-        alert("Помилка при надсиланні відгуку.");
+        alert(resData.message || "Помилка при відправці відгуку.");
         return;
       }
 

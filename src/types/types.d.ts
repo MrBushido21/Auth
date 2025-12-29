@@ -82,6 +82,8 @@ export type OrderItemsType = {
     id: number;
     order_id: string;
     product_id: number;
+    product_name: string;
+    product_img: string;
     quantity: number;
     price: number;
 };

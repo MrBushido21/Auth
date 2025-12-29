@@ -26,6 +26,7 @@ export const dateNow = () => {
  return new Date().toISOString()
 }
 export const dateExpire = (time:number) => {  
+  time = time * 1000 * 60
  return (Date.now() + time).toString()
 }
 

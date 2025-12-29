@@ -7,8 +7,10 @@ export const orderRepository = {
     getOrders: order.getOrders,
     getOreder: order.getOreder,
     getUserOreders: order.getUserOreders,
-    getOrederItem: order.getOrederItem,
+    getOrederItems: order.getOrederItems,
     getOrderItems: order.getOrderItems,
     updateStatus: order.updateStatus,
     updateInvoiceId: order.updateInvoiceId,
+    deleteOrder: order.deleteOrder,
+    deleteOrderItems: order.deleteOrderItems
 }

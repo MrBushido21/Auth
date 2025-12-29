@@ -8,6 +8,7 @@ const router = Router()
 
 router.get('/getuser', checkAuth, async (req, res) => {
     const user_id = chekUser(req)
+    console.log(user_id);
     
     if (user_id) {
         try {

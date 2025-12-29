@@ -4,6 +4,7 @@ import { servicesRewie } from "../../services/rewie/services.rewie.js";
 import Admin from "../../services/admin/services.admin.js";
 import type { CreaterewieType } from "../../types/requests.js";
 import { number } from "zod";
+import { UserHasNotPurchasedError } from "../../services/errors/services.errors.js";
 
 const router = Router()
       
@@ -47,7 +48,13 @@ router.post('/createrewie', checkAuth, async (req:Request<{}, {}, CreaterewieTyp
         await adminController.updateRating()
         return res.status(200).json({message: "Відгук додано"})
     } catch (error) {
-        return res.status(500).json({error: "somthing wrong"})
+        if (error instanceof UserHasNotPurchasedError) {
+        // уведомляем пользователя
+        res.status(400).json({ message: error.message })
+    } else {
+        // системная ошибка
+        res.status(500).json({ message: "Something went wrong" })
+    }
     }
 })
 

@@ -38,6 +38,7 @@ export const createTables = async ():Promise<void> => {
         total_price NUMBER NOT NULL,
         status TEXT NOT NULL,
         created_at TEXT NOT NULL,
+        returning_time TEXT NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
         `);   

@@ -1,5 +1,5 @@
 import { authRepository } from "../../db/auth/authRepository.js"
-import { dateExpire, dateNow, hashedString } from "../../utils/utils.js"
+import { dateExpire, dateNow, hashedString, sendlerEmailCode } from "../../utils/utils.js"
 import crypto from "crypto";
 
 export const resetpasswordService = {
@@ -18,7 +18,7 @@ export const resetpasswordService = {
           
           console.log(link);
         
-          // sendlerEmailCode(email, link)
+          sendlerEmailCode(email, link)
         
           const data = await authRepository.getUserForEmail(email)
           if (data) {
