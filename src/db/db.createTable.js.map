@@ -1,1 +1,0 @@
-{"version":3,"file":"db.createTable.js","sourceRoot":"","sources":["../../db/db.createTable.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,qBAAqB,CAAA;AAE5C,MAAM,CAAC,MAAM,gBAAgB,GAAG,KAAK,IAAmB,EAAE;IACtD,mCAAmC;IACnC,MAAM,MAAM,CAAC;;;;;;;;;;KAUZ,CAAC,CAAC;IAEH,MAAM,MAAM,CAAC;;;;;;;;;KASZ,CAAC,CAAC;IAEH,MAAM,MAAM,CAAC;;;;;;;;;;;;KAYZ,CAAC,CAAC;AAEP,CAAC,CAAA"}
