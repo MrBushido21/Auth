@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ - Промокоды</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            font-size: 14px;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background: #eee;
+        }
+        .deactivate-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .deactivate-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Управление промокодами</h1>
+
+    <form id="createPromoForm">
+        <input type="text" id="promoCode" placeholder="Код промокода" required>
+        <input type="number" id="discountPercent" placeholder="Скидка %" required min="1" max="100">
+        <button type="submit">Создать</button>
+    </form>
+
+    <table id="promoTable">
+        <thead>
+            <tr>
+                <th>Код</th>
+                <th>Скидка %</th>
+                <th>Активен</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Промокоды будут здесь -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchPromocodes() {
+            const res = await fetch('/admin/getpromo');
+            const data = await res.json();
+            const tbody = document.querySelector('#promoTable tbody');
+            tbody.innerHTML = '';
+            data.promocodes.forEach(promo => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${promo.code}</td>
+                    <td>${promo.discount_percent}</td>
+                    <td>${promo.is_active === "true" ? 'Да' : 'Нет'}</td>
+                    <td>
+                        <button class="deactivate-btn" ${promo.is_active === "true" ? '' : 'disabled'} data-code="${promo.code}">Деактивировать</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.querySelectorAll('.deactivate-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const code = btn.dataset.code;
+                    await fetch('/admin/deactivatepromo', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code })
+                    });
+                    fetchPromocodes();
+                });
+            });
+        }
+
+        document.getElementById('createPromoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('promoCode').value;
+            const discountPercent = Number(document.getElementById('discountPercent').value);
+            await fetch('/admin/createpromo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, discountPercent })
+            });
+            document.getElementById('createPromoForm').reset();
+            fetchPromocodes();
+        });
+
+        fetchPromocodes();
+    </script>
+</body>
+</html>

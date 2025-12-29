@@ -29,7 +29,8 @@ export type CreateOrderType = {
     department:string
     email: string | null;
     comment: string | null;
-    localCart: any[]    
+    localCart: any[] 
+    promocode?: string | undefined   
 }
 export type GetproductsDataType = {
     search:string

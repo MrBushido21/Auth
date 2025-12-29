@@ -13,7 +13,7 @@ import type { CreateOrderType } from "../../types/requests.js";
 const router = Router();
 
  router.post('/create-order', checkAuth, validation(orderSchema), async (req: Request<{}, {}, CreateOrderType>, res: Response) => { // limiter
-    const { full_name, phone_number, call, department, city, email, comment } = req.body
+    const { full_name, phone_number, call, department, city, email, comment, promocode } = req.body
     const user_id = chekUser(req)  
     const localCart = req.body.localCart
    
@@ -27,8 +27,9 @@ const router = Router();
             }
             const cart_items = await cart.getCartItems()              
             await servicesUpdateQuantityProduct.updateQuantityProduct({cart_items})
-            const order_id = generateCode() 
-            await servicesCreateOrder.createOrder({order_id, invoiceId:"", user_id, full_name, phone_number, city, department, email, comment, call, localCart})
+            const order_id = generateCode().toString() 
+            await servicesCreateOrder.createOrder({order_id, invoiceId:"", user_id, full_name, phone_number, city, 
+                department, email, comment, call, localCart, promocode})
             await servicesCreateOrder.createOrderItem({user_id, localCart})
             const order_status = "pri_otrimany"
             const force = true
@@ -41,8 +42,8 @@ const router = Router();
 })
 router.patch('/order/update-status', checkAuth, async (req: Request<{}, {}, {status:string}>, res: Response) => { // limiter
     const order_status = req.body.status
-    let order_id:number
-    if (typeof req.query.id === 'number') {
+    let order_id:string;
+    if (typeof req.query.id === 'string') {
         order_id = req.query.id;
     } else {
         return res.status(400).json({message: "uncorrect order_id"})

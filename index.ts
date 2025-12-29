@@ -5,7 +5,6 @@ import authRouter from "./routes/auth/routes.post.auth.js"
 import productsPostRouter from "./routes/products/routers.post.products.js"
 import productsGetRouter from "./routes/products/routers.get.products.js"
 import htmlRouter from "./routes/routes.get.html.js"
-import logsRouter from "./routes/routes.get.logs.js"
 import cartPostRouter from "./routes/cart/routers.post.cart.js"
 import orderPostRouter from "./routes/orders/routers.post.orders.js"
 import orderDeleteRouter from "./routes/orders/routers.delete.order.js"
@@ -19,6 +18,9 @@ import rewiePostRouter from "./routes/rewie/routers.post.rewie.js"
 import wishlistGetRouter from "./routes/wishlist/routers.get.wishlist.js"
 import wishlistPostRouter from "./routes/wishlist/routers.post.wishlist.js"
 import wishlistDeleteRouter from "./routes/wishlist/routers.delete.wishlist.js"
+import promocodePostRouter from "./routes/promocodes/routers.post.promocode.js"
+import promocodeGetRouter from "./routes/promocodes/routers.get.promocode.js"
+import promocodePutRouter from "./routes/promocodes/router.put.promocodes.js"
 import { createTableUsers } from "./db/auth/db.createTable.js";
 import { deleteAll, deleteUser, getUsers } from "./db/auth/db.dao.js";
 import cookieParser from "cookie-parser";
@@ -31,6 +33,7 @@ import { CreatePaymentTable } from "./db/payment/db.createTable.js";
 import { errorHandler } from "./cfg/logs/handlerExpress.js";
 import { log, logError } from "./cfg/logs/logger.js";
 import { logsCfg } from "./cfg/logs/appLogs.js";
+import { createTablePromocodes } from "./db/promocodes/db.createTable.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -48,6 +51,7 @@ await createTables()
 await createTableRewies()
 await createTableWishlist()
 await CreatePaymentTable()
+await createTablePromocodes()
 
 app.use(express.json({
   verify: (req: any, res, buf) => {
@@ -61,7 +65,6 @@ app.use(cookieParser())
 logsCfg(app) // Логи сеервер
 
 app.use("/", htmlRouter);
-app.use("/", logsRouter);
 
 app.use('/', authRouter)
 app.use('/', productsPostRouter)
@@ -79,6 +82,9 @@ app.use('/', rewiePostRouter)
 app.use('/', wishlistGetRouter)
 app.use('/', wishlistPostRouter)
 app.use('/', wishlistDeleteRouter)
+app.use('/', promocodeGetRouter)
+app.use('/', promocodePostRouter)
+app.use('/', promocodePutRouter)
 
 
 app.use(errorHandler); // В конце всех роутов

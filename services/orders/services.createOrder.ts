@@ -2,14 +2,22 @@ import { orderRepository } from "../../db/order/orderRepository.js"
 import type { OrderItemsType, OrderType } from "../../types/types.js"
 import { dateExpire, dateNow } from "../../utils/utils.js"
 import Cart from "../cart/services.cartAdd.js"
+import { servicesPromocodes } from "../promocodes/services.promocodes.js"
 
 export const servicesCreateOrder = {
-    async createOrder({order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, localCart}: 
-        {order_id:string, invoiceId:string, user_id: number, full_name:string, phone_number: number, city:string, department:string, email:string | null, comment:string | null, call:string, localCart:any[]}) {
+    async createOrder({order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, localCart, promocode}: 
+        {order_id:string, invoiceId:string, user_id: number, full_name:string, phone_number: number, city:string, department:string, email:string | null, comment:string | null, call:string, localCart:any[], promocode?: string | undefined}) {
            try {
             const cart = new Cart(localCart)
-            const total_price = await cart.getTotalCartPrice()
-            await orderRepository.createOrder(order_id, invoiceId, user_id, full_name, String(phone_number), city, department, email, comment, call, total_price, "in procces", dateNow(), dateExpire(30).toString())          
+            let total_price = await cart.getTotalCartPrice()
+            if (promocode) {
+              const promocodeData = await servicesPromocodes.findPromocodeByCode(promocode)
+              if (promocodeData && promocodeData.is_active === "true") {       
+                total_price = total_price - (total_price * (promocodeData.discount_percent / 100))       
+            }
+          }
+            await orderRepository.createOrder(order_id, invoiceId, user_id, full_name, String(phone_number), city, 
+            department, email, comment, call, total_price, "in procces", dateNow(), dateExpire(30).toString())          
            } catch (error) {
             console.error(error);            
            }

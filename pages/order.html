@@ -211,7 +211,10 @@
                 </label>
             </div>
         </div>
-
+        <div class="form-group">
+            <label for="promocode">Промокод (якщо є)</label>
+            <input type="text" id="promocode" name="promocode" placeholder="Введіть промокод" />
+        </div>
         <div style="font-weight: 700; font-size: 20px;" id="doOplaty"></div>
         <button id="submitOrder">Оформити замовлення</button>
     </div>
@@ -340,7 +343,8 @@
                 department: document.getElementById('warehouseInput').value,
                 email: document.getElementById('email').value,
                 comment: document.getElementById('comment').value,
-                localCart: JSON.parse(localStorage.getItem("cart") || "[]")
+                localCart: JSON.parse(localStorage.getItem("cart") || "[]"),
+                promocode: document.getElementById('promocode').value // ← добавили сюда
             };
             
             if (paymentMethod === "online") {
@@ -359,7 +363,7 @@
                 if (res.ok) {
                     console.log(pageUrl);
                     
-                    window.location.href = pageUrl;
+                    // window.location.href = pageUrl;
                 } else if (result.errors) {
                     // ❌ Сервер вернул ошибки
                     const messages = result.errors.map(e => e.message).join('\n');
