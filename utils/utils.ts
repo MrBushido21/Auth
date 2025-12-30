@@ -1,12 +1,11 @@
 import bcrypt from "bcryptjs";
-import type { OrderType, PayloadType, target_idType, UsersType } from "../types/types.js";
+import type { OrderType, PayloadType, UsersType } from "../types/types.js";
 import jwt, { type JwtPayload } from "jsonwebtoken"
 import type { CookieOptions, Request, Response } from "express";
 import nodemailer from "nodemailer"
 import rateLimit from "express-rate-limit";
 import { orderRepository } from "../db/order/orderRepository.js";
 import fs from "fs";
-import path from "path";
 
 export const chekOrderStatus = async (invoiceId:string) => {
   try {
@@ -39,10 +38,10 @@ export const newError = (value:any, status:number, err:string) => {
 }
 //Константы
 export const options: CookieOptions = {
-  httpOnly: true,
-  secure: false,
-  sameSite: "strict",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  httpOnly: false,   // если true, JS не сможет читать куку
+  secure: false,     // если true, кука отправляется только по HTTPS
+  maxAge: 24 * 60 * 60 * 1000, // 1 день
+  sameSite: 'lax',   // или 'strict' / 'none'
 }
 
 
@@ -192,15 +191,3 @@ export const removeLocalFile = (filePath: string) => {
     }
   });
 };
-
-//Создаине логов
-export const createLog = (user_id:number, action:string, target_id:target_idType, target_type:string, description:string) => {
-  const params = {
-    user_id,
-    action,
-    target_id,
-    target_type,
-    description
-  }
-  return params
-}

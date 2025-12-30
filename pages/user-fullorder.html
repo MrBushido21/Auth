@@ -113,6 +113,7 @@ async function loadOrder() {
         <div class="row"><span class="label">ID заказа:</span> <span>${order.order_id}</span></div>
         <div class="row"><span class="label">Статус:</span> <span>${humanStatus}</span></div>
         <div class="row"><span class="label">Создан:</span> <span>${formattedDate}</span></div>
+        <div class="row"><span class="label">Скидка:</span> <span>${order.sale}</span></div>
         <div class="row"><span class="label">Общая цена:</span> <span>${order.total_price} грн</span></div>
       </div>
 

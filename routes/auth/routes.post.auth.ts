@@ -1,7 +1,7 @@
 import { Router, type CookieOptions, type Request, type Response } from "express";
-import type { target_idType, UsersType } from "../../types/types.js";
+import type { UsersType } from "../../types/types.js";
 import { getCodeForId, getUserForEmail, getUserForId, updateRefreshToken} from "../../db/auth/db.dao.js";
-import { createLog, createToken, dateExpire, decodedAccsesToken, generateCode, limiter, options, sendlerEmailCode, } from "../../utils/utils.js";
+import { createToken, dateExpire, decodedAccsesToken, generateCode, limiter, options, sendlerEmailCode, } from "../../utils/utils.js";
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import { registerShemas } from "../../shemas/validation.js";
 import { validation } from "../../middleware/middleware.validation.js";

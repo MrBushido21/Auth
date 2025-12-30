@@ -8,18 +8,23 @@ export const servicesCreateOrder = {
     async createOrder({order_id, invoiceId, user_id, full_name, phone_number, city, department, email, comment, call, localCart, promocode}: 
         {order_id:string, invoiceId:string, user_id: number, full_name:string, phone_number: number, city:string, department:string, email:string | null, comment:string | null, call:string, localCart:any[], promocode?: string | undefined}) {
            try {
-            const cart = new Cart(localCart)
+            const cart = new Cart(localCart) 
             let total_price = await cart.getTotalCartPrice()
+            let sale:string | undefined
+            //Проверка на промокод
             if (promocode) {
               const promocodeData = await servicesPromocodes.findPromocodeByCode(promocode)
               if (promocodeData && promocodeData.is_active === "true") {       
-                total_price = total_price - (total_price * (promocodeData.discount_percent / 100))       
+                total_price = total_price - (total_price * (promocodeData.discount_percent / 100))   
+                sale = `${promocodeData.discount_percent.toString()}%`
             }
           }
+          
             await orderRepository.createOrder(order_id, invoiceId, user_id, full_name, String(phone_number), city, 
-            department, email, comment, call, total_price, "in procces", dateNow(), dateExpire(30).toString())          
+            department, email, comment, call, total_price, promocode, sale, "in procces", dateNow(), dateExpire(30).toString())          
            } catch (error) {
-            console.error(error);            
+            console.error(error);    
+             throw new Error("Не удалось создать заказ");        
            }
     },
     async createOrderItem({user_id, localCart}: {user_id: number, localCart:any[]}) {

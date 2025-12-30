@@ -2,7 +2,7 @@ import { repositoryPayment } from "../../db/payment/db.repository.js";
 import { dateNow } from "../../utils/utils.js";
 
 export const ServicesPayment = {
-    async pay({amount, order_id}: {amount:number, order_id:number}) {
+    async pay({amount, order_id}: {amount:number, order_id:string}) {
         const PAYMENT_SECRET_KEY = process.env.PAYMENT_SECRET_KEY as string;
         console.log();
         

@@ -28,6 +28,7 @@ const router = Router();
             const cart_items = await cart.getCartItems()              
             await servicesUpdateQuantityProduct.updateQuantityProduct({cart_items})
             const order_id = generateCode().toString() 
+            
             await servicesCreateOrder.createOrder({order_id, invoiceId:"", user_id, full_name, phone_number, city, 
                 department, email, comment, call, localCart, promocode})
             await servicesCreateOrder.createOrderItem({user_id, localCart})

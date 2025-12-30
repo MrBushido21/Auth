@@ -34,6 +34,7 @@ import { errorHandler } from "./cfg/logs/handlerExpress.js";
 import { log, logError } from "./cfg/logs/logger.js";
 import { logsCfg } from "./cfg/logs/appLogs.js";
 import { createTablePromocodes } from "./db/promocodes/db.createTable.js";
+import { createTablesOrders } from "./db/order/db.createTable.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -48,6 +49,7 @@ process.on("uncaughtException", (err: any) => {
 const run = async () => {
 await createTableUsers()
 await createTables()
+await createTablesOrders()
 await createTableRewies()
 await createTableWishlist()
 await CreatePaymentTable()

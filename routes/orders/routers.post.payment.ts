@@ -4,29 +4,39 @@ import { servicesCreateOrder } from "../../services/orders/services.createOrder.
 import { checkAuth } from "../../middleware/middleware.auth.js";
 import { chekOrderStatus, chekUser, generateCode } from "../../utils/utils.js";
 import Cart from "../../services/cart/services.cartAdd.js";
-import { verifyBankSign } from "../../middleware/middleware.verifyBankSign.js";
+// import { verifyBankSign } from "../../middleware/middleware.verifyBankSign.js";
 import { orderRepository } from "../../db/order/orderRepository.js";
+import { servicesPromocodes } from "../../services/promocodes/services.promocodes.js";
+import { verifyMonoSignMiddleware } from "../../middleware/middleware.verifyBankSign.js";
 const router = Router();
 
 
 router.post("/api/payment", checkAuth, async (req, res) => {
- const { full_name, phone_number, call, department, city, email, comment } = req.body
+ const { full_name, phone_number, call, department, city, email, comment, promocode } = req.body
     const user_id = chekUser(req)  
     const localCart = req.body.localCart
    
     try {
         if (user_id) {
             const cart = new Cart(localCart)
-            const total_price = await cart.getTotalCartPrice()
+            let total_price = await cart.getTotalCartPrice()
             
             if (total_price === 0) {
                 return res.status(400).json({error: "Please add somthig item to your cart"})
             }
+
+             //Проверка на промокод
+                if (promocode) {
+                    const promocodeData = await servicesPromocodes.findPromocodeByCode(promocode)
+                   if (promocodeData && promocodeData.is_active === "true") {       
+                    total_price = total_price - (total_price * (promocodeData.discount_percent / 100))      
+                  }
+                }
             
             const amount = total_price * 100
-            let order_id = generateCode()
+            let order_id = generateCode().toString()
             await servicesCreateOrder.createOrder({order_id, invoiceId: "", user_id, full_name, phone_number, city, department, 
-              email, comment, call, localCart})
+              email, comment, call, localCart, promocode})
             const {invoiceId, pageUrl} = await ServicesPayment.pay({amount, order_id})
             await servicesCreateOrder.updateInvoiceId({order_id, invoiceId})
             await servicesCreateOrder.createOrderItem({user_id, localCart})
@@ -39,11 +49,10 @@ router.post("/api/payment", checkAuth, async (req, res) => {
 });
 
 
-const secret = process.env.PAYMENT_SECRET_KEY as string
-
-router.post("/payment/callback", verifyBankSign, async (req:any, res:any) => {
-  
+router.post("/payment/callback", verifyMonoSignMiddleware, async (req:any, res:any) => { //verifyBankSign,
   const {invoiceId, status, payMethod, amount, ccy, finalAmount, modifiedDate, paymentInfo} = req.body
+  
+  
   const force = false
   if (status === "success") {
    try {

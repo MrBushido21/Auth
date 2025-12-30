@@ -363,7 +363,7 @@
                 if (res.ok) {
                     console.log(pageUrl);
                     
-                    // window.location.href = pageUrl;
+                    window.location.href = pageUrl;
                 } else if (result.errors) {
                     // ❌ Сервер вернул ошибки
                     const messages = result.errors.map(e => e.message).join('\n');
@@ -396,7 +396,7 @@
                     window.location.href = "/getproducts"; // Можно сразу редирект после успешного заказа
                 } else if (result.errors) {
                     // ❌ Сервер вернул ошибки
-                    const messages = result.errors.map(e => e.message).join('\n');
+                    const messages = result.errors.map(e => e.message | e.error).join('\n');
                     alert(messages);
                 } else {
                     alert('Сталася помилка. Спробуйте ще раз.');
