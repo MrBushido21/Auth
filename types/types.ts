@@ -88,6 +88,7 @@ export type OrderType = {
     total_price: number
     status: string
     created_at: string
+    returning_time: string
 }
 
 export type OrderItemsType = {
@@ -122,4 +123,13 @@ export type PromocodeType = {
     code: string
     discount_percent: number
     is_active: string
+}
+
+export type UserOrderInfoType = {
+    full_name?:string | undefined, 
+    phone_number?:string | undefined, 
+    city?:string | undefined, 
+    department?:string | undefined,
+    email?:string | undefined, 
+    comment?:string | undefined
 }

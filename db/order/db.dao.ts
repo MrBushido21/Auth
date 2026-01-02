@@ -1,5 +1,5 @@
 import User from "../../services/user/servicesClassUser.js"
-import type { CartItem, OrderItemsType, OrderType } from "../../types/types.js"
+import type { CartItem, OrderItemsType, OrderType, UserOrderInfoType } from "../../types/types.js"
 import { sendlerEmailCode } from "../../utils/utils.js"
 import { sqlAll, sqlGet, sqlRun } from "../db.constructor.js"
 
@@ -27,17 +27,23 @@ export const createOrderItem = async (order_id:string, cartItems: CartItem[]) =>
 }
 
 //Get one
-export const getOrederId = async (user_id:number):Promise<OrderType> => {
+export const getOrderId = async (user_id:number):Promise<OrderType> => {
     const order_id = await sqlGet(`
         SELECT order_id FROM orders WHERE user_id = ?
         ORDER BY created_at DESC
         `, [user_id])
     return order_id
 }
-export const getOreder = async (order_id:string):Promise<OrderType> => {
+export const getOrder = async (order_id:string):Promise<OrderType> => {
     const order:OrderType = await sqlGet(`
         SELECT * FROM orders WHERE order_id = ?
         `, [order_id])
+    return order
+}
+export const getUserOrder = async (order_id:string, user_id:number):Promise<OrderType> => {
+    const order:OrderType = await sqlGet(`
+        SELECT * FROM orders WHERE order_id = ? AND user_id = ?
+        `, [order_id, user_id])
     return order
 }
 
@@ -80,18 +86,34 @@ await sqlRun("BEGIN IMMEDIATE TRANSACTION");
 
 }
 
+export const updateUserOrderInfo = async (order_id:string, userInfo:UserOrderInfoType) => {
+    let parametrs:any = []
+    let queryParms:any = []
+
+    for (const [key, value] of Object.entries(userInfo)) {
+        if (value) {
+            parametrs.push(value)
+            queryParms.push(`${key} = ?`)
+        }
+    }
+
+    
+    
+    await sqlRun(`
+        UPDATE orders 
+        SET ${queryParms.join(", ")}
+        WHERE order_id = ?
+        `, [...parametrs, order_id])
+}
 //Get All
 
 export const getOrders = async ():Promise<OrderType[]> => {
     const orders:OrderType[] = await sqlAll(`SELECT * FROM orders`)
     return orders
 }
-export const getOrderItems = async ():Promise<OrderItemsType[]> => {
-    const order_items:OrderItemsType[] = await sqlAll(`SELECT * FROM order_items`)
-    return order_items
-}
 
-export const getOrederItems = async (order_id:string):Promise<OrderItemsType[]> => {
+
+export const getOrderItems = async (order_id:string):Promise<OrderItemsType[]> => {
     const order_items:OrderItemsType[] = await sqlAll(`
         SELECT * FROM order_items WHERE order_id = ?
         `, [order_id])
@@ -99,7 +121,7 @@ export const getOrederItems = async (order_id:string):Promise<OrderItemsType[]> 
     return order_items
 }
 
-export const getUserOreders = async (user_id:number):Promise<OrderType[]> => {
+export const getUserOrders = async (user_id:number):Promise<OrderType[]> => {
     const orders:OrderType[] = await sqlAll(`
         SELECT * FROM orders WHERE user_id = ?
         `, [user_id])
@@ -108,13 +130,23 @@ export const getUserOreders = async (user_id:number):Promise<OrderType[]> => {
 
 //Delete
 export const deleteOrder = async (order_id: string):Promise<number> => {
-  const result:any = await sqlRun(`
-    DELETE FROM orders
+  const rows = await sqlGet(`
+    SELECT order_id
+    FROM orders
     WHERE order_id = ?
       AND returning_time > ?
   `, [order_id, Date.now()]);
 
-  return result.changes; // <- количество удалённых строк
+  if (!rows) {
+    return 0;
+  }
+
+  await sqlRun(`
+    DELETE FROM orders
+    WHERE order_id = ?
+  `, [order_id]);
+
+  return 1;
 }
 export const deleteOrderItems = async (order_id: string) => {
     await sqlRun(`

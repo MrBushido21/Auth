@@ -8,8 +8,12 @@ router.delete('/delete-order', async (req, res) => {
     if (!order_id) {
         return res.status(400).json({message: 'Неверные данные'})
     }
-    await servicesCreateOrder.deleteOrder({order_id})
-    return res.status(200).json({message: 'Заказ был отменен успешно'})
+    try {
+        await servicesCreateOrder.deleteOrder({order_id})
+        return res.status(200).json({message: 'Заказ был отменен успешно'})
+    } catch (error:any) {
+        return res.status(400).json({message: error.message || "Iternal serverr error"})
+    }
 })
 
 export default router

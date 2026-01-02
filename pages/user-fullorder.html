@@ -51,6 +51,36 @@
     <div id="orderContainer">Загрузка...</div>
 
     <script>
+      function renderField(label, name, value, editable) {
+  if (!value && !editable) return '';
+
+  return `
+  <div class="row">
+    <span class="label">${label}:</span>
+    <span>
+      ${editable
+        ? `<input type="text" name="${name}" value="${value ?? ''}" data-original="${value ?? ''}" />`
+        : value ?? '-'
+      }
+    </span>
+  </div>`;
+}
+
+function renderTextarea(label, name, value, editable) {
+  if (!value && !editable) return '';
+
+  return `
+  <div class="row">
+    <span class="label">${label}:</span>
+    <span>
+      ${editable
+        ? `<textarea name="${name}" data-original="${value ?? ''}">${value ?? ''}</textarea>`
+        : value ?? '-'
+      }
+    </span>
+  </div>`;
+}
+
 async function loadOrder() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
@@ -106,6 +136,37 @@ async function loadOrder() {
            </button>
          </div>`
       : '';
+         const editable = canCancel; // та же логика что и для отмены
+
+const deliveryInfoHtml = `
+<div class="card">
+  <h2>Информация о доставке</h2>
+
+  ${renderField("Имя", "full_name", order.full_name, editable)}
+  ${renderField("Телефон", "phone_number", order.phone_number, editable)}
+  ${renderField("Город", "city", order.city, editable)}
+  ${renderField("Отделение", "department", order.department, editable)}
+  ${renderField("Email", "email", order.email, editable)}
+  ${renderTextarea("Комментарий", "comment", order.comment, editable)}
+
+  ${editable ? `
+    <button id="saveUserInfoBtn" disabled style="
+      margin-top:15px;
+      background:#2ecc71;
+      color:#fff;
+      border:none;
+      padding:12px;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:16px;
+      width:100%;
+      opacity:0.6;
+    ">
+      Сохранить изменения
+    </button>
+  ` : ""}
+</div>
+`;
 
     document.getElementById("orderContainer").innerHTML = `
       <div class="card">
@@ -117,15 +178,7 @@ async function loadOrder() {
         <div class="row"><span class="label">Общая цена:</span> <span>${order.total_price} грн</span></div>
       </div>
 
-      <div class="card">
-        <h2>Информация о доставке</h2>
-        <div class="row"><span class="label">Имя:</span> <span>${order.full_name}</span></div>
-        <div class="row"><span class="label">Город:</span> <span>${order.city}</span></div>
-        <div class="row"><span class="label">Отделение:</span> <span>${order.department}</span></div>
-        ${order.phone_number ? `<div class="row"><span class="label">Телефон:</span> <span>${order.phone_number}</span></div>` : ''}
-        ${order.email ? `<div class="row"><span class="label">Email:</span> <span>${order.email}</span></div>` : ''}
-        ${order.comment ? `<div class="row"><span class="label">Комментарий:</span> <span>${order.comment}</span></div>` : ''}
-      </div>
+      ${deliveryInfoHtml}
 
       <div class="card">
       <h2>Товары в заказе</h2>
@@ -144,6 +197,61 @@ async function loadOrder() {
 
       ${cancelButtonHtml}
     `;
+   if (canCancel) {
+  const inputs = document.querySelectorAll('input[name], textarea[name]');
+  const saveBtn = document.getElementById("saveUserInfoBtn");
+
+  function checkChanges() {
+    let changed = false;
+
+    inputs.forEach(input => {
+      if (input.value !== input.dataset.original) {
+        changed = true;
+      }
+    });
+
+    saveBtn.disabled = !changed;
+    saveBtn.style.opacity = changed ? "1" : "0.6";
+  }
+
+  inputs.forEach(i => i.addEventListener("input", checkChanges));
+
+  saveBtn.addEventListener("click", async () => {
+    const userInfo = {};
+
+    inputs.forEach(el => {
+      if (el.value !== el.dataset.original) {
+        userInfo[el.name] = el.value;
+      }
+    });
+
+    try {
+      const res = await fetch("/order/update/user-info", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: order.order_id,
+          userInfo
+        })
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert(result.message || "Ошибка обновления данных");
+        return;
+      }
+
+      alert("Данные успешно обновлены");
+      location.reload();
+
+    } catch (e) {
+      console.error(e);
+      alert("Ошибка соединения с сервером");
+    }
+  });
+}
+
 
     if (canCancel) {
   document.getElementById("cancelOrderBtn").addEventListener("click", async () => {

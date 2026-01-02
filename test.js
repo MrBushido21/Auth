@@ -1,24 +1,19 @@
-import { v2 as cloudinary } from "cloudinary";
-import "dotenv/config"; // если используешь .env
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+let userInfo = {full_name: "Oleg", phone_number: "", city: "Kiev", department: "", email: "", comment: ""}
+let parametrs = []
+let querySet = ['SET ']
 
-async function uploadTest() {
-  try {
-    const result = await cloudinary.uploader.upload("./photo.jpg", {
-      folder: "images",
-    });
-
-    console.log("✅ Загрузка успешна");
-    console.log("URL:", result.secure_url);
-    console.log("public_id:", result.public_id);
-  } catch (err) {
-    console.error("❌ Ошибка загрузки", err);
+for (const [key, value] of Object.entries(userInfo)) {
+  if (value) {
+    parametrs.push(key)
+    querySet.push(`${key} = ?`)
   }
-}
+} 
 
-uploadTest();
+let sqlRun = `(
+        UPDATE orders 
+        ${querySet.join(", ")}
+        WHERE order_id = ?
+), ${parametrs}`
+console.log(sqlRun);
+

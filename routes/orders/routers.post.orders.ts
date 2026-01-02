@@ -9,6 +9,7 @@ import { validation } from "../../middleware/middleware.validation.js";
 import { orderSchema } from "../../shemas/validation.js";
 import { chekQueryId, chekUser, generateCode } from "../../utils/utils.js";
 import type { CreateOrderType } from "../../types/requests.js";
+import { updateUserOrderInfo } from "../../db/order/db.dao.js";
 
 const router = Router();
 
@@ -40,6 +41,20 @@ const router = Router();
     } catch (error:any) {
         return res.status(error.status || 500).json({error: error.message})  
     }
+})
+router.put('/order/update/user-info', checkAuth, async (req, res) => {
+    const user_id = chekUser(req)
+   if (user_id) {
+        try {
+            await  servicesCreateOrder.updateUserOrderInfo(req.body.order_id, user_id, req.body.userInfo)
+            return res.status(200).json({message: "Данні оновлено"})
+        } catch (error:any) {
+            console.error(error)
+            return res.status(404).json({message: error.message || "Iternal server error"})
+        }
+   } else {
+    return res.status(500).json({message: "Iternal server error"})
+   }
 })
 router.patch('/order/update-status', checkAuth, async (req: Request<{}, {}, {status:string}>, res: Response) => { // limiter
     const order_status = req.body.status
