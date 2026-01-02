@@ -94,13 +94,11 @@ export const servicesCreateOrder = {
       }
     },
 //Удаление ордера
-    async deleteOrder({ order_id }: { order_id: string }) {
+    async deleteOrder({ order_id, user_id}: { order_id: string, user_id:number }) {
     try {
-      const order = await orderRepository.getOrder(order_id)
-        if (Number(order.returning_time) < Date.now()) {
-          throw new Error("Час на видалення сплинув :(")
-        }
-        if (!order || Number(order.returning_time) < Date.now()) {
+      const order = await orderRepository.getUserOrder(order_id, user_id)
+        
+        if (!order) {
           throw new Error("Не знайденно такого замовлення або користувача")
         }
     const deletedRows = await orderRepository.deleteOrder(order_id);

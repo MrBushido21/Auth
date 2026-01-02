@@ -2,6 +2,9 @@ import { Router, type Request, type Response } from "express";
 import { getAllProducts } from "../db/products/db.dao.js";
 
 const router = Router()
+router.get("/", (req: Request, res: Response) => {
+    res.sendFile("products.html", { root: "./pages" });
+});
 router.get("/login", (req: Request, res: Response) => {
     res.sendFile("login.html", { root: "./pages" });
 });

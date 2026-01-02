@@ -41,16 +41,90 @@
         .label {
             font-weight: bold;
         }
+        .np-list {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  background: white;
+  position: relative;
+  z-index: 10;
+}
+.np-list div {
+  padding: 8px;
+  cursor: pointer;
+}
+.np-list div:hover {
+  background: #f2f2f2;
+}
     </style>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-09KKBSN12N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-09KKBSN12N');
+</script>
 <body>
 
     <h1>Информация о заказе</h1>
 
     <div id="orderContainer">Загрузка...</div>
-
     <script>
+      const token = localStorage.getItem("accessToken");
+      function renderCityNp(order, editable) {
+  if (!editable && !order.city) return "";
+
+  return `
+  <div class="row">
+    <span class="label">Город:</span>
+    <span>
+      ${editable ? `
+        <input
+          type="text"
+          id="cityInput"
+          name="city"
+          value="${order.city ?? ""}"
+          data-original="${order.city ?? ""}"
+          placeholder="Начните вводить город..."
+          autocomplete="off"
+        />
+        <input type="hidden" id="cityRef" />
+        <div id="cityList" class="np-list"></div>
+      ` : (order.city ?? "-")}
+    </span>
+  </div>`;
+}
+
+function renderWarehouseNp(order, editable) {
+  if (!editable && !order.department) return "";
+
+  return `
+  <div class="row">
+    <span class="label">Отделение:</span>
+    <span>
+      ${editable ? `
+        <input
+          type="text"
+          id="warehouseInput"
+          name="department"
+          value="${order.department ?? ""}"
+          data-original="${order.department ?? ""}"
+          placeholder="Выберите отделение..."
+          autocomplete="off"
+          disabled
+        />
+        <input type="hidden" id="warehouseRef" />
+        <div id="warehouseList" class="np-list"></div>
+      ` : (order.department ?? "-")}
+    </span>
+  </div>`;
+}
+
       function renderField(label, name, value, editable) {
   if (!value && !editable) return '';
 
@@ -144,8 +218,8 @@ const deliveryInfoHtml = `
 
   ${renderField("Имя", "full_name", order.full_name, editable)}
   ${renderField("Телефон", "phone_number", order.phone_number, editable)}
-  ${renderField("Город", "city", order.city, editable)}
-  ${renderField("Отделение", "department", order.department, editable)}
+  ${renderCityNp(order, editable)}
+  ${renderWarehouseNp(order, editable)}
   ${renderField("Email", "email", order.email, editable)}
   ${renderTextarea("Комментарий", "comment", order.comment, editable)}
 
@@ -228,7 +302,10 @@ const deliveryInfoHtml = `
     try {
       const res = await fetch("/order/update/user-info", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+                    "Content-Type": "application/json",
+                    "authorization": `Bearer ${token}`
+                },
         body: JSON.stringify({
           order_id: order.order_id,
           userInfo
@@ -261,8 +338,9 @@ const deliveryInfoHtml = `
       const res = await fetch("/delete-order", {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json"
-        },
+                    "Content-Type": "application/json",
+                    "authorization": `Bearer ${token}`
+                },
         body: JSON.stringify({
           order_id: order.order_id
         })
@@ -284,6 +362,94 @@ const deliveryInfoHtml = `
   });
 }
 
+  if (editable) {
+  const cityInput = document.getElementById("cityInput");
+  const cityList = document.getElementById("cityList");
+  const cityRefInput = document.getElementById("cityRef");
+
+  const warehouseInput = document.getElementById("warehouseInput");
+  const warehouseList = document.getElementById("warehouseList");
+  const warehouseRefInput = document.getElementById("warehouseRef");
+
+  let cityTimeout = null;
+  let warehouseTimeout = null;
+
+  cityInput.addEventListener("input", () => {
+    const value = cityInput.value.trim();
+    cityRefInput.value = "";
+    cityList.innerHTML = "";
+    cityList.style.display = "none";
+
+    warehouseInput.disabled = true;
+    warehouseInput.value = "";
+    warehouseRefInput.value = "";
+
+    if (value.length < 2) return;
+
+    clearTimeout(cityTimeout);
+    cityTimeout = setTimeout(async () => {
+      const res = await fetch(`/np/cities?search=${encodeURIComponent(value)}`);
+      const cities = await res.json();
+      if (!cities.length) return;
+
+      cityList.style.display = "block";
+
+      cities.forEach(city => {
+        const div = document.createElement("div");
+        div.textContent = `${city.Description} (${city.AreaDescription})`;
+
+        div.onclick = () => {
+          cityInput.value = city.Description;
+          cityRefInput.value = city.Ref;
+          cityList.style.display = "none";
+          warehouseInput.disabled = false;
+        };
+
+        cityList.appendChild(div);
+      });
+    }, 400);
+  });
+
+  warehouseInput.addEventListener("input", () => {
+    const search = warehouseInput.value.trim();
+    const cityRef = cityRefInput.value;
+
+    warehouseRefInput.value = "";
+    warehouseList.innerHTML = "";
+    warehouseList.style.display = "none";
+
+    if (!cityRef || search.length < 1) return;
+
+    clearTimeout(warehouseTimeout);
+    warehouseTimeout = setTimeout(async () => {
+      const res = await fetch(
+        `/np/warehouses?cityRef=${cityRef}&search=${encodeURIComponent(search)}`
+      );
+      const warehouses = await res.json();
+      if (!warehouses.length) return;
+
+      warehouseList.style.display = "block";
+
+      warehouses.forEach(w => {
+        const div = document.createElement("div");
+        div.textContent = w.Description;
+
+        div.onclick = () => {
+          warehouseInput.value = w.Description;
+          warehouseRefInput.value = w.Ref;
+          warehouseList.style.display = "none";
+        };
+
+        warehouseList.appendChild(div);
+      });
+    }, 300);
+  });
+
+  document.addEventListener("click", e => {
+    if (!cityInput.contains(e.target)) cityList.style.display = "none";
+    if (!warehouseInput.contains(e.target)) warehouseList.style.display = "none";
+  });
+}
 
   } catch (err) {
     document.getElementById("orderContainer").innerHTML = "<p>Ошибка загрузки данных заказа.</p>";

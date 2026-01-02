@@ -79,22 +79,45 @@
   }
 </style>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-09KKBSN12N"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-09KKBSN12N');
+</script>
 <body>
 
 <div class="container">
   <div class="image-box" id="productImage"></div>
-
   <div class="info">
-    <div class="title" id="title">Загрузка...</div>
+  <div class="title" id="title">Загрузка...</div>
 
-    <div id="availability"></div>
+  <div id="availability"></div>
 
-    <a href="/otzyvy" style="text-decoration: none; color: inherit;" class="rating stars" id="ratingBlock"></a>
+  <a href="/otzyvy" style="text-decoration: none; color: inherit;" class="rating stars" id="ratingBlock"></a>
 
-    <div class="code" id="productCode"></div>
+  <div class="code" id="productCode"></div>
 
-    <div class="price" id="price"></div>
-  </div>
+  <div class="price" id="price"></div>
+
+  <!-- Кнопка добавить в корзину -->
+  <button id="addToCartBtn" style="
+    margin-top: 15px;
+    padding: 12px;
+    background: #2c7be5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+  ">
+    Добавить в корзину
+  </button>
+</div>
+
 </div>
 
 
@@ -107,6 +130,31 @@ function getStars(rating) {
   return stars;
 }
 
+// Добавление в корзину
+function addToCart(productId, quantity) {
+  quantity = Number(quantity) || 0;
+  if (quantity <= 0) {
+    alert("Товара нет в наличии!");
+    return;
+  }
+
+  let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const existing = cart.find(item => item.productId === productId);
+
+  if (existing) {
+    if (existing.qty + 1 > existing.products_qty) {
+      alert("Столько товара нет в наличии!");
+      return;
+    }
+    existing.qty += 1;
+  } else {
+    cart.push({ productId, qty: 1, products_qty: quantity });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  alert("Товар добавлен в корзину!");
+}
+
 async function loadProduct() {
   try {
     const params = new URLSearchParams(location.search);
@@ -115,31 +163,22 @@ async function loadProduct() {
     if (!res.ok) throw new Error();
     return await res.json();
   } catch (e) {
-    // demo объект
-    return {
-      id: 12345,
-      title: "Ноутбук Asus VivoBook 15",
-      description: "Описание",
-      price: 25499,
-      image_url: "", // проверка заглушки
-      category_id: 1,
-      quantity: 0,
-      rating: 4.2,
-      qntrewies: 17
-    };
+    return null; // если товара нет
   }
 }
 
 (async () => {
   const p = await loadProduct();
 
+  if (!p) {
+    document.querySelector(".container").innerHTML = '<h2 style="color:red;">Товар отсутствует</h2>';
+    return;
+  }
+
   // фото
   const imgBox = document.getElementById("productImage");
-  if (p.image_url) {
-    imgBox.innerHTML = `<img src="${p.image_url}" alt="Фото">`;
-  } else {
-    imgBox.textContent = "Фото нет";
-  }
+  if (p.image_url) imgBox.innerHTML = `<img src="${p.image_url}" alt="Фото">`;
+  else imgBox.textContent = "Фото нет";
 
   // название
   document.getElementById("title").textContent = p.title;
@@ -154,17 +193,32 @@ async function loadProduct() {
     avail.textContent = "Нет в наличии";
   }
 
-  // рейтинг и отзывы
+  // рейтинг
   const ratingBlock = document.getElementById("ratingBlock");
-  ratingBlock.innerHTML =
-    `<a href="/otzyvy?id=${p.id}" style="text-decoration: none; color: inherit;" class="rating stars" id="ratingBlock">${getStars(p.rating)} ${p.rating.toFixed(1)} • ${p.qntrewies} отзывов</a>`
+  ratingBlock.href = `/otzyvy?id=${p.id}`;
+  ratingBlock.innerHTML = `${getStars(p.rating)} ${p.rating.toFixed(1)} • ${p.qntrewies} отзывов`;
+
   // код товара
   document.getElementById("productCode").textContent = "Код товара: " + p.id;
 
   // цена
   document.getElementById("price").textContent = p.price.toLocaleString("ru-RU") + " ₴";
+
+  // кнопка корзины
+  const btn = document.getElementById("addToCartBtn");
+  btn.onclick = () => addToCart(p.id, p.quantity);
+
+  // если товара нет, сделать кнопку неактивной
+  if (p.quantity <= 0) {
+    btn.disabled = true;
+    btn.textContent = "Нет в наличии";
+    btn.style.background = "#999";
+    btn.style.cursor = "not-allowed";
+  }
 })();
+
 </script>
+
 
 </body>
 </html>

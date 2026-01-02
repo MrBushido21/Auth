@@ -3,7 +3,7 @@ export const createTables = async ():Promise<void> => {
    // await sqlRun(`DROP TABLE orders`)
    // await sqlRun(`DROP TABLE order_items`)
    // await sqlRun(`DROP TABLE payments`)
-   // await sqlRun(`DROP TABLE users`)
+//    await sqlRun(`DROP TABLE wishlist`)
     await sqlRun(`
         CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
